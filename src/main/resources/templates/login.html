@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+
+    <title>Title</title>
+
+    <style>
+        .material-icons {
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            margin: 100px;
+            display: block;
+            float: left;
+            font-family: Metropolis-asset, sans-serif;
+            font-size: 24px;
+            animation: 2s words-in;
+        }
+        .inputbox {
+            padding: 10px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 20px;
+            border-style: none;
+            border-left-style: solid;
+            border-width: 5px;
+            border-color: #18ffff;
+            animation-name: fadeIn;
+            animation-duration: 1.5s;
+            width: 270px;
+        }
+        .inputbox:focus {
+            outline: 0;
+        }
+
+        h1 {
+            font-family: 'Metropolis', sans-serif;
+        }
+
+        #login {
+            padding: 10px;
+            border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 18px;
+            border-style: solid;
+            border-color: #FFFFFF;
+            border-width: 2px;
+            animation: 1.5s fadeIn, 1s button-unhover;
+            color: #FFFFFF;
+            background-color: #424242;
+            position: absolute;
+            width: 270px;
+            cursor: pointer;
+            box-shadow: 1px 1px 5px 0 #424242;
+            transition: box-shadow 0.5s;
+            box-sizing: content-box;
+        }
+        #login:hover {
+            box-shadow: 1px 1px 15px 0 #424242;
+            transition: box-shadow 0.5s;
+        }
+        .boxes {
+            box-shadow: 1px 1px 7px 0 #424242;
+            border-radius: 7px;
+            transition: box-shadow 0.5s;
+        }
+        .boxes:hover {
+            box-shadow: 1px 1px 20px 0 #424242;
+            transition: box-shadow 0.5s;
+        }
+        #usernameBox {
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        #passwordBox {
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        #login:focus {
+            outline: 0;
+        }
+        body {
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+        @keyframes words-in {
+            0% {
+                transform: translateY(40px);
+                opacity: 0
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <form method="POST">
+        <h1>login <i class="material-icons">sync</i></h1>
+        <div class="boxes">
+            <input type="text" id="usernameBox" name="username" placeholder="username" required class="inputbox">
+            <br/>
+            <input type="password" id="passwordBox" name="password" placeholder="password" required class="inputbox">
+        </div>
+        <br/>
+        <br/>
+        <input type="submit" id="login" value="login">
+    </form>
+</div>
+
+</body>
+</html>

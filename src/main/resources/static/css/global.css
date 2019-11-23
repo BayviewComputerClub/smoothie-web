@@ -1,0 +1,32 @@
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(https://fonts.gstatic.com/s/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
+}
+
+@font-face {
+    font-family: Metropolis;
+    src: url(/fonts/Metropolis-Regular.woff2);
+}
+
+@font-face {
+    font-family: Metropolis-Bold;
+    src: url(/fonts/Metropolis-Bold.woff2);
+}
+
+@font-face {
+    font-family: Montserrat;
+    src: url(/fonts/Montserrat.woff2);
+}
+
+@font-face {
+    font-family: Nunito;
+    src: url(/fonts/Nunito.woff2);
+}
+
+.container {
+    margin: 100px;
+    font-family: Metropolis, sans-serif;
+    font-size: 18px;
+}
