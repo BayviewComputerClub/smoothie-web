@@ -1,7 +1,7 @@
-package club.bayview.services;
+package club.bayview.smoothieweb.services;
 
-import club.bayview.models.Problem;
-import club.bayview.models.ProblemRepository;
+import club.bayview.smoothieweb.models.Problem;
+import club.bayview.smoothieweb.models.ProblemRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ public class SmoothieProblemService {
     @Autowired
     private ProblemRepository problemRepository;
 
-    public Mono<Problem> findProblemById(ObjectId id) {
+    public Mono<Problem> findProblemById(String id) {
         return problemRepository.findById(id);
     }
 

@@ -1,12 +1,13 @@
-package club.bayview.models;
+package club.bayview.smoothieweb.models;
+
 
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface RoleRepository extends ReactiveCrudRepository<Role, String> {
+public interface ProblemRepository extends ReactiveCrudRepository<Problem, String> {
 
-    Mono<Role> findByName(String name);
+    Mono<Problem> findByName(String name);
 
 }

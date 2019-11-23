@@ -1,7 +1,7 @@
-package club.bayview.services;
+package club.bayview.smoothieweb.services;
 
-import club.bayview.models.Submission;
-import club.bayview.models.SubmissionRepository;
+import club.bayview.smoothieweb.models.Submission;
+import club.bayview.smoothieweb.models.SubmissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;

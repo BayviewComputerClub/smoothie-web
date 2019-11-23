@@ -1,4 +1,4 @@
-package club.bayview.models;
+package club.bayview.smoothieweb.models;
 
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;

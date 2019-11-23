@@ -1,4 +1,4 @@
-package club.bayview;
+package club.bayview.smoothieweb;
 
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;

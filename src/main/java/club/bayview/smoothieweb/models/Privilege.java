@@ -1,19 +1,17 @@
-package club.bayview.models;
+package club.bayview.smoothieweb.models;
 
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Collection;
-
 /**
- * Represents a role that can be applied to a user for permissions.
+ * Represents a privilege attribute (permission) that is given to a role.
  */
 
 @Document
-public class Role {
+public class Privilege {
+
+    public static final Privilege ADD_PROBLEM_PRIVILEGE = new Privilege("ADD_PROBLEM_PRIVILEGE");
 
     @Id
     private String id;
@@ -21,15 +19,9 @@ public class Role {
     @Indexed(unique = true)
     private String name;
 
-    @DBRef
-    private Collection<User> users;
-
-    @DBRef
-    private Collection<Privilege> privileges;
-
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public Role(String name) {
+    public Privilege(String name) {
         super();
         this.name = name;
     }
@@ -46,22 +38,6 @@ public class Role {
         this.name = name;
     }
 
-    public Collection<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Collection<User> users) {
-        this.users = users;
-    }
-
-    public Collection<Privilege> getPrivileges() {
-        return privileges;
-    }
-
-    public void setPrivileges(Collection<Privilege> privileges) {
-        this.privileges = privileges;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -75,7 +51,11 @@ public class Role {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        final Role role = (Role) obj;
-        return name.equals(role.name);
+
+        Privilege other = (Privilege) obj;
+        if (name == null && other.name != null) return false;
+        return name == null || name.equals(other.name);
     }
+
+
 }

@@ -1,4 +1,4 @@
-package club.bayview.models;
+package club.bayview.smoothieweb.models;
 
 public enum JudgeLanguage {
 

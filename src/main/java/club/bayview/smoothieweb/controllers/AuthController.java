@@ -1,7 +1,7 @@
-package club.bayview.controllers;
+package club.bayview.smoothieweb.controllers;
 
-import club.bayview.models.User;
-import club.bayview.services.SmoothieUserDetailsService;
+import club.bayview.smoothieweb.models.User;
+import club.bayview.smoothieweb.services.SmoothieUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,7 +9,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.thymeleaf.spring5.context.webflux.IReactiveDataDriverContextVariable;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;

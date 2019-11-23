@@ -1,9 +1,9 @@
-package club.bayview.controllers;
+package club.bayview.smoothieweb.controllers;
 
-import club.bayview.models.Problem;
-import club.bayview.models.Submission;
-import club.bayview.services.SmoothieProblemService;
-import club.bayview.services.SmoothieSubmissionService;
+import club.bayview.smoothieweb.models.Problem;
+import club.bayview.smoothieweb.models.Submission;
+import club.bayview.smoothieweb.services.SmoothieProblemService;
+import club.bayview.smoothieweb.services.SmoothieSubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

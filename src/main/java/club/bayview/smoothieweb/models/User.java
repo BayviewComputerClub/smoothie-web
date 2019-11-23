@@ -1,19 +1,23 @@
-package club.bayview.models;
+package club.bayview.smoothieweb.models;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents a user on the site.
  */
 
 @Document
-public class User {
+public class User implements UserDetails {
 
     @Id
     private String id;
@@ -47,6 +51,35 @@ public class User {
         this.email = email;
         this.password = password; // encoded to argon2 in smoothieuserdetailsservice
     }
+
+    // ~~~~~
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream().map(authority -> new SimpleGrantedAuthority(authority.getName())).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getUsername() {
+        return getHandle();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    // ~~~~~
 
     public String getId() {
         return id;

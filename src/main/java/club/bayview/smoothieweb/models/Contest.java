@@ -1,4 +1,4 @@
-package club.bayview.models;
+package club.bayview.smoothieweb.models;
 
 /**
  * Represents a site-wide programming contest.

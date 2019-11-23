@@ -1,16 +1,22 @@
-package club.bayview.models;
+package club.bayview.smoothieweb.models;
 
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Collection;
+
 /**
- * Represents a privilege attribute (permission) that is given to a role.
+ * Represents a role that can be applied to a user for permissions.
  */
 
 @Document
-public class Privilege {
+public class Role {
+
+    public static final Role DEFAULT_ROLE = new Role("DEFAULT_ROLE"),
+            ADMIN_ROLE = new Role("ADMIN_ROLE"),
+            EDITOR_ROLE = new Role("EDITOR_ROLE");
 
     @Id
     private String id;
@@ -18,9 +24,15 @@ public class Privilege {
     @Indexed(unique = true)
     private String name;
 
+    @DBRef
+    private Collection<User> users;
+
+    @DBRef
+    private Collection<Privilege> privileges;
+
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public Privilege(String name) {
+    public Role(String name) {
         super();
         this.name = name;
     }
@@ -37,6 +49,22 @@ public class Privilege {
         this.name = name;
     }
 
+    public Collection<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Collection<User> users) {
+        this.users = users;
+    }
+
+    public Collection<Privilege> getPrivileges() {
+        return privileges;
+    }
+
+    public void setPrivileges(Collection<Privilege> privileges) {
+        this.privileges = privileges;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -50,11 +78,7 @@ public class Privilege {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-
-        Privilege other = (Privilege) obj;
-        if (name == null && other.name != null) return false;
-        return name == null || name.equals(other.name);
+        final Role role = (Role) obj;
+        return name.equals(role.name);
     }
-
-
 }
