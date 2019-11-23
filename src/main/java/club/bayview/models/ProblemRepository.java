@@ -1,9 +1,14 @@
 package club.bayview.models;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ProblemRepository extends JpaRepository<Problem, Long> {
+import org.bson.types.ObjectId;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
-    @Override
-    void delete(Problem privilege);
+@Repository
+public interface ProblemRepository extends ReactiveCrudRepository<Problem, String> {
+
+    Mono<Problem> findByName(String name);
+
 }

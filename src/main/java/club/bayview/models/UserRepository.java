@@ -1,14 +1,15 @@
 package club.bayview.models;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+@Repository
+public interface UserRepository extends ReactiveCrudRepository<User, Long> {
 
-    User findByHandle(String handle);
+    Mono<User> findByHandle(String handle);
 
-    User findByEmail(String email);
+    Mono<User> findByEmail(String email);
 
-    @Override
-    void delete(User user);
 
 }

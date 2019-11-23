@@ -1,66 +1,55 @@
 package club.bayview.models;
 
-import javax.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * Represents a user on the site.
  */
 
-@Entity
+@Document
 public class User {
 
     @Id
-    @Column(unique = true, nullable = false)
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id;
-    @Column(unique = true, nullable = false)
+    private String id;
+    @Indexed(unique = true)
     private String handle;
 
-    @Column(unique = true)
+    @Indexed(unique = true)
     private String email;
     private boolean enabled; // enabled by email verification
 
-    @Column(length = 60)
     private String password; // argon2id
 
     // profile
     private String description;
     private double score;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "users_roles",
-            joinColumns = @JoinColumn(
-                    name = "user_id",
-                    referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(
-                    name = "role_id",
-                    referencedColumnName = "id"
-            )
-    )
-    private Collection<Role> roles;
+    @DBRef
+    private Set<Role> roles;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @DBRef
     private Collection<Submission> submissions;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @DBRef
     private Collection<Problem> solved;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public User(String handle) {
+    public User(String handle, String email, String password) {
         super();
         this.handle = handle;
-        this.enabled = false;
+        this.email = email;
+        this.password = password; // encoded to argon2 in smoothieuserdetailsservice
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getHandle() {
@@ -111,11 +100,11 @@ public class User {
         this.score = score;
     }
 
-    public Collection<Role> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Collection<Role> roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 

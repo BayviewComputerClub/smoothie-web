@@ -1,2 +1,2 @@
 # smoothie-web
-interface to tests smoothie-runner
+interface to test smoothie-runner

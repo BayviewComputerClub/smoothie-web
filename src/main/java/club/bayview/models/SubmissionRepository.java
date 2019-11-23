@@ -1,9 +1,9 @@
 package club.bayview.models;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.stereotype.Repository;
 
-public interface SubmissionRepository extends JpaRepository<Submission, Long> {
+@Repository
+public interface SubmissionRepository extends ReactiveCrudRepository<Submission, String> {
 
-    @Override
-    void delete(Submission privilege);
 }

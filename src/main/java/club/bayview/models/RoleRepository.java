@@ -1,12 +1,12 @@
 package club.bayview.models;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
-public interface RoleRepository extends JpaRepository<Role, Long> {
+@Repository
+public interface RoleRepository extends ReactiveCrudRepository<Role, String> {
 
-    Role findByName(String name);
-
-    @Override
-    void delete(Role role);
+    Mono<Role> findByName(String name);
 
 }

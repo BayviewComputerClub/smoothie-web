@@ -1,23 +1,22 @@
 package club.bayview.models;
 
-import javax.persistence.*;
-import java.util.Collection;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Represents a privilege attribute (permission) that is given to a role.
  */
 
-@Entity
+@Document
 public class Privilege {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private String id;
 
+    @Indexed(unique = true)
     private String name;
-
-    @ManyToMany(mappedBy = "privileges")
-    private Collection<Role> roles;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -26,12 +25,8 @@ public class Privilege {
         this.name = name;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -40,14 +35,6 @@ public class Privilege {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Collection<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Collection<Role> roles) {
-        this.roles = roles;
     }
 
     @Override

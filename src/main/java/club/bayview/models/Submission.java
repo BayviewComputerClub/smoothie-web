@@ -1,28 +1,75 @@
 package club.bayview.models;
 
-import javax.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Represents a submission made by a user for a problem.
  */
 
-@Entity
+@Document
 public class Submission {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private String id;
 
-    @Enumerated(EnumType.STRING)
     private JudgeLanguage lang;
 
-    @ManyToOne
+    @DBRef
     private User user;
 
-    @ManyToOne
+    @DBRef
     private Problem problem;
 
     private String code;
+    private Long timeSubmitted;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    public String getId() {
+        return id;
+    }
+
+    public JudgeLanguage getLang() {
+        return lang;
+    }
+
+    public void setLang(JudgeLanguage lang) {
+        this.lang = lang;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Problem getProblem() {
+        return problem;
+    }
+
+    public void setProblem(Problem problem) {
+        this.problem = problem;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public Long getTimeSubmitted() {
+        return timeSubmitted;
+    }
+
+    public void setTimeSubmitted(Long timeSubmitted) {
+        this.timeSubmitted = timeSubmitted;
+    }
+
+
 }

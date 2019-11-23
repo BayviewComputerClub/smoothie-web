@@ -1,19 +1,22 @@
 package club.bayview.models;
 
-import javax.persistence.*;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.Collection;
 
 /**
  * Represents a programming problem on the site.
  */
 
-@Entity
+@Document
 public class Problem {
 
     // problem requirements for each language (or just the ALL language to apply to all)
-    @Embeddable
     static class ProblemLimits {
-        @Enumerated(EnumType.STRING)
         private JudgeLanguage lang;
         private double timeLimit, memoryLimit; // time limit in seconds, memory limit in mb
 
@@ -36,7 +39,6 @@ public class Problem {
         }
     }
 
-    @Embeddable
     static class ProblemBatchCase {
         private int batchNum;
         private String input, expectedOutput;
@@ -61,17 +63,18 @@ public class Problem {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private String id;
+    @Indexed(unique = true)
+    private String name;
 
-    @ElementCollection
+    private String prettyName;
+
     private Collection<ProblemLimits> limits;
 
-    @ElementCollection
-    private Collection<ProblemBatchCase> problemBatchesCases;
+    private Collection<ProblemBatchCase> testData;
     private String problemStatement;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @DBRef
     private Collection<Submission> submissions;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -80,12 +83,24 @@ public class Problem {
         super();
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPrettyName() {
+        return prettyName;
+    }
+
+    public void setPrettyName(String prettyName) {
+        this.prettyName = name;
     }
 
     public Collection<ProblemLimits> getLimits() {
@@ -97,11 +112,11 @@ public class Problem {
     }
 
     public Collection<ProblemBatchCase> getTestData(){
-        return problemBatchesCases;
+        return testData;
     }
 
     public void setTestData(Collection<ProblemBatchCase> testData) {
-        this.problemBatchesCases = testData;
+        this.testData = testData;
     }
 
     public String getProblemStatement() {
