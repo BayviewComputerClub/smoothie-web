@@ -29,15 +29,40 @@ public class AuthController {
         String password;
     }
 
-    class RegisterForm {
+    public static class RegisterForm {
         @NotNull
-        String username;
+        private String username;
 
         @NotNull
-        String password;
+        private String password;
 
         @NotNull
-        String email;
+        private String email;
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
     }
 
     // ~~~~~~~~~~
@@ -53,31 +78,6 @@ public class AuthController {
         return Mono.just("login");
     }
 
-    /*
-    @PostMapping("/login")
-    public Mono<String> loginPostRoute(Model model, @Valid LoginForm form, BindingResult result, WebSession session) {
-        if (result.hasErrors()) {
-            return Mono.just("login");
-        }
-
-        return userDetailsService.findByUsername(form.username)
-                .flatMap(user -> {
-                    if (user == null) {
-                        // TODO set model warning
-                        return Mono.just("login");
-                    } else if (new Argon2PasswordEncoder().matches(user.getPassword(), form.password)) {
-                        // TODO incorrect password
-                        return Mono.just("login");
-                    } else {
-
-                        // set jwt auth token
-                        session.getAttribute();
-
-                        return Mono.just("redirect:/");
-                    }
-                }).;
-    }*/
-
     @GetMapping("/register")
     public String registerGetRoute(Model model) {
         return "register";
@@ -86,6 +86,8 @@ public class AuthController {
     @PostMapping("/register")
     public ModelAndView registerPostRoute(@Valid RegisterForm form, BindingResult result) {
         ModelAndView page = new ModelAndView();
+
+        System.out.println("wut " + form.username + " " + form.email + " " + form.password); // TODO
 
         if (userDetailsService.findUserByHandle(form.username).block() != null) {
             result.rejectValue("handle", "error.user", "The username has already been taken!");
@@ -97,7 +99,7 @@ public class AuthController {
             page.setViewName("register");
         } else {
             userDetailsService.saveUser(new User(form.username, form.email, form.password));
-            page.setViewName("login");
+            page.setViewName("redirect:/login");
             // TODO success registering message
         }
         return page;

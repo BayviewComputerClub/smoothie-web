@@ -8,8 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,13 +33,13 @@ public class User implements UserDetails {
     private String description;
     private double score;
 
-    @DBRef
+    //@DBRef
     private Set<Role> roles;
 
-    @DBRef
+    //@DBRef
     private Collection<Submission> submissions;
 
-    @DBRef
+    //@DBRef
     private Collection<Problem> solved;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,6 +49,8 @@ public class User implements UserDetails {
         this.handle = handle;
         this.email = email;
         this.password = password; // encoded to argon2 in smoothieuserdetailsservice
+        this.submissions = new ArrayList<>();
+        this.solved = new ArrayList<>();
     }
 
     // ~~~~~

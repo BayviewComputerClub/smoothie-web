@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
 
     <title>smoothie-web</title>
 
@@ -113,6 +114,8 @@
     </style>
 </head>
 <body>
+
+<div th:replace="fragments/header :: header"></div>
 
 <div class="container">
 

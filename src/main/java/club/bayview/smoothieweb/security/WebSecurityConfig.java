@@ -9,10 +9,6 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
-import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
-
-import java.net.URI;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -31,6 +27,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .loginPage("/login")
                 .failureUrl("/login?error=true")
+                .defaultSuccessUrl("/")
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .and()
@@ -52,12 +49,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeExchange().anyExchange().permitAll()
                 .and()
                 .build();
-    }
-
-    public ServerLogoutSuccessHandler logoutSuccessHandler(String uri) {
-        RedirectServerLogoutSuccessHandler successHandler = new RedirectServerLogoutSuccessHandler();
-        successHandler.setLogoutSuccessUrl(URI.create(uri));
-        return successHandler;
     }
 
     @Bean

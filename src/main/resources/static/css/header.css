@@ -1,0 +1,45 @@
+header {
+    overflow: hidden;
+    background-color: #263238;
+    padding: 5px 10px;
+    border-radius: 15px;
+    box-shadow: 1px 1px 5px 0 #263238;
+    margin: 10px 10px 10px 10px;
+    animation: header-fade-in 0.8s;
+}
+
+@keyframes header-fade-in {
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+}
+
+header a {
+    font-family: Metropolis, sans-serif;
+    float: left;
+    color: white;
+    text-align: center;
+    padding: 12px;
+    text-decoration: none;
+    font-size: 18px;
+    line-height: 15px;
+}
+
+header a:hover {
+    text-shadow: 0 0 5px #FFFFFF;
+    transition: text-shadow 0.2s;
+}
+
+.header-title {
+    margin-right: 10px;
+}
+.header-right {
+    float: right;
+}

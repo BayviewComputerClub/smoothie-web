@@ -32,7 +32,7 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
         user.setPassword(new Argon2PasswordEncoder().encode(user.getPassword()));
         user.setEnabled(false);
         user.setRoles(new HashSet<>(Arrays.asList(Role.ROLE_USER)));
-        userRepository.save(user);
+        userRepository.save(user).block();
     }
 
     @Override

@@ -1,0 +1,19 @@
+
+<header xmlns:th="http://www.thymeleaf.org">
+    <a href="/" th:href="@{/}" class="header-title"><b>Smoothie-Web</b></a>
+    <a href="/problems" th:href="@{/problems}" >Problems</a>
+    <a href="/contests" th:href="@{/contests}" >Contests</a>
+    <a href="/ranking" th:href="@{/ranking}" >Ranking</a>
+    <a href="/help" th:href="@{/help}">Help</a>
+
+    <div class="header-right">
+        <div th:if="${user == null}">
+            <a href="/login" th:href="@{/login}" >Login</a>
+            <a href="/register" th:href="@{/register}" >Register</a>
+        </div>
+        <div th:unless="${user == null}">
+            <a href="/logout" th:href="@{/logout}" >Logout</a>
+            <a class="header-hello">Hello, <span th:text="${user.handle}"></span>!</a>
+        </div>
+    </div>
+</header>

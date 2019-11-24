@@ -118,9 +118,58 @@
             }
         }
 
+
+        header {
+            overflow: hidden;
+            background-color: #e91e63;
+            padding: 5px 10px;
+            border-radius: 15px;
+            box-shadow: 1px 1px 5px 0 #e91e63;
+            margin: 10px 10px 10px 10px;
+        }
+
+        header a {
+            font-family: Metropolis, sans-serif;
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            text-decoration: none;
+            font-size: 18px;
+            line-height: 15px;
+        }
+
+        header a:hover {
+            text-shadow: 0 0 5px #FFFFFF;
+            transition: text-shadow 0.2s;
+        }
+
+        .header-title {
+            margin-right: 10px;
+        }
+        .header-right {
+            float: right;
+        }
+
     </style>
 </head>
 <body>
+
+    <header xmlns:th="http://www.thymeleaf.org">
+        <a href="/" class="header-title"><b>Smoothie-Web</b></a>
+        <a href="/problems">Problems</a>
+        <a href="/contests">Contests</a>
+        <a href="/ranking">Ranking</a>
+        <a href="/help">Help</a>
+
+        <div class="header-right">
+            <a>
+                <a class="header-hello">Hello, dude!</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </header>
+
     <div class="container">
         <form method="POST">
             <h1>login <i class="material-icons">sync</i></h1>
