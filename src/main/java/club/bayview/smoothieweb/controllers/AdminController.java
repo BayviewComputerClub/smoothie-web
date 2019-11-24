@@ -10,9 +10,8 @@ public class AdminController {
 
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String getAdminRoute(Model model) {
-
-        return "admin";
+    public String getAdminRoute() {
+        return "admin/admin";
     }
 
 }

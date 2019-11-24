@@ -1,9 +1,11 @@
 package club.bayview.smoothieweb.models;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 @Document
 public class User implements UserDetails {
 
-    @Id
+    @MongoId
     private String id;
     @Indexed(unique = true)
     private String handle;
@@ -31,16 +33,13 @@ public class User implements UserDetails {
 
     // profile
     private String description;
-    private double score;
+    private Double score;
 
-    //@DBRef
     private Set<Role> roles;
 
-    //@DBRef
-    private Collection<Submission> submissions;
+    private Collection<ObjectId> submissions;
 
-    //@DBRef
-    private Collection<Problem> solved;
+    private Collection<ObjectId> solved;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -51,6 +50,8 @@ public class User implements UserDetails {
         this.password = password; // encoded to argon2 in smoothieuserdetailsservice
         this.submissions = new ArrayList<>();
         this.solved = new ArrayList<>();
+        this.enabled = false;
+        roles = new HashSet<>(Arrays.asList(Role.ROLE_USER));
     }
 
     // ~~~~~
@@ -142,19 +143,19 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
-    public Collection<Submission> getSubmissions() {
+    public Collection<ObjectId> getSubmissions() {
         return submissions;
     }
 
-    public void setSubmissions(Collection<Submission> submissions) {
+    public void setSubmissions(Collection<ObjectId> submissions) {
         this.submissions = submissions;
     }
 
-    public Collection<Problem> getSolved() {
+    public Collection<ObjectId> getSolved() {
         return solved;
     }
 
-    public void setSolved(Collection<Problem> solved) {
+    public void setSolved(Collection<ObjectId> solved) {
         this.solved = solved;
     }
 

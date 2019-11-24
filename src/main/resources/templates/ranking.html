@@ -23,6 +23,13 @@
         .container {
             animation: header-fade-in 1s;
         }
+
+        th {
+            text-align: left;
+        }
+        tr {
+            line-height: 50px;
+        }
     </style>
 </head>
 <body>
@@ -30,10 +37,15 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>User <span th:text="${user.handle}"></span></h1>
-    <p>
-        <span th:text="${user.description}"></span>
-    </p>
+    <h1>Ranking</h1>
+    <table style="width: 80%">
+        <tr>
+            <th>Name</th>
+        </tr>
+        <tr th:each="user: ${users}">
+            <td th:text="${user.handle}"></td>
+        </tr>
+    </table>
 </div>
 </body>
 </html>

@@ -2,10 +2,11 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>smoothie-web</title>
+    <title>smoothie-web admin</title>
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
 
     <style>
         h1 {
@@ -23,16 +24,18 @@
         .container {
             animation: header-fade-in 1s;
         }
+
     </style>
 </head>
 <body>
 
 <div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header-admin"></div>
 
 <div class="container">
-    <h1>User <span th:text="${user.handle}"></span></h1>
+    <h1>Admin</h1>
     <p>
-        <span th:text="${user.description}"></span>
+        Click on a thing to do a thing.
     </p>
 </div>
 </body>

@@ -1,10 +1,11 @@
 
-<header xmlns:th="http://www.thymeleaf.org">
+<header xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <a href="/" th:href="@{/}" class="header-title"><b>Smoothie-Web</b></a>
     <a href="/problems" th:href="@{/problems}" >Problems</a>
     <a href="/contests" th:href="@{/contests}" >Contests</a>
     <a href="/ranking" th:href="@{/ranking}" >Ranking</a>
     <a href="/help" th:href="@{/help}">Help</a>
+    <a sec:authorize="hasRole('ROLE_ADMIN')" href="/admin" th:href="@{/admin}">Admin</a>
 
     <div class="header-right">
         <div th:if="${user == null}">

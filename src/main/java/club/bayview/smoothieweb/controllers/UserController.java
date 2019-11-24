@@ -15,11 +15,6 @@ public class UserController {
         return "profile";
     }
 
-    @GetMapping("{handle}/submissions")
-    public String getSubmissionsRoute(@PathVariable String handle, Model model) {
-        return "submissions";
-    }
-
 
 
 }

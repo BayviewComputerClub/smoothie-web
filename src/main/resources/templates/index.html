@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>index</title>
+    <title>smoothie-web</title>
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
@@ -19,6 +19,10 @@
             line-height: 128px;
 
         }
+
+        .container {
+            animation: header-fade-in 1s;
+        }
     </style>
 </head>
 <body>
@@ -28,7 +32,13 @@
 <div class="container">
     <h1>Smoothie-Web</h1>
     <p>
-        Hey there! You are logged in as <span th:if="${name == null}">none</span> <span th:if="${name}"><span th:text="${name}"></span></span>.
+        Hey there!
+        <span th:if="${user == null}">
+            You are not logged in.
+        </span>
+        <span th:unless="${user == null}">
+            You are logged in as <span th:text="${user.handle}"></span>.
+        </span>
     </p>
 </div>
 </body>

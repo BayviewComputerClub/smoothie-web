@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.models;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -73,8 +74,7 @@ public class Problem {
     private Collection<ProblemBatchCase> testData;
     private String problemStatement;
 
-    @DBRef
-    private Collection<Submission> submissions;
+    private Collection<ObjectId> submissions;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -126,11 +126,11 @@ public class Problem {
         this.problemStatement = problemStatement;
     }
 
-    public Collection<Submission> getSubmissions() {
+    public Collection<ObjectId> getSubmissions() {
         return submissions;
     }
 
-    public void setSubmissions(Collection<Submission> submissions) {
+    public void setSubmissions(Collection<ObjectId> submissions) {
         this.submissions = submissions;
     }
 

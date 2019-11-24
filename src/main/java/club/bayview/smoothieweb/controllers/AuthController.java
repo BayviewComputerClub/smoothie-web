@@ -21,14 +21,6 @@ public class AuthController {
     @Autowired
     private SmoothieUserService userDetailsService;
 
-    class LoginForm {
-        @NotNull
-        String username;
-
-        @NotNull
-        String password;
-    }
-
     public static class RegisterForm {
         @NotNull
         private String username;
@@ -87,10 +79,8 @@ public class AuthController {
     public ModelAndView registerPostRoute(@Valid RegisterForm form, BindingResult result) {
         ModelAndView page = new ModelAndView();
 
-        System.out.println("wut " + form.username + " " + form.email + " " + form.password); // TODO
-
         if (userDetailsService.findUserByHandle(form.username).block() != null) {
-            result.rejectValue("handle", "error.user", "The username has already been taken!");
+            result.rejectValue("username", "error.user", "The username has already been taken!");
         } else if (userDetailsService.findUserByEmail(form.email).block() != null) {
             result.rejectValue("email", "error.user", "The email has already been used!");
         }

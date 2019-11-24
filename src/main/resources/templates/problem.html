@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>smoothie-web</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+
+    <style>
+        h1 {
+            font-size: 64px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 128px;
+        }
+        p {
+            font-size: 32px;
+            font-family: Metropolis, sans-serif;
+            line-height: 128px;
+
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+        }
+
+        input[type="button"] {
+            cursor: pointer;
+            margin-top: 40px;
+            padding: 10px;
+            border-radius: 50px;
+            font-family: 'Nunito-asset', sans-serif;
+            font-size: 18px;
+            border-style: solid;
+            border-color: #FFFFFF;
+            border-width: 2px;
+            background-color: #424242;
+            width: 200px;
+            line-height: 1;
+            text-align: center;
+            color: white;
+            transition: box-shadow 0.5s;
+        }
+        input[type="button"]:hover {
+            box-shadow: 1px 1px 15px 0 #FFFFFF;
+            transition: box-shadow 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <h1 th:text="${problem.prettyName}"></h1>
+    <p th:each="limit: ${problem.limits}">
+        <span th:text="${limit.lang.prettyName}"></span>, <span th:text="${limit.timeLimit}"></span>, <span th:text="${limit.memoryLimit}"></span>
+    </p>
+    <p>
+        <span th:text="${problem.problemStatement}"></span>
+    </p>
+
+    <input type="button" value="Submit">
+</div>
+</body>
+</html>

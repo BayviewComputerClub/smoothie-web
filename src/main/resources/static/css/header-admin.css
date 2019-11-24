@@ -1,45 +1,29 @@
-header {
+.header-admin {
     overflow: hidden;
-    background-color: #263238;
+    background-color: #e91e63;
     padding: 5px 10px;
     border-radius: 15px;
-    box-shadow: 1px 1px 5px 0 #263238;
+    box-shadow: 1px 1px 5px 0 #e91e63;
     margin: 10px 10px 10px 10px;
     animation: header-fade-in 0.8s;
 }
 
-@keyframes header-fade-in {
-    0% {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-
-    100% {
-        transform: translateY(0);
-        opacity: 1;
-    }
-
-}
-
-header a {
+.header-admin a {
     font-family: Metropolis, sans-serif;
     float: left;
     color: white;
     text-align: center;
     padding: 12px;
     text-decoration: none;
-    font-size: 18px;
-    line-height: 15px;
+    font-size: 16px;
+    line-height: 12px;
 }
 
-header a:hover {
+.header-admin a:hover {
     text-shadow: 0 0 5px #FFFFFF;
     transition: text-shadow 0.5s;
 }
 
-.header-title {
+.header-admin-title {
     margin-right: 10px;
-}
-.header-right {
-    float: right;
 }

@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
@@ -28,21 +29,24 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
         return userRepository.findByHandle(handle);
     }
 
-    public void saveUser(User user) {
-        user.setPassword(new Argon2PasswordEncoder().encode(user.getPassword()));
-        user.setEnabled(false);
-        user.setRoles(new HashSet<>(Arrays.asList(Role.ROLE_USER)));
-        userRepository.save(user).block();
-    }
-
     @Override
     public Mono<UserDetails> findByUsername(String handle) {
         return userRepository.findByHandle(handle).cast(UserDetails.class);
     }
 
+    public Flux<User> findUsers() {
+        return userRepository.findAll();
+    }
+
+
+    public void saveUser(User user) {
+        user.setPassword(new Argon2PasswordEncoder().encode(user.getPassword()));
+        userRepository.save(user).block();
+    }
+
     private List<GrantedAuthority> getUserAuthority(Set<Role> userRoles) {
         Set<GrantedAuthority> roles = new HashSet<>();
-        userRoles.forEach((role) -> roles.add(new SimpleGrantedAuthority(role.getName())));
+        userRoles.forEach((role) -> roles.add(new SimpleGrantedAuthority(role.toString())));
 
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>(roles);
         return grantedAuthorities;
