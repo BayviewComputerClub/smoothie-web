@@ -32,7 +32,6 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
 
     @Override
     @Bean
-    @DependsOn("embeddedMongoServer")
     public MongoClient reactiveMongoClient() {
         return MongoClients.create(String.format("mongodb://localhost:%d", port));
     }

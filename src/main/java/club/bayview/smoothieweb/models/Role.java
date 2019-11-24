@@ -14,9 +14,9 @@ import java.util.Collection;
 @Document
 public class Role {
 
-    public static final Role DEFAULT_ROLE = new Role("DEFAULT_ROLE"),
-            ADMIN_ROLE = new Role("ADMIN_ROLE"),
-            EDITOR_ROLE = new Role("EDITOR_ROLE");
+    public static final Role ROLE_USER = new Role("ROLE_USER"),
+            ROLE_ADMIN = new Role("ROLE_ADMIN"),
+            ROLE_EDITOR = new Role("ROLE_EDITOR");
 
     @Id
     private String id;

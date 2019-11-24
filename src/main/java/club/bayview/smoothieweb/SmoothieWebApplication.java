@@ -1,5 +1,7 @@
 package club.bayview.smoothieweb;
 
+import club.bayview.smoothieweb.models.User;
+import club.bayview.smoothieweb.services.SmoothieUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;

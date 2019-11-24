@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 import java.util.*;
 
 @Service
-public class SmoothieUserDetailsService implements ReactiveUserDetailsService {
+public class SmoothieUserService implements ReactiveUserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
@@ -31,7 +31,7 @@ public class SmoothieUserDetailsService implements ReactiveUserDetailsService {
     public void saveUser(User user) {
         user.setPassword(new Argon2PasswordEncoder().encode(user.getPassword()));
         user.setEnabled(false);
-        user.setRoles(new HashSet<>(Arrays.asList(Role.DEFAULT_ROLE)));
+        user.setRoles(new HashSet<>(Arrays.asList(Role.ROLE_USER)));
         userRepository.save(user);
     }
 

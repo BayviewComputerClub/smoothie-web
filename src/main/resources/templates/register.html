@@ -52,7 +52,7 @@
             font-family: 'Metropolis', sans-serif;
         }
 
-        #login {
+        #register {
             padding: 10px;
             border-radius: 50px;
             font-family: 'Nunito', sans-serif;
@@ -70,7 +70,7 @@
             transition: box-shadow 0.5s;
             box-sizing: content-box;
         }
-        #login:hover {
+        #register:hover {
             box-shadow: 1px 1px 15px 0 #424242;
             transition: box-shadow 0.5s;
         }
@@ -91,7 +91,7 @@
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
         }
-        #login:focus {
+        #register:focus {
             outline: 0;
         }
         body {
@@ -115,27 +115,48 @@
 <body>
 
 <div class="container">
-    <div th:if="${param.error}" class="error">
-        Wrong username or password
+
+    <div th:if="${param.error}">
+        Invalid email and password.
     </div>
     <div th:if="${param.logout}">
         You have been logged out.
     </div>
+
     <form method="POST">
 
-        <div>
-        <h1>login <i class="material-icons">sync</i></h1>
+        <h1>register <i class="material-icons">sync</i></h1>
         <div class="boxes">
             <input type="text" id="usernameBox" name="username" placeholder="username" required class="inputbox">
             <br/>
-            <input type="password" id="passwordBox" name="password" placeholder="password" required class="inputbox">
+            <input type="text" id="emailBox" name="email" placeholder="email" required class="inputbox">
+            <br/>
+            <input type="password" id="confirmPassword" placeholder="password" required class="inputbox">
+            <br/>
+            <input type="password" id="passwordBox" name="password" placeholder="confirm password" required class="inputbox">
         </div>
         <br/>
         <br/>
-        <input type="submit" id="login" value="login">
-        </div>
+        <input type="submit" id="register" value="register">
     </form>
 </div>
+
+<script>
+
+    var password = document.getElementById("confirmPassword"), confirm_password = document.getElementById("passwordBox");
+
+    function validatePassword(){
+        if(password.value != confirm_password.value) {
+            confirm_password.setCustomValidity("Passwords Don't Match");
+        } else {
+            confirm_password.setCustomValidity('');
+        }
+    }
+
+    password.onchange = validatePassword;
+    confirm_password.onkeyup = validatePassword;
+
+</script>
 
 </body>
 </html>
