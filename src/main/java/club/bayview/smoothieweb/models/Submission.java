@@ -15,7 +15,7 @@ import java.util.List;
 @Document
 public class Submission {
 
-    static class SubmissionBatchCase {
+    public static class SubmissionBatchCase {
         public static final String AWAITING_RESULTS = "AR";
 
         private long batchNumber, caseNumber;
@@ -99,6 +99,8 @@ public class Submission {
     private String compileError;
     private ArrayList<SubmissionBatchCase> batchCases;
 
+    private boolean judgingCompleted;
+
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     public String getId() {
@@ -169,4 +171,11 @@ public class Submission {
         this.batchCases = batchCases;
     }
 
+    public boolean hasJudgingCompleted() {
+        return judgingCompleted;
+    }
+
+    public void setJudgingCompleted(boolean judgingCompleted) {
+        this.judgingCompleted = judgingCompleted;
+    }
 }
