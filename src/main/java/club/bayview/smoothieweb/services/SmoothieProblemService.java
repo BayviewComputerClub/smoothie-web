@@ -26,4 +26,8 @@ public class SmoothieProblemService {
     public Flux<Problem> findProblems() {
         return problemRepository.findAll();
     }
+
+    public Mono<Problem> saveProblem(Problem problem) {
+        return problemRepository.save(problem);
+    }
 }
