@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>smoothie-web</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+
+    <style>
+        @font-face {
+            font-family: 'Material Icons';
+            font-style: normal;
+            font-weight: 400;
+            src: url(https://fonts.gstatic.com/s/materialicons/v48/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
+        }
+
+        .material-icons {
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            margin: 100px;
+            display: block;
+            float: left;
+            font-family: Metropolis-asset, sans-serif;
+            font-size: 24px;
+            animation: 2s words-in;
+        }
+
+        header {
+            overflow: hidden;
+            background-color: #263238;
+            padding: 5px 10px;
+            border-radius: 15px;
+            box-shadow: 1px 1px 5px 0 #263238;
+            margin: 10px 10px 10px 10px;
+            animation: header-fade-in 0.8s;
+        }
+
+        @keyframes header-fade-in {
+            0% {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+        }
+
+        header a {
+            font-family: Metropolis, sans-serif;
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            text-decoration: none;
+            font-size: 18px;
+            line-height: 15px;
+        }
+
+        header a:hover {
+            text-shadow: 0 0 5px #FFFFFF;
+            transition: text-shadow 0.5s;
+        }
+
+        .header-title {
+            margin-right: 10px;
+        }
+        .header-right {
+            float: right;
+        }
+
+        h1 {
+            font-size: 64px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 128px;
+        }
+        p {
+            font-size: 32px;
+            font-family: Metropolis, sans-serif;
+            line-height: 128px;
+
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+        }
+
+        /*-=-=-=-=-=-=-=-=- dude -=-=-=-=-=-=-=-=-=-=-=-*/
+
+        .header-admin {
+            overflow: hidden;
+            background-color: #e91e63;
+            padding: 5px 10px;
+            border-radius: 15px;
+            box-shadow: 1px 1px 5px 0 #e91e63;
+            margin: 10px 10px 10px 10px;
+            animation: header-fade-in 0.8s;
+        }
+
+        .header-admin a {
+            font-family: Metropolis, sans-serif;
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            text-decoration: none;
+            font-size: 16px;
+            line-height: 12px;
+        }
+
+        .header-admin a:hover {
+            text-shadow: 0 0 5px #FFFFFF;
+            transition: text-shadow 0.5s;
+        }
+
+        .header-admin-title {
+            margin-right: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+
+<header xmlns:th="http://www.thymeleaf.org">
+    <a href="/" class="header-admin-title"><b>Smoothie-Web</b></a>
+    <a href="/general"></a>
+    <a href="/problems" >Problems</a>
+    <a href="/contests" th:href="@{/contests}" >Contests</a>
+    <a href="/ranking" th:href="@{/ranking}" >Users</a>
+</header>
+
+<div class="header-admin" xmlns:th="http://www.thymeleaf.org">
+    <a href="/" th:href="@{/admin}" class="header-admin-title"><b>Admin Panel</b></a>
+    <a href="/admin/problems" th:href="@{/admin/problems}" >Problems</a>
+    <a href="/admin/contests" th:href="@{/admin/contests}" >Contests</a>
+    <a href="/admin/pages" th:href="@{/admin/pages}" >Pages</a>
+    <a href="/admin/users" th:href="@{/admin/users}">Users</a>
+    <a href="/admin/runners" th:href="@{/admin/runners}">Runners</a>
+    <a href="/admin/general" th:href="@{/admin/general}">General</a>
+</div>
+
+<div class="container">
+    <h1>Edit Problem</h1>
+    <p>
+        Click a thing to do a thing.
+    </p>
+</div>
+</body>
+</html>

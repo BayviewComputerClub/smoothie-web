@@ -40,16 +40,26 @@ public class Problem {
     }
 
     static class ProblemBatchCase {
-        private int batchNum;
+        private int batchNum, scoreWorth;
         private String input, expectedOutput;
 
         public ProblemBatchCase(int batchNum, String input, String expectedOutput) {
+            this.batchNum = batchNum;
             this.input = input;
             this.expectedOutput = expectedOutput;
         }
 
+        public ProblemBatchCase(int batchNum, int scoreWorth, String input, String expectedOutput) {
+            this(batchNum, input, expectedOutput);
+            this.scoreWorth = scoreWorth;
+        }
+
         public int getBatchNum() {
             return batchNum;
+        }
+
+        public int getScoreWorth() {
+            return scoreWorth;
         }
 
         public String getInput() {
@@ -59,6 +69,7 @@ public class Problem {
         public String getExpectedOutput() {
             return expectedOutput;
         }
+
     }
 
 
@@ -75,6 +86,9 @@ public class Problem {
     private String problemStatement;
 
     private Collection<ObjectId> submissions;
+
+    private boolean allowPartial;
+    private int totalScoreWorth;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -132,6 +146,22 @@ public class Problem {
 
     public void setSubmissions(Collection<ObjectId> submissions) {
         this.submissions = submissions;
+    }
+
+    public boolean allowPartial() {
+        return allowPartial;
+    }
+
+    public void setAllowPartial(boolean allowPartial) {
+        this.allowPartial = allowPartial;
+    }
+
+    public int getTotalScoreWorth() {
+        return this.totalScoreWorth;
+    }
+
+    public void setTotalScoreWorth(int totalScoreWorth) {
+        this.totalScoreWorth = totalScoreWorth;
     }
 
 }

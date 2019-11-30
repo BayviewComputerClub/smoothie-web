@@ -5,7 +5,7 @@ header {
     border-radius: 15px;
     box-shadow: 1px 1px 5px 0 #263238;
     margin: 10px 10px 10px 10px;
-    animation: header-fade-in 0.8s;
+    /*animation: header-fade-in 0.8s;*/
 }
 
 @keyframes header-fade-in {

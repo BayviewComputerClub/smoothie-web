@@ -56,6 +56,7 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
 
     @PostConstruct
     public void init() {
+        // create default admin account
         if (userService.findByUsername("admin").block() == null) {
             User admin = new User("admin", "", adminPassword);
             admin.getRoles().add(Role.ROLE_ADMIN);
