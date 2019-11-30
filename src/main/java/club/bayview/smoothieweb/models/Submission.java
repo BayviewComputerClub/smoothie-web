@@ -22,6 +22,9 @@ public class Submission {
     @DBRef
     private Problem problem;
 
+    @DBRef
+    private Runner runner;
+
     private String code;
     private Long timeSubmitted;
 
@@ -55,6 +58,14 @@ public class Submission {
         this.problem = problem;
     }
 
+    public Runner getRunner() {
+        return runner;
+    }
+
+    public void setRunner(Runner runner) {
+        this.runner = runner;
+    }
+
     public String getCode() {
         return code;
     }
@@ -70,6 +81,5 @@ public class Submission {
     public void setTimeSubmitted(Long timeSubmitted) {
         this.timeSubmitted = timeSubmitted;
     }
-
 
 }

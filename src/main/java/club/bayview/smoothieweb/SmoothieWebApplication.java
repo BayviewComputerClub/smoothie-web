@@ -1,7 +1,5 @@
 package club.bayview.smoothieweb;
 
-import club.bayview.smoothieweb.models.User;
-import club.bayview.smoothieweb.services.SmoothieUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -10,9 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.web.context.request.RequestContextListener;
-import org.springframework.web.reactive.config.EnableWebFlux;
 
 @SpringBootApplication
 @EnableReactiveMongoRepositories
