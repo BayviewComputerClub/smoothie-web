@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.services;
 
+import club.bayview.smoothieweb.models.JudgeLanguage;
 import club.bayview.smoothieweb.models.RunnerRepository;
 import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.models.SubmissionRepository;
@@ -37,7 +38,7 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
      * Run a full grader session asynchronously
      */
     public void grade(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req, Submission submission) {
-        SmoothieRunner runner = getAvailableRunner(req.getSolution().getLanguage());
+        SmoothieRunner runner = getAvailableRunner(JudgeLanguage.valueOf(req.getSolution().getLanguage()));
 
         StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> observer = runner.getAsyncStub().testSolution(new StreamObserver<>() {
 
@@ -85,7 +86,7 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
      * @param language the programming language needed
      * @return the runner, or null if none are available
      */
-    public SmoothieRunner getAvailableRunner(String language) {
+    public SmoothieRunner getAvailableRunner(JudgeLanguage language) {
         return Iterables.get(runners.values(), 0); // TODO this is temporary
     }
 

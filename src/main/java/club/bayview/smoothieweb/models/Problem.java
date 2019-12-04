@@ -26,7 +26,9 @@ public class Problem {
         private JudgeLanguage lang;
         private double timeLimit, memoryLimit; // time limit in seconds, memory limit in mb
 
-        ProblemLimits(JudgeLanguage lang, double timeLimit, double memoryLimit) {
+        public ProblemLimits() {}
+
+        public ProblemLimits(JudgeLanguage lang, double timeLimit, double memoryLimit) {
             this.lang = lang;
             this.timeLimit = timeLimit;
             this.memoryLimit = memoryLimit;
@@ -37,17 +39,19 @@ public class Problem {
     @Getter
     @Setter
     public static class ProblemBatchCase {
-        private int batchNum, scoreWorth;
+        private int batchNum, caseNum, scoreWorth;
         private String input, expectedOutput;
 
-        public ProblemBatchCase(int batchNum, String input, String expectedOutput) {
+        public ProblemBatchCase() {}
+
+        public ProblemBatchCase(int batchNum, int caseNum, String input, String expectedOutput) {
             this.batchNum = batchNum;
             this.input = input;
             this.expectedOutput = expectedOutput;
         }
 
-        public ProblemBatchCase(int batchNum, int scoreWorth, String input, String expectedOutput) {
-            this(batchNum, input, expectedOutput);
+        public ProblemBatchCase(int batchNum, int caseNum, int scoreWorth, String input, String expectedOutput) {
+            this(batchNum, caseNum, input, expectedOutput);
             this.scoreWorth = scoreWorth;
         }
     }

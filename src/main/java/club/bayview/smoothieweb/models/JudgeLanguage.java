@@ -6,7 +6,7 @@ public enum JudgeLanguage {
     // feel free to change prettyName
 
     // used for referring to all languages
-    ALL ("all"),
+    ALL ("All"),
 
     // c
     C11 ("C11"),

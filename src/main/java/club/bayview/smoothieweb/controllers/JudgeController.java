@@ -36,8 +36,9 @@ public class JudgeController {
 
     @GetMapping("/problem/{name}")
     public String routeGetProblem(@PathVariable String name, Model model) {
-        Mono<Problem> problem = problemService.findProblemByName(name);
-        model.addAttribute("problem", problem);
+        Problem p = problemService.findProblemByName(name).block();
+        if (p == null) return "404";
+        model.addAttribute("problem", p);
         return "problem";
     }
 

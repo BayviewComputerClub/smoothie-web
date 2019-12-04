@@ -27,7 +27,7 @@ public class SmoothieProblemService {
         return problemRepository.findAll();
     }
 
-    public Mono<Problem> saveProblem(Problem problem) {
-        return problemRepository.save(problem);
+    public void saveProblem(Problem problem) {
+        problemRepository.save(problem).block();
     }
 }

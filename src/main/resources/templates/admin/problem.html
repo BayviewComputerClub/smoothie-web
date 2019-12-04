@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>smoothie-web</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css"
+          integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"
+            integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz"
+            crossorigin="anonymous"></script>
+
+    <style>
+
+        h1 {
+            font-size: 64px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 128px;
+        }
+
+        body {
+            font-size: 20px;
+            line-height: 1.5;
+            font-family: Metropolis, sans-serif;
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+        }
+
+        /*-=-=-=-=-=-=-=-=- form -=-=-=-=-=-=-=-=-=-=-=-*/
+
+        input[type="file"] {
+            display: none;
+        }
+
+        label {
+            font-size: 20px;
+            font-family: Nunito, sans-serif;
+            line-height: 1.5;
+            color: #424242;
+        }
+
+        .file-upload-box {
+            display: inline-block;
+            -webkit-user-select: none;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 18px;
+            border-style: solid;
+            border-color: #FFFFFF;
+            border-width: 2px;
+            color: #FFFFFF;
+            background-color: #ffb300;
+            width: 200px;
+            text-align: center;
+            line-height: 1;
+            box-shadow: 1px 1px 5px 0 #ff9800;
+            transition: box-shadow 0.5s;
+        }
+
+        .file-upload-box:hover {
+            box-shadow: 1px 1px 15px 0 #ff9800;
+            transition: box-shadow 0.5s;
+        }
+
+        .input-container {
+            margin-top: 40px;
+        }
+
+        .problem-editor {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .checkbox-switch {
+            margin-top: 10px;
+        }
+
+        input[type="number"] {
+            width: 80px;
+            text-align: center;
+        }
+
+        table {
+            margin-top: 10px;
+            color: #424242;
+        }
+
+        button {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            box-shadow: 1px 1px 5px 0 #9e9e9e;
+            cursor: pointer;
+            border-style: none;
+            background-color: white;
+            transition: box-shadow 0.3s;
+        }
+
+        button:focus {
+            outline: 0;
+        }
+
+        button:hover {
+            box-shadow: 1px 1px 15px 0 #9e9e9e;
+            transition: box-shadow 0.3s;
+        }
+
+        td {
+            text-align: center;
+        }
+
+        @keyframes table-row-in {
+            0% {
+                transform: scale(0.5);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        tr {
+            animation: table-row-in 0.5s;
+        }
+
+        #problem-points {
+            width: 50px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header-admin"></div>
+
+<div class="container">
+    <h1 th:if="${newProblem}">New Problem</h1>
+    <h1 th:unless="${newProblem}">Edit Problem</h1>
+
+    <form method="POST" id="problem-form" enctype="multipart/form-data" th:object="${problem}" onsubmit="modifyTablesOnSubmit()">
+
+        <div class="input-container">
+            <label for="problem-id">Problem ID</label>
+            <br/>
+            <input type="text" id="problem-id" th:field="*{name}" placeholder="ex. ccc19s3" th:value="${problem.name}"
+                   required>
+        </div>
+
+        <div class="input-container">
+            <label for="problem-name">Problem Name</label>
+            <br/>
+            <input type="text" id="problem-name" th:field="*{prettyName}" placeholder="ex. CCC19S3 - Arithmetic Square"
+                   th:value="${problem.prettyName}" required>
+        </div>
+
+        <div class="input-container">
+            <label for="problem-statement">Problem Statement</label>
+            <br/>
+            <div class="problem-editor">
+                <textarea id="problem-statement" th:field="*{problemStatement}" form="problem-form"></textarea>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <label for="problem-name">Total Points</label>
+            <br/>
+            <input type="number" id="problem-points" th:field="*{totalScoreWorth}" th:value="${problem.totalScoreWorth}" min="0"
+                   required>
+        </div>
+
+        <div class="input-container">
+            <label for="allow-partial">Allow Partial Points</label>
+            <br/>
+            <label class="checkbox-switch">
+                <input type="checkbox" id="allow-partial" th:field="*{allowPartial}" th:checked="${problem.allowPartial}">
+                <span class="checkbox-slider"></span>
+            </label>
+        </div>
+
+        <!-- Limit Table -->
+
+        <div class="input-container">
+            <label>Limits (per test case)</label>
+            <table style="width: 100%" id="limit-table">
+                <thead>
+                <tr>
+                    <th style="width: 50px"></th> <!-- button -->
+                    <th><b>Language</b></th>
+                    <th><b>Time Limit</b></th>
+                    <th><b>Memory Limit</b></th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr>
+                    <td colspan="4">
+                        <hr/>
+                    </td>
+                </tr>
+
+                <tr th:each="limit : ${problem.limits}" class="limit">
+                    <td style="width: 50px; text-align: left;">
+                        <button type="button" onclick="removeLimitRow(this)"><i class="material-icons">close</i></button>
+                    </td>
+                    <td>
+                        <select>
+                            <option th:each="lang : ${languages}" th:value="${lang}" th:text="${lang.getPrettyName()}"
+                                    th:selected="${lang == limit.lang}"></option>
+                        </select>
+                    </td>
+                    <td><input type="number" th:value="${limit.timeLimit}" step="0.1" min="0">s</td>
+                    <td><input type="number" th:value="${limit.memoryLimit}" min="0">MB</td>
+                </tr>
+
+                </tbody>
+            </table>
+            <button type="button" onclick="addLimitRow()" style="margin-left: 3px; margin-top: 10px;"><i
+                    class="material-icons">add</i></button>
+        </div>
+
+        <!-- Test Data -->
+
+        <div class="input-container">
+            <label for="test-data-zip">Test Data</label>
+            <hr/>
+            <p>
+                Actual table is a work in progress, so for now, upload a the test data in a zip file.
+            </p>
+            <label for="test-data-zip" class="file-upload-box">Upload as Zip</label>
+            <input id="test-data-zip" name="testData" type="file"/>
+        </div>
+
+        <div class="input-container"><input type="submit" value="Save"></div>
+
+    </form>
+
+    <!-- default langs -->
+    <select id="languages-dump" style="display: none;">
+        <option th:each="lang : ${languages}" th:value="${lang}" th:text="${lang.getPrettyName()}"></option>
+    </select>
+
+    <script th:inline="javascript">
+        let langOptions = document.getElementById("languages-dump").innerHTML;
+
+        // add form elements for submitting
+        function modifyTablesOnSubmit() {
+            let rowNum = 0;
+            let table = document.getElementById("limit-table");
+
+            for (let i = 0; i < table.rows.length; i++) {
+                let row = table.rows[i];
+                if (row.classList.contains("limit")) {
+                    row.cells[1].children[0].setAttribute("name", "limits[" + rowNum + "].lang}.");
+                    row.cells[2].children[0].setAttribute("name", "limits[" + rowNum + "].timeLimit}.");
+                    row.cells[3].children[0].setAttribute("name", "limits[" + rowNum + "].memoryLimit}.");
+                    rowNum++;
+                }
+            }
+
+        }
+
+        // tables
+        function removeLimitRow(r) {
+            document.getElementById("limit-table").deleteRow(r.parentNode.parentNode.rowIndex);
+        }
+
+        function addLimitRow() {
+            let table = document.getElementById("limit-table");
+            let row = table.insertRow(table.rows.length);
+            row.classList.add("limit");
+            let cell1 = row.insertCell(0), cell2 = row.insertCell(1), cell3 = row.insertCell(2),
+                cell4 = row.insertCell(3);
+            cell1.setAttribute("style", "width: 50px; text-align: left;");
+            cell1.innerHTML = `<button type="button" onclick="removeLimitRow(this)"><i class="material-icons">close</i></button>`;
+            cell2.innerHTML = `<select>` + langOptions + `</select>`;
+            cell3.innerHTML = `<input type="number" value="1.0" step="0.1" min="0">s`;
+            cell4.innerHTML = `<input type="number" value="256.0" min="0">MB`;
+        }
+
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+    <script th:inline="javascript">
+
+        // problem statement editor
+
+        window.texme = {
+            renderOnLoad: false,
+            useMathJax: true,
+        };
+
+        let editor = new SimpleMDE({
+            element: document.getElementById("problem-statement"),
+            forceSync: true,
+            spellChecker: false,
+            previewRender: function (text) {
+
+                // render markdown with latex combining texme and katex
+                let md = texme.render(text);
+                let str = "", isLatex = false;
+                md.split("$$").forEach(lat => {
+                    if (isLatex) {
+                        str += katex.renderToString(lat, {
+                            fleqn: true,
+                            throwOnError: false,
+                        });
+                    } else {
+                        str += lat;
+                    }
+                    isLatex = !isLatex;
+                });
+                return str;
+
+            }
+        });
+
+        editor.value(/*[[${problem.problemStatement}]]*/);
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/texme@0.7.0"></script>
+</div>
+</body>
+</html>
