@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>smoothie-web</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        h1 {
+            font-size: 48px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 96px;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.5;
+            font-family: Metropolis, sans-serif;
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+            line-height: 1.5;
+        }
+
+        input[type="submit"] {
+            border-radius: 10px;
+            box-shadow: 1px 1px 5px 0 #607d8b;
+            cursor: pointer;
+            transition: box-shadow 0.3s;
+            font-family: Nunito, sans-serif;
+            font-size: 18px;
+            padding: 10px 20px 10px 20px;
+            background-color: #FFFFFF;
+            border-style: solid;
+            border-color: #FFFFFF;
+            border-width: 2px;
+            color: #424242;
+            text-decoration: none;
+        }
+
+        input[type="submit"]:focus {
+            outline: 0;
+        }
+
+        input[type="submit"]:hover {
+            box-shadow: 1px 1px 15px 0 #607d8b;
+            transition: box-shadow 0.3s;
+        }
+
+        select {
+            margin: 3px 3px 3px 0;
+            width: 200px;
+            padding: 10px;
+            outline: none;
+            font-family: 'Nunito', sans-serif;
+            border-style: none none solid none;
+            border-color: #9E9E9E;
+            border-width: 2px;
+            font-size: 20px;
+            color: #424242;
+            transition: box-shadow 0.3s, background-color 0.5s;
+            background-color: white;
+        }
+
+        select:after {
+            border: none;
+        }
+
+        select:hover {
+            box-shadow: 1px 4px 2px -2px #9E9E9E;
+            border-color: #757575;
+            transition: border-color 0.5s, box-shadow 0.3s, background 0.5s;
+        }
+
+        select:focus {
+            border-color: #424242;
+            box-shadow: 1px 4px 2px -2px #9E9E9E;
+        }
+
+        hr {
+            color: #9e9e9e;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <h1 th:text="Submit solution for ${problemName}"></h1>
+
+    <form method="POST" id="submit-form" th:object="${submitRequest}">
+        <label for="code-box">
+
+        </label>
+        <div id="code-box">
+
+        </div>
+
+        <select form="submit-form">
+            <option th:each="lang : ${languages}" th:value="${lang.getPrettyName()}" th:text="${lang.getPrettyName()}"
+                    th:selected="${lang.getPrettyName() == limit.lang}"></option>
+        </select>
+
+        <input type="submit" value="Submit">
+    </form>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.6/ace.js"></script>
+<script>
+    ace.edit(document.getElementById("code-box"), {
+        selectionStyle: "text"
+    });
+</script>
+</body>
+</html>

@@ -20,24 +20,15 @@ public class MainController {
 
     @GetMapping("/")
     public Mono<String> getRootRoute(Model model) {
-
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication auth = context.getAuthentication();
-
-        if (auth.isAuthenticated()) {
-            User user = (User) userService.findByUsername(auth.getName()).block();
-            if (user != null) {
-                model.addAttribute("user", user);
-            }
-        }
         return Mono.just("index");
-
     }
 
     @RequestMapping("/ranking")
-    public String getRankingRoute(Model model) {
-        model.addAttribute("users", userService.findUsers().collectList().block());
-        return "ranking";
+    public Mono<String> getRankingRoute(Model model) {
+        return userService.findUsers().collectList().flatMap(users -> {
+            model.addAttribute("users", users);
+            return Mono.just("ranking");
+        });
     }
 
 }

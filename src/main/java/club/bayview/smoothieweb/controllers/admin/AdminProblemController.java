@@ -38,7 +38,9 @@ public class AdminProblemController {
         private String lang;
         private double timeLimit, memoryLimit; // time limit in seconds, memory limit in mb
 
-        public ProblemFormLimit() {}
+        // for thymeleaf object construction
+        public ProblemFormLimit() {
+        }
 
         public ProblemFormLimit(String lang, double timeLimit, double memoryLimit) {
             this.lang = lang;
@@ -58,7 +60,8 @@ public class AdminProblemController {
         @NotNull
         private String problemStatement;
 
-        private String allowPartial;
+        @NotNull
+        private boolean allowPartial;
 
         @NotNull
         @Min(0)
@@ -76,7 +79,7 @@ public class AdminProblemController {
         defaultProblem = new ProblemForm();
         defaultProblem.name = "";
         defaultProblem.prettyName = "";
-        defaultProblem.allowPartial = "";
+        defaultProblem.allowPartial = false;
         defaultProblem.totalScoreWorth = 1;
         defaultProblem.limits = Arrays.asList(new ProblemFormLimit(JudgeLanguage.ALL.getPrettyName(), 1.0, 256));
         defaultProblem.problemStatement = "This is the problem statement.\n" +
@@ -116,13 +119,15 @@ public class AdminProblemController {
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> getEditProblemRoute(@PathVariable String name, Model model) {
         if (name == null) return Mono.just("404");
-        Problem p = problemService.findProblemByName(name).block();
-        if (p == null) return Mono.just("404");
 
-        model.addAttribute("newProblem", false);
-        model.addAttribute("problem", problemToProblemForm(p));
-        model.addAttribute("languages", JudgeLanguage.values);
-        return Mono.just("admin/problem");
+        return problemService.findProblemByName(name).flatMap(p -> {
+            if (p == null) return Mono.just("404");
+
+            model.addAttribute("newProblem", false);
+            model.addAttribute("problem", problemToProblemForm(p));
+            model.addAttribute("languages", JudgeLanguage.values);
+            return Mono.just("admin/problem");
+        });
     }
 
     @PostMapping("/admin/new-problem")
@@ -150,23 +155,31 @@ public class AdminProblemController {
 
     @PostMapping("/problem/{name}/edit")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
-    public ModelAndView postEditProblemRoute(@PathVariable String name, @Valid ProblemForm form, BindingResult result) throws IOException {
-        ModelAndView page = new ModelAndView();
-
-        if (result.hasErrors()) { // TODO
-            page.addObject("newProblem", false);
-            page.addObject("problem", form);
-            page.addObject("languages", JudgeLanguage.values);
-            page.setViewName("admin/problem");
+    public Mono<String> postEditProblemRoute(@PathVariable String name, @Valid ProblemForm form, BindingResult result, Model model) throws IOException {
+        if (result.hasErrors()) { // TODO form errors
+            model.addAttribute("newProblem", false);
+            model.addAttribute("problem", form);
+            model.addAttribute("languages", JudgeLanguage.values);
+            return Mono.just("admin/problem");
         } else {
-            Problem p = problemFormToProblem(problemService.findProblemByName(name).block().getId(), form);
-            if (form.getTestData() != null) p.setTestData(getTestCasesFromZip(form.getTestData()));
 
-            problemService.saveProblem(p); // TODO update fields rather than save
-            page.setViewName("redirect:/admin/problems");
+            // save problem
+            return problemService.findProblemByName(name).flatMap(originalProblem -> {
+                if (originalProblem == null) return Mono.just("404");
+
+                try {
+                    Problem p = problemFormToProblem(originalProblem, form);
+                    if (form.getTestData() != null) p.setTestData(getTestCasesFromZip(form.getTestData()));
+
+                    problemService.saveProblem(p);
+                    return Mono.just("redirect:/problem/" + name);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return Mono.just("500");
+                }
+            });
+
         }
-
-        return page;
     }
 
     private List<Problem.ProblemBatchCase> getTestCasesFromZip(MultipartFile file) throws IOException {
@@ -217,7 +230,7 @@ public class AdminProblemController {
         pf.setName(p.getName());
         pf.setPrettyName(p.getPrettyName());
         pf.setProblemStatement(p.getProblemStatement());
-        pf.setAllowPartial(p.isAllowPartial() ? "on" : ""); // TODO -=-=-=-=-=-=-=-=- not working
+        pf.setAllowPartial(p.isAllowPartial());
         pf.setTotalScoreWorth(p.getTotalScoreWorth());
         pf.setLimits(new ArrayList<>());
         for (Problem.ProblemLimits l : p.getLimits()) {
@@ -226,13 +239,13 @@ public class AdminProblemController {
         return pf;
     }
 
-    private Problem problemFormToProblem(String id, ProblemForm form) {
-        Problem problem = new Problem();
-        if (id != null) problem.setId(id);
+    private Problem problemFormToProblem(Problem original, ProblemForm form) {
+        Problem problem = original == null ? new Problem() : original;
+
         problem.setName(form.getName());
         problem.setPrettyName(form.getPrettyName());
         problem.setProblemStatement(form.getProblemStatement());
-        problem.setAllowPartial(form.getAllowPartial() != null && form.getAllowPartial().equals("on")); // TODO -=-=-=-=-=-=-=-=- not working
+        problem.setAllowPartial(form.isAllowPartial());
         problem.setTotalScoreWorth(form.getTotalScoreWorth());
 
         problem.setLimits(new ArrayList<>());

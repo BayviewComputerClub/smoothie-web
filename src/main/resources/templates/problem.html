@@ -89,7 +89,6 @@
 
 <div class="container" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <h1 th:text="${problem.prettyName}"></h1>
-<!--    <p th:each="limit: ${problem.limits}"><span th:text="${limit.lang}"></span>, <span th:text="${limit.timeLimit}"></span>, <span th:text="${limit.memoryLimit}"></span></p>-->
 
     <div class="topbar">
         <div class="topbar-item">
@@ -111,7 +110,7 @@
 
         <div style="margin-left: auto;">
             <button>Submissions</button>
-            <button>Submit</button>
+            <a class="button-link" sec:authorize="isAuthenticated()" th:href="@{'/problem/' + ${problem.name} + '/submit'}">Submit</a>
             <a class="button-link" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{'/problem/' + ${problem.name} + '/edit'}">Edit</a>
         </div>
     </div>
@@ -170,17 +169,13 @@
         return str;
     }
 
-    function loadStatement() {
+    window.onload = function () { // load statement when all scripts are loaded
         let statement = document.getElementById("problem-statement");
         statement.innerHTML = mdToHTML(statement.innerText);
         statement.style.whiteSpace = "normal";
-    }
-
-    window.onload = function () {
-        loadStatement()
     };
 
-    window.texme = {
+    window.texme = { // set texme settings
         renderOnLoad: false,
         useMathJax: false,
         style: "plain",

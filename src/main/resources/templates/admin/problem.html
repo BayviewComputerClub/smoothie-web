@@ -184,7 +184,7 @@
             <label for="allow-partial">Allow Partial Points</label>
             <br/>
             <label class="checkbox-switch">
-                <input type="checkbox" id="allow-partial" name="allowPartial" th:value="${problem.allowPartial}">
+                <input type="checkbox" id="allow-partial" th:field="*{allowPartial}" th:value="${problem.allowPartial}">
                 <span class="checkbox-slider"></span>
             </label>
         </div>

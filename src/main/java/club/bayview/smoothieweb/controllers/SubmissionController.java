@@ -1,6 +1,5 @@
 package club.bayview.smoothieweb.controllers;
 
-import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.services.SmoothieSubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,10 +15,13 @@ public class SubmissionController {
     private SmoothieSubmissionService submissionService;
 
     @GetMapping("/submission/{submissionId}")
-    public String routeGetSubmission(@PathVariable String submissionId, Model model) {
-        Mono<Submission> submission = submissionService.findSubmissionById(submissionId);
-        model.addAttribute("submission", submission);
-        return "submission";
+    public Mono<String> routeGetSubmission(@PathVariable String submissionId, Model model) {
+        return submissionService.findSubmissionById(submissionId).flatMap(submission -> {
+            if (submission == null) return Mono.just("404");
+
+            model.addAttribute("submission", submission);
+            return Mono.just("submission");
+        });
     }
 
     @GetMapping("/user/{handle}/submissions")

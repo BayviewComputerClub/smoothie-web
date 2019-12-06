@@ -67,7 +67,7 @@ select:focus {
     top: 8px;
 }
 
-.checkbox-switch input {
+.checkbox-switch input[type="checkbox"] {
     opacity: 0;
     width: 0;
     height: 0;

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>smoothie-web</title>
+    <title>smoothie-web - 404</title>
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
@@ -30,15 +30,9 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>Smoothie-Web</h1>
+    <h1>500</h1>
     <p>
-        Hey there!
-        <span sec:authorize="isAnonymous()">
-            You are not logged in.
-        </span>
-        <span sec:authorize="isAuthenticated()">
-            You are logged in as <span th:text="${#authentication.getPrincipal().getUsername()}"></span>.
-        </span>
+        internal server issue everything is fine don't worry...
     </p>
 </div>
 </body>
