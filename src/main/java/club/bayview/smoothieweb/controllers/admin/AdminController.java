@@ -13,4 +13,9 @@ public class AdminController {
         return "admin/admin";
     }
 
+    @GetMapping("/admin/problems")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String getAdminProblemsRoute() {
+        return "admin/problems";
+    }
 }

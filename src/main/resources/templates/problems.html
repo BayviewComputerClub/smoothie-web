@@ -30,6 +30,16 @@
         tr {
             line-height: 50px;
         }
+
+        a {
+            text-decoration: none;
+            color: #009688;
+            transition: text-shadow 0.3s;
+        }
+        a:hover {
+            text-shadow: 0 0 2px #00bcd4;
+            transition: text-shadow 0.3s;
+        }
     </style>
 </head>
 <body>
@@ -39,12 +49,30 @@
 <div class="container">
     <h1>Problems</h1>
     <table style="width: 80%">
+        <thead>
+
         <tr>
             <th>Name</th>
+            <th>Submissions</th>
+            <th>Users</th>
+            <th>AC %</th>
+            <th>Points</th>
         </tr>
+        <tr>
+            <th colspan="5"><hr/></th>
+        </tr>
+        </thead>
+        <tbody>
+
         <tr th:each="problem: ${problems}">
-            <td th:text="${problem.prettyName}"></td>
+            <td><a th:href="@{'/problem/' + ${problem.name}}" th:text="${problem.prettyName}"></a></td>
+            <td th:text="${problem.submissions.size()}"></td>
+            <td th:text="${problem.usersSolved}"></td>
+            <td th:text="${problem.rateOfAC}"></td>
+            <td th:text="${problem.totalScoreWorth}"></td>
         </tr>
+
+        </tbody>
     </table>
 </div>
 </body>

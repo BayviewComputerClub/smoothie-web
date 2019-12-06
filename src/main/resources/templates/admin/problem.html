@@ -184,7 +184,7 @@
             <label for="allow-partial">Allow Partial Points</label>
             <br/>
             <label class="checkbox-switch">
-                <input type="checkbox" id="allow-partial" th:field="*{allowPartial}" th:checked="${problem.allowPartial}">
+                <input type="checkbox" id="allow-partial" name="allowPartial" th:value="${problem.allowPartial}">
                 <span class="checkbox-slider"></span>
             </label>
         </div>
@@ -215,9 +215,9 @@
                         <button type="button" onclick="removeLimitRow(this)"><i class="material-icons">close</i></button>
                     </td>
                     <td>
-                        <select>
-                            <option th:each="lang : ${languages}" th:value="${lang}" th:text="${lang.getPrettyName()}"
-                                    th:selected="${lang == limit.lang}"></option>
+                        <select form="problem-form">
+                            <option th:each="lang : ${languages}" th:value="${lang.getPrettyName()}" th:text="${lang.getPrettyName()}"
+                                    th:selected="${lang.getPrettyName() == limit.lang}"></option>
                         </select>
                     </td>
                     <td><input type="number" th:value="${limit.timeLimit}" step="0.1" min="0">s</td>
@@ -248,7 +248,7 @@
 
     <!-- default langs -->
     <select id="languages-dump" style="display: none;">
-        <option th:each="lang : ${languages}" th:value="${lang}" th:text="${lang.getPrettyName()}"></option>
+        <option th:each="lang : ${languages}" th:value="${lang.getPrettyName()}" th:text="${lang.getPrettyName()}"></option>
     </select>
 
     <script th:inline="javascript">
@@ -262,9 +262,9 @@
             for (let i = 0; i < table.rows.length; i++) {
                 let row = table.rows[i];
                 if (row.classList.contains("limit")) {
-                    row.cells[1].children[0].setAttribute("name", "limits[" + rowNum + "].lang}.");
-                    row.cells[2].children[0].setAttribute("name", "limits[" + rowNum + "].timeLimit}.");
-                    row.cells[3].children[0].setAttribute("name", "limits[" + rowNum + "].memoryLimit}.");
+                    row.cells[1].children[0].setAttribute("name", "limits[" + rowNum + "].lang");
+                    row.cells[2].children[0].setAttribute("name", "limits[" + rowNum + "].timeLimit");
+                    row.cells[3].children[0].setAttribute("name", "limits[" + rowNum + "].memoryLimit");
                     rowNum++;
                 }
             }

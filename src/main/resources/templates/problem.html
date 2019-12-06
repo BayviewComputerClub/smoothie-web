@@ -8,62 +8,150 @@
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css"
           integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
         h1 {
-            font-size: 64px;
+            font-size: 48px;
             font-family: Metropolis-bold, sans-serif;
-            line-height: 128px;
+            line-height: 96px;
         }
         p {
-            font-size: 20px;
+            font-size: 18px;
             line-height: 1.5;
             font-family: Metropolis, sans-serif;
         }
 
         .container {
             animation: header-fade-in 1s;
+            line-height: 1.5;
         }
 
-        input[type="button"] {
+        button, .button-link {
+            border-radius: 10px;
+            box-shadow: 1px 1px 5px 0 #607d8b;
             cursor: pointer;
-            margin-top: 40px;
-            padding: 10px;
-            border-radius: 50px;
-            font-family: 'Nunito-asset', sans-serif;
+            transition: box-shadow 0.3s;
+            font-family: Nunito, sans-serif;
             font-size: 18px;
+            padding: 10px 20px 10px 20px;
+            background-color: #FFFFFF;
             border-style: solid;
             border-color: #FFFFFF;
             border-width: 2px;
-            background-color: #424242;
-            width: 200px;
-            line-height: 1;
-            text-align: center;
-            color: white;
-            transition: box-shadow 0.5s;
-        }
-        input[type="button"]:hover {
-            box-shadow: 1px 1px 15px 0 #FFFFFF;
-            transition: box-shadow 0.5s;
+            color: #424242;
+            text-decoration: none;
         }
 
+        button:focus, .button-link:focus {
+            outline: 0;
+        }
+
+        button:hover, .button-link:hover {
+            box-shadow: 1px 1px 15px 0 #607d8b;
+            transition: box-shadow 0.3s;
+        }
+
+        .topbar {
+            font-family: Nunito, sans-serif;
+            color: #757575;
+            font-size: 20px;
+            line-height: 2;
+            display: flex;
+            align-items: stretch;
+            flex-direction: row;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+            width: 100%;
+        }
+
+        .topbar-item {
+            margin-right: 80px;
+            text-align: center;
+        }
+
+        hr {
+            color: #9e9e9e;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .topbar-bottom-text {
+            font-size: 18px;
+            color: #9e9e9e;
+            line-height: 1.5
+        }
     </style>
 </head>
 <body>
 
 <div th:replace="fragments/header :: header"></div>
 
-<div class="container">
+<div class="container" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <h1 th:text="${problem.prettyName}"></h1>
 <!--    <p th:each="limit: ${problem.limits}"><span th:text="${limit.lang}"></span>, <span th:text="${limit.timeLimit}"></span>, <span th:text="${limit.memoryLimit}"></span></p>-->
+
+    <div class="topbar">
+        <div class="topbar-item">
+            <span class="material-icons" style="vertical-align: middle;">data_usage</span> Points
+            <br/><span th:text="${problem.totalScoreWorth}" class="topbar-bottom-text"></span>
+        </div>
+        <div class="topbar-item">
+            <span class="material-icons" style="vertical-align: middle;">timer</span> Time Limit
+            <br/><span id="time-limit" class="topbar-bottom-text"></span>
+        </div>
+        <div class="topbar-item">
+            <span class="material-icons" style="vertical-align: middle;">linear_scale</span> Memory Limit
+            <br/><span id="memory-limit" class="topbar-bottom-text"></span>
+        </div>
+        <div class="topbar-item">
+            Created
+            <br/> <span th:text="${problem.timeCreated}" id="time-created" class="topbar-bottom-text"></span>
+        </div>
+
+        <div style="margin-left: auto;">
+            <button>Submissions</button>
+            <button>Submit</button>
+            <a class="button-link" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{'/problem/' + ${problem.name} + '/edit'}">Edit</a>
+        </div>
+    </div>
 
     <p id="problem-statement" th:text="${problem.problemStatement}" style="white-space: pre;">
     </p>
 
-    <input type="button" value="Submit">
 </div>
 
+<script th:inline="javascript">
+    // load header
+    let limits = /*[[${problem.limits}]]*/ [];
+    if (limits.length === 1) {
+        document.getElementById("time-limit").innerText = limits[0].timeLimit + "s";
+        document.getElementById("memory-limit").innerText = limits[0].memoryLimit + " MB";
+    } else {
+        let allTimeLim = "", allMemoryLim = "", timeLim = "", memoryLim = "";
+
+        limits.forEach(lim => {
+            if (lim.lang == "ALL") {
+                allTimeLim = lim.timeLimit + "s";
+                allMemoryLim = lim.memoryLimit + " MB";
+            } else {
+                timeLim += ", " + lim.timeLimit + "s (" + lim.lang + ")";
+                memoryLim += ", " + lim.memoryLimit + " MB (" + lim.lang + ")";
+            }
+
+            document.getElementById("time-limit").innerText = allTimeLim + timeLim;
+            document.getElementById("memory-limit").innerText = allMemoryLim + memoryLim;
+        });
+    }
+
+    let timeCreated = document.getElementById("time-created");
+    let date = new Date(timeCreated.innerText*1000);
+    timeCreated.innerText = date.getDate() + "/" + (date.getMonth()+1) + "/" + date.getFullYear();
+</script>
+
 <script>
+
+    // load problem statement
     function mdToHTML(text) {
         // render markdown with latex combining texme and katex
         let md = texme.render(text);

@@ -23,12 +23,12 @@ public class Problem {
     @Getter
     @Setter
     public static class ProblemLimits {
-        private JudgeLanguage lang;
+        private String lang;
         private double timeLimit, memoryLimit; // time limit in seconds, memory limit in mb
 
         public ProblemLimits() {}
 
-        public ProblemLimits(JudgeLanguage lang, double timeLimit, double memoryLimit) {
+        public ProblemLimits(String lang, double timeLimit, double memoryLimit) {
             this.lang = lang;
             this.timeLimit = timeLimit;
             this.memoryLimit = memoryLimit;
@@ -74,6 +74,9 @@ public class Problem {
 
     private boolean allowPartial;
     private int totalScoreWorth;
+
+    private int rateOfAC, usersSolved;
+    private long timeCreated;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

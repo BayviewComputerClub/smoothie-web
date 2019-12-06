@@ -10,7 +10,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +34,21 @@ public class AdminProblemController {
 
     @Getter
     @Setter
+    public static class ProblemFormLimit {
+        private String lang;
+        private double timeLimit, memoryLimit; // time limit in seconds, memory limit in mb
+
+        public ProblemFormLimit() {}
+
+        public ProblemFormLimit(String lang, double timeLimit, double memoryLimit) {
+            this.lang = lang;
+            this.timeLimit = timeLimit;
+            this.memoryLimit = memoryLimit;
+        }
+    }
+
+    @Getter
+    @Setter
     public static class ProblemForm {
         @NotNull
         @Size(min = 2)
@@ -44,15 +58,14 @@ public class AdminProblemController {
         @NotNull
         private String problemStatement;
 
-        @NotNull
-        private boolean allowPartial;
+        private String allowPartial;
 
         @NotNull
         @Min(0)
         private int totalScoreWorth;
 
         @NotNull
-        private List<Problem.ProblemLimits> limits;
+        private List<ProblemFormLimit> limits;
 
         private MultipartFile testData;
     }
@@ -63,9 +76,9 @@ public class AdminProblemController {
         defaultProblem = new ProblemForm();
         defaultProblem.name = "";
         defaultProblem.prettyName = "";
-        defaultProblem.allowPartial = false;
+        defaultProblem.allowPartial = "";
         defaultProblem.totalScoreWorth = 1;
-        defaultProblem.limits = Arrays.asList(new Problem.ProblemLimits(JudgeLanguage.ALL, 1.0, 256));
+        defaultProblem.limits = Arrays.asList(new ProblemFormLimit(JudgeLanguage.ALL.getPrettyName(), 1.0, 256));
         defaultProblem.problemStatement = "This is the problem statement.\n" +
                 "<br/>\n" +
                 "Please solve $$a + b = c$$.\n" +
@@ -95,7 +108,7 @@ public class AdminProblemController {
     public Mono<String> getNewProblemRoute(Model model) {
         model.addAttribute("newProblem", true);
         model.addAttribute("problem", defaultProblem);
-        model.addAttribute("languages", JudgeLanguage.values());
+        model.addAttribute("languages", JudgeLanguage.values);
         return Mono.just("admin/problem");
     }
 
@@ -108,7 +121,7 @@ public class AdminProblemController {
 
         model.addAttribute("newProblem", false);
         model.addAttribute("problem", problemToProblemForm(p));
-        model.addAttribute("languages", JudgeLanguage.values());
+        model.addAttribute("languages", JudgeLanguage.values);
         return Mono.just("admin/problem");
     }
 
@@ -120,11 +133,13 @@ public class AdminProblemController {
         if (result.hasErrors()) { // TODO
             page.addObject("newProblem", true);
             page.addObject("problem", form);
-            page.addObject("languages", JudgeLanguage.values());
+            page.addObject("languages", JudgeLanguage.values);
             page.setViewName("admin/problem");
         } else {
             Problem p = problemFormToProblem(null, form);
             if (form.getTestData() != null) p.setTestData(getTestCasesFromZip(form.getTestData()));
+
+            p.setTimeCreated(System.currentTimeMillis() / 1000L);
 
             problemService.saveProblem(p);
             page.setViewName("redirect:/admin/problems");
@@ -141,13 +156,13 @@ public class AdminProblemController {
         if (result.hasErrors()) { // TODO
             page.addObject("newProblem", false);
             page.addObject("problem", form);
-            page.addObject("languages", JudgeLanguage.values());
+            page.addObject("languages", JudgeLanguage.values);
             page.setViewName("admin/problem");
         } else {
             Problem p = problemFormToProblem(problemService.findProblemByName(name).block().getId(), form);
             if (form.getTestData() != null) p.setTestData(getTestCasesFromZip(form.getTestData()));
 
-            problemService.saveProblem(p); // TODO
+            problemService.saveProblem(p); // TODO update fields rather than save
             page.setViewName("redirect:/admin/problems");
         }
 
@@ -202,9 +217,12 @@ public class AdminProblemController {
         pf.setName(p.getName());
         pf.setPrettyName(p.getPrettyName());
         pf.setProblemStatement(p.getProblemStatement());
-        pf.setAllowPartial(p.isAllowPartial());
+        pf.setAllowPartial(p.isAllowPartial() ? "on" : ""); // TODO -=-=-=-=-=-=-=-=- not working
         pf.setTotalScoreWorth(p.getTotalScoreWorth());
-        pf.setLimits(new ArrayList<>(p.getLimits()));
+        pf.setLimits(new ArrayList<>());
+        for (Problem.ProblemLimits l : p.getLimits()) {
+            pf.getLimits().add(new ProblemFormLimit(JudgeLanguage.nameToPretty(l.getLang()), l.getTimeLimit(), l.getMemoryLimit()));
+        }
         return pf;
     }
 
@@ -214,10 +232,13 @@ public class AdminProblemController {
         problem.setName(form.getName());
         problem.setPrettyName(form.getPrettyName());
         problem.setProblemStatement(form.getProblemStatement());
-        problem.setAllowPartial(form.isAllowPartial());
+        problem.setAllowPartial(form.getAllowPartial() != null && form.getAllowPartial().equals("on")); // TODO -=-=-=-=-=-=-=-=- not working
         problem.setTotalScoreWorth(form.getTotalScoreWorth());
 
-        problem.setLimits(form.getLimits());
+        problem.setLimits(new ArrayList<>());
+        for (ProblemFormLimit l : form.getLimits()) {
+            problem.getLimits().add(new Problem.ProblemLimits(JudgeLanguage.prettyToName(l.getLang()), l.timeLimit, l.memoryLimit));
+        }
 
         problem.setSubmissions(new ArrayList<>());
         return problem;
