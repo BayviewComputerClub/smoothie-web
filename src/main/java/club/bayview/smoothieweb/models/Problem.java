@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.models;
 
+import club.bayview.smoothieweb.SmoothieRunner;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,10 +8,9 @@ import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Collection;
+import java.util.*;
 
 /**
  * Represents a programming problem on the site.
@@ -35,7 +35,7 @@ public class Problem {
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class ProblemBatchCase {
+    public static class ProblemBatchCase implements Comparable<ProblemBatchCase> {
         private int batchNum, caseNum, scoreWorth;
         private String input, expectedOutput;
 
@@ -49,6 +49,11 @@ public class Problem {
             this(batchNum, caseNum, input, expectedOutput);
             this.scoreWorth = scoreWorth;
         }
+
+        @Override
+        public int compareTo(ProblemBatchCase problemBatchCase) {
+            return caseNum > problemBatchCase.caseNum ? 1 : -1;
+        }
     }
 
 
@@ -59,7 +64,7 @@ public class Problem {
 
     private String prettyName;
 
-    private Collection<ProblemLimits> limits;
+    private List<ProblemLimits> limits;
 
     private Collection<ProblemBatchCase> testData;
 
@@ -72,5 +77,65 @@ public class Problem {
 
     private int rateOfAC, usersSolved;
     private long timeCreated;
+
+    public ProblemLimits getLimit(String lang) {
+        for (ProblemLimits l : getLimits()) {
+            if (l.getLang().equals(lang)) return l;
+        }
+        return null;
+    }
+
+    public HashMap<Integer, List<ProblemBatchCase>> getTestDataSorted() {
+        HashMap<Integer, List<ProblemBatchCase>> group = new HashMap<>();
+        for (ProblemBatchCase c : testData) {
+            group.computeIfAbsent(c.getBatchNum(), k -> new ArrayList<>(Arrays.asList(c)));
+            if (group.get(c.getBatchNum()) != null) {
+                group.get(c.getBatchNum()).add(c);
+            }
+        }
+
+        for (var list : group.values()) Collections.sort(list);
+        return group;
+    }
+
+    public SmoothieRunner.Problem getGRPCObject(String language) {
+
+        var test = getTestDataSorted();
+        int max = 0;
+        for (int i : test.keySet()) max = Math.max(max, i);
+
+        List<SmoothieRunner.ProblemBatch> batch = new ArrayList<>();
+        for (int i = 0; i <= max+1; i++) batch.add(SmoothieRunner.ProblemBatch.newBuilder().build());
+
+        ProblemLimits limit = getLimits().get(0);
+        for (ProblemLimits l : getLimits()) {
+            if (l.getLang().equals(language)) limit = l;
+        }
+
+        for (int i : test.keySet()) {
+            List<SmoothieRunner.ProblemBatchCase> cases = new ArrayList<>();
+            for (var c : test.get(i)) {
+
+                cases.add(SmoothieRunner.ProblemBatchCase.newBuilder()
+                        .setInput(c.getInput())
+                        .setExpectedAnswer(c.getExpectedOutput())
+                        .setTimeLimit(limit.getTimeLimit())
+                        .setMemLimit(limit.getMemoryLimit())
+                        .build());
+            }
+
+            batch.set(i, SmoothieRunner.ProblemBatch.newBuilder().addAllCases(cases).build());
+        }
+
+        return SmoothieRunner.Problem.newBuilder()
+                .setProblemID(1) // TODO
+                .setTestCasesHashCode(0) // TODO
+                .addAllTestBatches(batch)
+                .setGrader(SmoothieRunner.ProblemGrader.newBuilder()
+                        .setType("strict") // TODO
+                        .build())
+                .build();
+    }
+
 
 }

@@ -1,10 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>smoothie-web admin</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
+
+    <style>
+        h1 {
+            font-size: 64px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 128px;
+        }
+
+        p {
+            font-size: 32px;
+            font-family: Metropolis, sans-serif;
+            line-height: 128px;
+
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+        }
+
+        th {
+            text-align: left;
+        }
+        tr {
+            line-height: 50px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #009688;
+            transition: text-shadow 0.3s;
+        }
+        a:hover {
+            text-shadow: 0 0 2px #00bcd4;
+            transition: text-shadow 0.3s;
+        }
+
+        .button-link {
+            border-radius: 10px;
+            box-shadow: 1px 1px 5px 0 #607d8b;
+            cursor: pointer;
+            transition: box-shadow 0.3s;
+            font-family: Nunito, sans-serif;
+            font-size: 18px;
+            padding: 10px 20px 10px 20px;
+            background-color: #FFFFFF;
+            border-style: solid;
+            border-color: #FFFFFF;
+            border-width: 2px;
+            color: #424242;
+            text-decoration: none;
+        }
+
+        .button-link:focus {
+            outline: 0;
+        }
+
+        .button-link:hover {
+            box-shadow: 1px 1px 15px 0 #607d8b;
+            transition: box-shadow 0.3s;
+        }
+
+    </style>
 </head>
 <body>
 
+<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header-admin"></div>
+
+<div class="container">
+    <h1>Runner [[${runner.name}]]</h1>
+    <a style="margin-bottom: 20px;" class="button-link" th:href="@{'/admin/runner/' + ${runner.name} + '/edit'}">Edit Runner</a>
+
+    <p>Status: [[${runner.getState()}]]</p>
+
+    <p th:name="${runner.description}"></p>
+
+</div>
 </body>
 </html>

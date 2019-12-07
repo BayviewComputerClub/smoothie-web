@@ -21,12 +21,16 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
-    public Mono<User> findUserByEmail(String email) {
+    public Mono<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    public Mono<User> findUserByHandle(String handle) {
+    public Mono<User> findByHandle(String handle) {
         return userRepository.findByHandle(handle);
+    }
+
+    public Mono<User> findById(String id) {
+        return userRepository.findById(id);
     }
 
     @Override

@@ -1,12 +1,20 @@
 package club.bayview.smoothieweb.controllers;
 
+import club.bayview.smoothieweb.SmoothieRunner;
 import club.bayview.smoothieweb.models.JudgeLanguage;
+import club.bayview.smoothieweb.models.Problem;
+import club.bayview.smoothieweb.models.Submission;
+import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
+import club.bayview.smoothieweb.services.SmoothieRunnerService;
 import club.bayview.smoothieweb.services.SmoothieSubmissionService;
+import club.bayview.smoothieweb.services.SmoothieUserService;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,6 +26,7 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 
 @Controller
 public class JudgeController {
@@ -27,6 +36,12 @@ public class JudgeController {
 
     @Autowired
     private SmoothieSubmissionService submissionService;
+
+    @Autowired
+    private SmoothieRunnerService runnerService;
+
+    @Autowired
+    private SmoothieUserService userService;
 
     @RequestMapping("/contests")
     public String getContestsRoute(Model model) {
@@ -76,14 +91,52 @@ public class JudgeController {
 
     @PostMapping("/problem/{name}/submit")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public Mono<String> postProblemSubmitRoute(@PathVariable String name, @Valid SubmitRequest form, BindingResult result) {
+    public Mono<String> postProblemSubmitRoute(@PathVariable String name, @Valid SubmitRequest form, BindingResult result, Authentication auth) {
         System.out.println(form.getCode() + " " + form.getLanguage());
         return problemService.findProblemByName(name).flatMap(p -> {
             if (p == null) return Mono.just("404");
             if (result.hasErrors()) return Mono.just("redirect:/error"); // TODO
 
-            return Mono.just("redirect:/submission"); // TODO
+            String id = gradeSubmission(p, form, userService.findByHandle(auth.getName()).block());
+            return Mono.just("redirect:/submission/" + id); // TODO
         });
+    }
+
+    private String gradeSubmission(Problem problem, SubmitRequest form, User user) {
+        SmoothieRunner.TestSolutionRequest req = SmoothieRunner.TestSolutionRequest.newBuilder()
+                .setTestBatchEvenIfFailed(false)
+                .setCancelTesting(false)
+                .setSolution(SmoothieRunner.Solution.newBuilder()
+                        .setCode(form.code)
+                        .setLanguage(form.language)
+                        .setProblem(problem.getGRPCObject(form.language))
+                        .build())
+                .build();
+
+        ArrayList<Submission.SubmissionBatchCase> cases = new ArrayList<>();
+        for (Problem.ProblemBatchCase c : problem.getTestData()) {
+            Submission.SubmissionBatchCase subCase = new Submission.SubmissionBatchCase();
+            subCase.setBatchNumber(c.getBatchNum());
+            subCase.setCaseNumber(c.getCaseNum());
+
+            cases.add(subCase);
+        }
+
+        Submission sub = new Submission();
+        sub.setId(ObjectId.get().toString());
+        sub.setLang(form.language);
+        sub.setUserId(user.getId());
+        sub.setProblemId(problem.getId());
+        sub.setCode(form.code);
+        sub.setTimeSubmitted(System.currentTimeMillis() / 1000L);
+        sub.setCompileError("");
+        sub.setBatchCases(cases);
+        sub.setJudgingCompleted(false);
+
+        submissionService.saveSubmission(sub).block();
+        runnerService.grade(req, sub);
+
+        return sub.getId();
     }
 
 }

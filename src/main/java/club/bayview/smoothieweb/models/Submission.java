@@ -1,20 +1,27 @@
 package club.bayview.smoothieweb.models;
 
+import club.bayview.smoothieweb.SmoothieRunner;
+import lombok.Getter;
+import lombok.Setter;
+import org.bson.types.ObjectId;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents a submission made by a user for a problem.
  */
 
 @Document
+@Getter
+@Setter
 public class Submission {
 
+    @Getter
+    @Setter
     public static class SubmissionBatchCase {
         public static final String AWAITING_RESULTS = "AR";
 
@@ -29,69 +36,18 @@ public class Submission {
         public boolean isAwaitingResults() {
             return resultCode.equals(AWAITING_RESULTS);
         }
-
-        public long getBatchNumber() {
-            return batchNumber;
-        }
-
-        public void setBatchNumber(long batchNumber) {
-            this.batchNumber = batchNumber;
-        }
-
-        public long getCaseNumber() {
-            return caseNumber;
-        }
-
-        public void setCaseNumber(long caseNumber) {
-            this.caseNumber = caseNumber;
-        }
-
-        public String getResultCode() {
-            return resultCode;
-        }
-
-        public void setResultCode(String resultCode) {
-            this.resultCode = resultCode;
-        }
-
-        public String getError() {
-            return error;
-        }
-
-        public void setError(String error) {
-            this.error = error;
-        }
-
-        public double getTime() {
-            return time;
-        }
-
-        public void setTime(double time) {
-            this.time = time;
-        }
-
-        public double getMemUsage() {
-            return memUsage;
-        }
-
-        public void setMemUsage(double memUsage) {
-            this.memUsage = memUsage;
-        }
     }
 
     @Id
     private String id;
 
-    private JudgeLanguage lang;
+    private String lang;
 
-    @DBRef
-    private User user;
+    private String userId;
 
-    @DBRef
-    private Problem problem;
+    private String problemId;
 
-    @DBRef
-    private Runner runner;
+    private String runnerId;
 
     private String code;
     private Long timeSubmitted;
@@ -101,81 +57,22 @@ public class Submission {
 
     private boolean judgingCompleted;
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    public List<List<SubmissionBatchCase>> getBatchesOrganized() {
+        HashMap<Long, List<SubmissionBatchCase>> m = new HashMap<>();
 
-    public String getId() {
-        return id;
-    }
+        long max = 0;
+        for (SubmissionBatchCase c : batchCases) {
+            m.computeIfAbsent(c.getBatchNumber(), k -> new ArrayList<>(Arrays.asList(c)));
+            if (m.get(c.getBatchNumber()) != null) {
+                m.get(c.getBatchNumber()).add(c);
+            }
+            max = Math.max(max, c.getBatchNumber());
+        }
 
-    public JudgeLanguage getLang() {
-        return lang;
-    }
+        List<List<SubmissionBatchCase>> batches = new ArrayList<>();
+        for (int i = 0; i <= max+1; i++) batches.add(new ArrayList<>());
 
-    public void setLang(JudgeLanguage lang) {
-        this.lang = lang;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Problem getProblem() {
-        return problem;
-    }
-
-    public void setProblem(Problem problem) {
-        this.problem = problem;
-    }
-
-    public Runner getRunner() {
-        return runner;
-    }
-
-    public void setRunner(Runner runner) {
-        this.runner = runner;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public Long getTimeSubmitted() {
-        return timeSubmitted;
-    }
-
-    public void setTimeSubmitted(Long timeSubmitted) {
-        this.timeSubmitted = timeSubmitted;
-    }
-
-    public String getCompileError() {
-        return compileError;
-    }
-
-    public void setCompileError(String compileError) {
-        this.compileError = compileError;
-    }
-
-    public ArrayList<SubmissionBatchCase> getBatchCases() {
-        return batchCases;
-    }
-
-    public void setBatchCases(ArrayList<SubmissionBatchCase> batchCases) {
-        this.batchCases = batchCases;
-    }
-
-    public boolean hasJudgingCompleted() {
-        return judgingCompleted;
-    }
-
-    public void setJudgingCompleted(boolean judgingCompleted) {
-        this.judgingCompleted = judgingCompleted;
+        for (long l : m.keySet()) batches.set((int) l, m.get(l));
+        return batches;
     }
 }

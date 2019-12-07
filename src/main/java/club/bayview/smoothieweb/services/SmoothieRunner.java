@@ -12,7 +12,7 @@ public class SmoothieRunner {
 
     private ManagedChannel channel;
 
-    private String id, state;
+    private String id;
 
     private SmoothieRunnerAPIGrpc.SmoothieRunnerAPIBlockingStub blockingStub;
     private SmoothieRunnerAPIGrpc.SmoothieRunnerAPIStub asyncStub;

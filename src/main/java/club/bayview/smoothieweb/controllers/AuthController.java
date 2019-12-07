@@ -2,13 +2,15 @@ package club.bayview.smoothieweb.controllers;
 
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieUserService;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import reactor.core.publisher.Mono;
 
@@ -21,6 +23,9 @@ public class AuthController {
     @Autowired
     private SmoothieUserService userDetailsService;
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
     public static class RegisterForm {
         @NotNull
         private String username;
@@ -30,30 +35,6 @@ public class AuthController {
 
         @NotNull
         private String email;
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
 
     }
 
@@ -79,9 +60,9 @@ public class AuthController {
     public ModelAndView registerPostRoute(@Valid RegisterForm form, BindingResult result) {
         ModelAndView page = new ModelAndView();
 
-        if (userDetailsService.findUserByHandle(form.username).block() != null) {
+        if (userDetailsService.findByHandle(form.username).block() != null) {
             result.rejectValue("username", "error.user", "The username has already been taken!");
-        } else if (userDetailsService.findUserByEmail(form.email).block() != null) {
+        } else if (userDetailsService.findByEmail(form.email).block() != null) {
             result.rejectValue("email", "error.user", "The email has already been used!");
         }
 

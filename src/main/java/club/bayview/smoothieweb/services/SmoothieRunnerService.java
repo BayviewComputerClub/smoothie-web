@@ -71,6 +71,9 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
     public void grade(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req, Submission submission) {
         SmoothieRunner runner = getAvailableRunner(JudgeLanguage.valueOf(req.getSolution().getLanguage()));
 
+        submission.setRunnerId(findRunnerById(runner.getId()).block().getId());
+        submissionRepository.save(submission).subscribe();
+
         StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> observer = runner.getAsyncStub().testSolution(new StreamObserver<>() {
 
             @Override
@@ -82,7 +85,6 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
                     submission.setJudgingCompleted(true);
                 } else {
                     for (Submission.SubmissionBatchCase c : submission.getBatchCases()) {
-
                         if (c.getBatchNumber() == value.getTestCaseResult().getBatchNumber() && c.getCaseNumber() == value.getTestCaseResult().getCaseNumber()) {
                             c.setError(value.getTestCaseResult().getResultInfo());
                             c.setMemUsage(value.getTestCaseResult().getMemUsage());
@@ -90,11 +92,10 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
                             c.setResultCode(value.getTestCaseResult().getResult());
                             // TODO send to websocket
                         }
-
                     }
                 }
 
-                submissionRepository.save(submission);
+                submissionRepository.save(submission).subscribe();
             }
 
             @Override
