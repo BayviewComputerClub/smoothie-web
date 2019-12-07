@@ -1,6 +1,8 @@
 package club.bayview.smoothieweb.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -17,32 +19,25 @@ import java.util.Collection;
 @Document
 @Getter
 @Setter
+@NoArgsConstructor
 public class Problem {
 
     // problem requirements for each language (or just the ALL language to apply to all)
     @Getter
     @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ProblemLimits {
         private String lang;
         private double timeLimit, memoryLimit; // time limit in seconds, memory limit in mb
-
-        public ProblemLimits() {}
-
-        public ProblemLimits(String lang, double timeLimit, double memoryLimit) {
-            this.lang = lang;
-            this.timeLimit = timeLimit;
-            this.memoryLimit = memoryLimit;
-        }
-
     }
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ProblemBatchCase {
         private int batchNum, caseNum, scoreWorth;
         private String input, expectedOutput;
-
-        public ProblemBatchCase() {}
 
         public ProblemBatchCase(int batchNum, int caseNum, String input, String expectedOutput) {
             this.batchNum = batchNum;
@@ -77,11 +72,5 @@ public class Problem {
 
     private int rateOfAC, usersSolved;
     private long timeCreated;
-
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    public Problem() {
-        super();
-    }
 
 }

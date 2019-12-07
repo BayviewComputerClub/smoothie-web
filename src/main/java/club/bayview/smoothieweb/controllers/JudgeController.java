@@ -6,13 +6,17 @@ import club.bayview.smoothieweb.services.SmoothieSubmissionService;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @Controller
@@ -58,15 +62,27 @@ public class JudgeController {
     }
 
     @GetMapping("/problem/{name}/submit")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public Mono<String> getProblemSubmitRoute(@PathVariable String name, Model model) {
-
         return problemService.findProblemByName(name).flatMap(p -> {
             if (p == null) return Mono.just("404");
 
             model.addAttribute("problemName", p.getPrettyName());
             model.addAttribute("submitRequest", new SubmitRequest());
-            model.addAttribute("languages", JudgeLanguage.values);
+            model.addAttribute("languages", JudgeLanguage.getLanguages());
             return Mono.just("submit");
+        });
+    }
+
+    @PostMapping("/problem/{name}/submit")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public Mono<String> postProblemSubmitRoute(@PathVariable String name, @Valid SubmitRequest form, BindingResult result) {
+        System.out.println(form.getCode() + " " + form.getLanguage());
+        return problemService.findProblemByName(name).flatMap(p -> {
+            if (p == null) return Mono.just("404");
+            if (result.hasErrors()) return Mono.just("redirect:/error"); // TODO
+
+            return Mono.just("redirect:/submission"); // TODO
         });
     }
 

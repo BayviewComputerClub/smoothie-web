@@ -1,5 +1,8 @@
 package club.bayview.smoothieweb.models;
 
+import lombok.val;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,18 +31,24 @@ public class JudgeLanguage {
 
     public static List<JudgeLanguage> values = Arrays.asList(ALL, C11, CPP11, JAVA8, JAVA11, PYTHON3);
 
+    public static List<JudgeLanguage> getLanguages() {
+        var langs = new ArrayList<>(values);
+        langs.remove(ALL);
+        return langs;
+    }
+
     public static String nameToPretty(String name) {
-        for (JudgeLanguage lang : values) if (name.equals(lang.getName())) return lang.getPrettyName();
+        for (var lang : values) if (name.equals(lang.getName())) return lang.getPrettyName();
         return null;
     }
 
     public static String prettyToName(String pretty) {
-        for (JudgeLanguage lang : values) if (pretty.equals(lang.getPrettyName())) return lang.getName();
+        for (var lang : values) if (pretty.equals(lang.getPrettyName())) return lang.getName();
         return null;
     }
 
     public static JudgeLanguage valueOf(String str) {
-        for (JudgeLanguage lang : values) if (str.equals(lang.getName())) return lang;
+        for (var lang : values) if (str.equals(lang.getName())) return lang;
         return null;
     }
 

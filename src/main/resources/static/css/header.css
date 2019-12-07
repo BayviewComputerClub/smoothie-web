@@ -30,6 +30,7 @@ header a {
     text-decoration: none;
     font-size: 18px;
     line-height: 15px;
+    transition: text-shadow 0.5s;
 }
 
 header a:hover {

@@ -1,6 +1,7 @@
 package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.SmoothieRunnerAPIGrpc;
+import club.bayview.smoothieweb.models.Runner;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -11,13 +12,17 @@ public class SmoothieRunner {
 
     private ManagedChannel channel;
 
-    private String id;
+    private String id, state;
 
     private SmoothieRunnerAPIGrpc.SmoothieRunnerAPIBlockingStub blockingStub;
     private SmoothieRunnerAPIGrpc.SmoothieRunnerAPIStub asyncStub;
     private SmoothieRunnerAPIGrpc.SmoothieRunnerAPIFutureStub futureStub;
 
     private Logger logger = LoggerFactory.getLogger(SmoothieRunner.class);
+
+    public SmoothieRunner(Runner runner) {
+        this(runner.getId(), runner.getHost(), runner.getPort());
+    }
 
     public SmoothieRunner(String id, String host, int port) {
         this(id, ManagedChannelBuilder.forAddress(host, port).usePlaintext());
@@ -30,7 +35,6 @@ public class SmoothieRunner {
         blockingStub = SmoothieRunnerAPIGrpc.newBlockingStub(channel);
         asyncStub = SmoothieRunnerAPIGrpc.newStub(channel);
         futureStub = SmoothieRunnerAPIGrpc.newFutureStub(channel);
-
         // notifiers
         channel.notifyWhenStateChanged(ConnectivityState.READY, () -> logger.info(String.format("Runner %s changed state: READY", id)));
         channel.notifyWhenStateChanged(ConnectivityState.CONNECTING, () -> logger.info(String.format("Runner %s changed state: CONNECTING", id)));
@@ -53,6 +57,19 @@ public class SmoothieRunner {
 
     public SmoothieRunnerAPIGrpc.SmoothieRunnerAPIFutureStub getFutureStub() {
         return futureStub;
+    }
+
+    public ManagedChannel getChannel() {
+        return channel;
+    }
+
+    public ConnectivityState getStatus() {
+        return channel.getState(false);
+    }
+
+    public void cleanStop() {
+        // clean shutdown, allowing threads to finish
+        channel.shutdown();
     }
 
 }

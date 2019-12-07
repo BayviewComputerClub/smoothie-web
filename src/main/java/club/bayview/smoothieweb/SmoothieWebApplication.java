@@ -16,8 +16,10 @@ public class SmoothieWebApplication {
 
     private Logger logger = LoggerFactory.getLogger(SmoothieWebApplication.class);
 
+    public static ApplicationContext context;
+
     public static void main(String[] args) {
-        SpringApplication.run(SmoothieWebApplication.class, args);
+        context = SpringApplication.run(SmoothieWebApplication.class, args);
     }
 
     @Bean

@@ -3,7 +3,9 @@ package club.bayview.smoothieweb.controllers.admin;
 import club.bayview.smoothieweb.models.JudgeLanguage;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,19 +36,11 @@ public class AdminProblemController {
 
     @Getter
     @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ProblemFormLimit {
         private String lang;
         private double timeLimit, memoryLimit; // time limit in seconds, memory limit in mb
-
-        // for thymeleaf object construction
-        public ProblemFormLimit() {
-        }
-
-        public ProblemFormLimit(String lang, double timeLimit, double memoryLimit) {
-            this.lang = lang;
-            this.timeLimit = timeLimit;
-            this.memoryLimit = memoryLimit;
-        }
     }
 
     @Getter

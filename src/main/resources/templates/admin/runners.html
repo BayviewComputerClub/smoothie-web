@@ -14,15 +14,26 @@
             font-family: Metropolis-bold, sans-serif;
             line-height: 128px;
         }
-        p {
-            font-size: 32px;
-            font-family: Metropolis, sans-serif;
-            line-height: 128px;
-
-        }
 
         .container {
             animation: header-fade-in 1s;
+        }
+
+        th {
+            text-align: left;
+        }
+        tr {
+            line-height: 50px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #009688;
+            transition: text-shadow 0.3s;
+        }
+        a:hover {
+            text-shadow: 0 0 2px #00bcd4;
+            transition: text-shadow 0.3s;
         }
 
         .button-link {
@@ -58,12 +69,31 @@
 <div th:replace="fragments/header-admin"></div>
 
 <div class="container">
-    <h1>Manage Problems</h1>
-    <p>
-        Click on a thing to do a thing.
-        <br/>
-        <a style="margin-top: 20px;" class="button-link" th:href="@{'/admin/new-problem'}">New Problem</a>
-    </p>
+    <h1>Runners</h1>
+    <a class="button-link" th:href="@{'/admin/new-runner'}">New Runner</a>
+    <table style="width: 80%; margin-top:40px;">
+        <thead>
+
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Status</th>
+        </tr>
+        <tr>
+            <th colspan="3"><hr/></th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr th:each="runner: ${runners}">
+            <td><a th:href="@{'/admin/runner/' + ${runner.name}}" th:text="${runner.name}"></a></td>
+            <td th:text="${runner.description}"></td>
+            <td th:text="${runner.getState()}"></td>
+        </tr>
+
+        </tbody>
+    </table>
+
 </div>
 </body>
 </html>

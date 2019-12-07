@@ -7,13 +7,15 @@
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Code&display=swap" rel="stylesheet">
 
     <style>
         h1 {
-            font-size: 48px;
+            font-size: 36px;
             font-family: Metropolis-bold, sans-serif;
             line-height: 96px;
         }
+
         p {
             font-size: 18px;
             line-height: 1.5;
@@ -86,6 +88,11 @@
             margin-bottom: 20px;
         }
 
+        .bottom {
+            text-align: center;
+            margin-top: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -93,31 +100,42 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1 th:text="Submit solution for ${problemName}"></h1>
+    <h1>Submit solution for [[${problemName}]]</h1>
 
-    <form method="POST" id="submit-form" th:object="${submitRequest}">
+    <form method="POST" id="submit-form" th:object="${submitRequest}" onsubmit="addCodeToPost()">
         <label for="code-box">
 
         </label>
-        <div id="code-box">
+        <div id="code-box" style="height: 500px; width: 100%;"></div>
 
+        <div class="bottom">
+            <select form="submit-form" th:field="*{language}">
+                <option th:each="lang : ${languages}" th:value="${lang.getPrettyName()}"
+                        th:text="${lang.getPrettyName()}"></option>
+            </select>
+
+            <textarea form="submit-form" id="code" th:field="*{code}" style="display:none"></textarea>
+
+            <input type="submit" value="Submit">
         </div>
-
-        <select form="submit-form">
-            <option th:each="lang : ${languages}" th:value="${lang.getPrettyName()}" th:text="${lang.getPrettyName()}"
-                    th:selected="${lang.getPrettyName() == limit.lang}"></option>
-        </select>
-
-        <input type="submit" value="Submit">
     </form>
 
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.6/ace.js"></script>
 <script>
-    ace.edit(document.getElementById("code-box"), {
-        selectionStyle: "text"
+    let editor = ace.edit(document.getElementById("code-box"), {
+        selectionStyle: "text",
+        newLineMode: "unix",
+        theme: "ace/theme/clouds",
+        fontSize: 14,
+        fontFamily: '"Fira Code", sans-serif',
+        mode: "ace/mode/c_cpp",
     });
+
+    function addCodeToPost() {
+        document.getElementById("code").value = editor.getValue();
+    }
 </script>
 </body>
 </html>
