@@ -35,6 +35,10 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
         return userRepository.findById(id);
     }
 
+    public UserRepository getUserRepository() {
+        return userRepository;
+    }
+
     @Override
     public Mono<UserDetails> findByUsername(String handle) {
         return userRepository.findByHandle(handle).cast(UserDetails.class);

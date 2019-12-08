@@ -2,7 +2,6 @@ package club.bayview.smoothieweb;
 
 import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
-import club.bayview.smoothieweb.services.SmoothieSubmissionService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
@@ -12,11 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
 import org.springframework.data.mongodb.core.mapping.event.LoggingEventListener;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
-import org.springframework.web.context.request.RequestContextListener;
 
 import javax.annotation.PostConstruct;
 
@@ -54,8 +51,15 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
     @Autowired
     private SmoothieUserService userService;
 
+    // let mongo client automatically create indexes
+    @Override
+    public boolean autoIndexCreation() {
+        return true;
+    }
+
     @PostConstruct
     public void init() {
+
         // create default admin account
         if (userService.findByUsername("admin").block() == null) {
             User admin = new User("admin", "", adminPassword);

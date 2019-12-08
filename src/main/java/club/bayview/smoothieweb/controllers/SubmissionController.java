@@ -30,11 +30,9 @@ public class SubmissionController {
 
             model.addAttribute("submission", submission);
 
-            System.out.println(submission.getUserId() + " " + userService.findUserById(submission.getUserId()).block());
             return Mono.zip(userService.findUserById(submission.getUserId()), problemService.findProblemById(submission.getProblemId())).flatMap(tuple -> {
                 model.addAttribute("user", tuple.getT1());
                 model.addAttribute("problem", tuple.getT2());
-                System.out.println("YIHIHOPIHN -=-=--=-=-=-=-=");
                 return Mono.just("submission");
             });
         });
@@ -62,8 +60,13 @@ public class SubmissionController {
     }
 
     @GetMapping("/problem/{name}/submissions")
-    public String getProblemSubmissionsRoute(@PathVariable String name, Model model) {
-        return "submissions";
+    public Mono<String> getProblemSubmissionsRoute(@PathVariable String name, Model model) {
+        return problemService.findProblemByName(name).flatMap(p -> {
+            if (p == null) return Mono.just("404");
+
+            model.addAttribute("submissions", submissionService.findSubmissionsByProblem(p.getId()).collectList().block());
+            return Mono.just("submissions");
+        });
     }
 
 

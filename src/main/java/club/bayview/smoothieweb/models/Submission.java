@@ -8,6 +8,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.redis.core.index.Indexed;
 
 import java.util.*;
 
@@ -51,6 +52,7 @@ public class Submission {
 
     private String userId;
 
+    @Indexed
     private String problemId;
 
     private String runnerId;
@@ -60,6 +62,8 @@ public class Submission {
 
     private String compileError;
     private List<List<SubmissionBatchCase>> batchCases;
+
+    private String verdict;
 
     private boolean judgingCompleted;
 

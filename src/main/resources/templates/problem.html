@@ -109,7 +109,7 @@
         </div>
 
         <div style="margin-left: auto;">
-            <button>Submissions</button>
+            <a class="button-link" th:href="@{'/problem/' + ${problem.name} + '/submissions'}">Submissions</a>
             <a class="button-link" th:href="@{'/problem/' + ${problem.name} + '/submit'}">Submit</a>
             <a class="button-link" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{'/problem/' + ${problem.name} + '/edit'}">Edit</a>
         </div>
