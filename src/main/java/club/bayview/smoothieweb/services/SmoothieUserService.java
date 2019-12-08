@@ -4,6 +4,8 @@ import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.models.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -21,15 +23,15 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
-    public Mono<User> findByEmail(String email) {
+    public Mono<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    public Mono<User> findByHandle(String handle) {
+    public Mono<User> findUserByHandle(String handle) {
         return userRepository.findByHandle(handle);
     }
 
-    public Mono<User> findById(String id) {
+    public Mono<User> findUserById(String id) {
         return userRepository.findById(id);
     }
 
@@ -41,7 +43,6 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
     public Flux<User> findUsers() {
         return userRepository.findAll();
     }
-
 
     public void saveUser(User user) {
         user.setPassword(new Argon2PasswordEncoder().encode(user.getPassword()));

@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.controllers.admin;
 
+import club.bayview.smoothieweb.SmoothieRunner;
 import club.bayview.smoothieweb.models.JudgeLanguage;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
@@ -176,10 +177,10 @@ public class AdminProblemController {
         }
     }
 
-    private List<Problem.ProblemBatchCase> getTestCasesFromZip(MultipartFile file) throws IOException {
+    private List<List<Problem.ProblemBatchCase>> getTestCasesFromZip(MultipartFile file) throws IOException {
         if (file == null) return new ArrayList<>();
 
-        List<Problem.ProblemBatchCase> list = new ArrayList<>();
+        List<List<Problem.ProblemBatchCase>> list = new ArrayList<>();
         ZipInputStream zis = new ZipInputStream(file.getInputStream());
         ZipEntry entry;
 
@@ -199,20 +200,27 @@ public class AdminProblemController {
 
             // add to list
             boolean found = false;
-            for (Problem.ProblemBatchCase p : list) {
-                if (p.getBatchNum() == batchNum && p.getCaseNum() == caseNum) {
+
+            if (batchNum >= list.size()) {
+                for (int i = list.size(); i <= batchNum; i++) {
+                    list.add(new ArrayList<>());
+                }
+            }
+
+            for (var c : list.get(batchNum)) {
+                if (c.getCaseNum() == caseNum) {
                     found = true;
                     if (isInput) {
-                        p.setInput(data.toString());
+                        c.setInput(data.toString());
                     } else {
-                        p.setExpectedOutput(data.toString());
+                        c.setExpectedOutput(data.toString());
                     }
                 }
             }
 
             if (!found) {
-                if (isInput) list.add(new Problem.ProblemBatchCase(batchNum, caseNum, data.toString(), ""));
-                else list.add(new Problem.ProblemBatchCase(batchNum, caseNum, "", data.toString()));
+                if (isInput) list.get(batchNum).add(new Problem.ProblemBatchCase(batchNum, caseNum, data.toString(), ""));
+                else list.get(batchNum).add(new Problem.ProblemBatchCase(batchNum, caseNum, "", data.toString()));
             }
         }
 

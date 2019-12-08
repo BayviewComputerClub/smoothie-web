@@ -7,18 +7,13 @@
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Code&display=swap" rel="stylesheet">
 
     <style>
         h1 {
             font-size: 48px;
             font-family: Metropolis-bold, sans-serif;
             line-height: 96px;
-        }
-
-        h3 {
-            font-size: 24px;
-            font-family: Metropolis-bold, sans-serif;
-            line-height: 48px;
         }
 
         p {
@@ -86,14 +81,22 @@
             color: #9e9e9e;
             line-height: 1.5
         }
+
+        .noselection .ace_marker-layer .ace_selection {
+            background: transparent;
+        }
+
+        .noselection .ace_cursor {
+            color: transparent;
+        }
     </style>
 </head>
 <body>
 
 <div th:replace="fragments/header :: header"></div>
 
-<div class="container">
-    <h1>Submission for <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a> in [[${submission.lang}]] by [[${user.handle}]]</h1>
+<div class="container" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <h1>Code for <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a> submission in [[${submission.lang}]] by [[${user.handle}]]</h1>
 
     <div class="topbar">
         <div class="topbar-item">
@@ -104,26 +107,9 @@
             Language
             <br/> <span th:text="${submission.lang}" class="topbar-bottom-text"></span>
         </div>
-        <div class="topbar-item">
-            <a class="button-link" th:href="@{'/submission/' + ${submission.id} + '/code'}">Code</a>
-        </div>
     </div>
 
-    <div th:unless="${submission.compileError} == null">
-        <h3>Compile Error</h3>
-        <p th:text="${submission.compileError}"></p>
-    </div>
-
-    <ul th:if="${submission.compileError} == null">
-        <li th:each="batch, iter : ${submission.batchCases}">
-            Batch #[[${iter.index}+1]]:
-            <ul>
-                <li th:each="case, iter : ${batch}">
-                    Case #[[${iter.index}+1]]: [[${case.resultCode}]] ([[${case.time}]]s) ([[${case.memUsage}]]MB)
-                </li>
-            </ul>
-        </li>
-    </ul>
+    <div id="code-box" class="noselection" style="height: 500px; width: 100%;"></div>
 
 </div>
 
@@ -131,6 +117,23 @@
     let timeSubmitted = document.getElementById("time-submitted");
     let date = new Date(timeSubmitted.innerText*1000);
     timeSubmitted.innerText = ("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear() + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.6/ace.js"></script>
+<script th:inline="javascript">
+    let editor = ace.edit(document.getElementById("code-box"), {
+        selectionStyle: "text",
+        newLineMode: "unix",
+        theme: "ace/theme/clouds",
+        fontSize: 14,
+        fontFamily: '"Fira Code", sans-serif',
+        mode: "ace/mode/c_cpp",
+        readOnly: true,
+        highlightActiveLine: false,
+        highlightSelectedWord: false,
+    });
+    editor.setValue(/*[[${submission.code}]]*/);
+
 </script>
 
 </body>

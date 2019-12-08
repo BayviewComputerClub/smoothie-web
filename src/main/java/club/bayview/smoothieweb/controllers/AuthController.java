@@ -60,9 +60,9 @@ public class AuthController {
     public ModelAndView registerPostRoute(@Valid RegisterForm form, BindingResult result) {
         ModelAndView page = new ModelAndView();
 
-        if (userDetailsService.findByHandle(form.username).block() != null) {
+        if (userDetailsService.findUserByHandle(form.username).block() != null) {
             result.rejectValue("username", "error.user", "The username has already been taken!");
-        } else if (userDetailsService.findByEmail(form.email).block() != null) {
+        } else if (userDetailsService.findUserByEmail(form.email).block() != null) {
             result.rejectValue("email", "error.user", "The email has already been used!");
         }
 

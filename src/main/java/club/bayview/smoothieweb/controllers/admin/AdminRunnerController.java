@@ -5,6 +5,7 @@ import club.bayview.smoothieweb.services.SmoothieRunnerService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -112,12 +113,10 @@ public class AdminRunnerController {
         // TODO check if name exists
 
         Runner r = runnerFormToRunner(null, form);
+        r.setId(ObjectId.get().toString());
 
-        return runnerService.saveRunner(r).flatMap(v -> {
-            System.out.println("-=-=-=-=-=-=- IN THE THING"); // TODO
-            runnerService.updateSmoothieRunner(r);
-            return Mono.empty();
-        }).then(Mono.just("redirect:/admin/runners"));
+        runnerService.updateSmoothieRunner(r);
+        return runnerService.saveRunner(r).then(Mono.just("redirect:/admin/runners"));
     }
 
     @PostMapping("/admin/runner/{name}/edit")

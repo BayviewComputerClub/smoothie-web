@@ -5,9 +5,7 @@ import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.MongoId;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,9 +18,11 @@ import java.util.stream.Collectors;
  */
 
 @Document
+@Getter
+@Setter
 public class User implements UserDetails {
 
-    @MongoId
+    @Id // do not use @mongoid
     private String id;
     @Indexed(unique = true)
     private String handle;
@@ -35,13 +35,13 @@ public class User implements UserDetails {
 
     // profile
     private String description;
-    private Double score;
+    private double score;
 
     private Set<Role> roles;
 
-    private Collection<ObjectId> submissions;
+    private List<ObjectId> submissions;
 
-    private Collection<ObjectId> solved;
+    private List<ObjectId> solved;
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -84,82 +84,6 @@ public class User implements UserDetails {
     }
 
     // ~~~~~
-
-    public String getId() {
-        return id;
-    }
-
-    public String getHandle() {
-        return handle;
-    }
-
-    public void setHandle(String handle) {
-        this.handle = handle;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public double getScore() {
-        return score;
-    }
-
-    public void setScore(double score) {
-        this.score = score;
-    }
-
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
-
-    public Collection<ObjectId> getSubmissions() {
-        return submissions;
-    }
-
-    public void setSubmissions(Collection<ObjectId> submissions) {
-        this.submissions = submissions;
-    }
-
-    public Collection<ObjectId> getSolved() {
-        return solved;
-    }
-
-    public void setSolved(Collection<ObjectId> solved) {
-        this.solved = solved;
-    }
 
     @Override
     public int hashCode() {

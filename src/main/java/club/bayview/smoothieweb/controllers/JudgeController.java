@@ -26,7 +26,6 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 
 @Controller
 public class JudgeController {
@@ -92,12 +91,13 @@ public class JudgeController {
     @PostMapping("/problem/{name}/submit")
     @PreAuthorize("hasRole('ROLE_USER')")
     public Mono<String> postProblemSubmitRoute(@PathVariable String name, @Valid SubmitRequest form, BindingResult result, Authentication auth) {
-        System.out.println(form.getCode() + " " + form.getLanguage());
+        form.setLanguage(JudgeLanguage.prettyToName(form.getLanguage()));
+
         return problemService.findProblemByName(name).flatMap(p -> {
             if (p == null) return Mono.just("404");
             if (result.hasErrors()) return Mono.just("redirect:/error"); // TODO
 
-            String id = gradeSubmission(p, form, userService.findByHandle(auth.getName()).block());
+            String id = gradeSubmission(p, form, userService.findUserByHandle(auth.getName()).block());
             return Mono.just("redirect:/submission/" + id); // TODO
         });
     }
@@ -113,15 +113,6 @@ public class JudgeController {
                         .build())
                 .build();
 
-        ArrayList<Submission.SubmissionBatchCase> cases = new ArrayList<>();
-        for (Problem.ProblemBatchCase c : problem.getTestData()) {
-            Submission.SubmissionBatchCase subCase = new Submission.SubmissionBatchCase();
-            subCase.setBatchNumber(c.getBatchNum());
-            subCase.setCaseNumber(c.getCaseNum());
-
-            cases.add(subCase);
-        }
-
         Submission sub = new Submission();
         sub.setId(ObjectId.get().toString());
         sub.setLang(form.language);
@@ -129,8 +120,7 @@ public class JudgeController {
         sub.setProblemId(problem.getId());
         sub.setCode(form.code);
         sub.setTimeSubmitted(System.currentTimeMillis() / 1000L);
-        sub.setCompileError("");
-        sub.setBatchCases(cases);
+        sub.setBatchCases(problem.getSubmissionBatchCases());
         sub.setJudgingCompleted(false);
 
         submissionService.saveSubmission(sub).block();

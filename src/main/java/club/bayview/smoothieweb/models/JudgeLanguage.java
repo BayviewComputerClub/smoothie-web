@@ -1,7 +1,5 @@
 package club.bayview.smoothieweb.models;
 
-import lombok.val;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,20 +14,23 @@ public class JudgeLanguage {
     public static JudgeLanguage ALL = new JudgeLanguage("ALL", "All"),
 
     // c
-    C11 = new JudgeLanguage("C11", "C11"),
+    C11 = new JudgeLanguage("c11", "C11"),
 
     // c++
-    CPP11 = new JudgeLanguage("C++11", "C++11"),
+    CPP11 = new JudgeLanguage("c++11", "C++11"),
+    CPP14 = new JudgeLanguage("c++14", "C++14"),
+    CPP17 = new JudgeLanguage("c++17", "C++17"),
+    CPP98 = new JudgeLanguage("c++98", "C++98"),
 
     // java
-    JAVA8 = new JudgeLanguage("JAVA8", "Java 1.8"),
-    JAVA11 = new JudgeLanguage("JAVA11", "Java 11"),
+    JAVA8 = new JudgeLanguage("java8", "Java 1.8"),
+    JAVA11 = new JudgeLanguage("java11", "Java 11"),
 
     // python
-    PYTHON3 = new JudgeLanguage("PYTHON3", "Python 3")
+    PYTHON3 = new JudgeLanguage("python3", "Python 3")
             ;
 
-    public static List<JudgeLanguage> values = Arrays.asList(ALL, C11, CPP11, JAVA8, JAVA11, PYTHON3);
+    public static List<JudgeLanguage> values = Arrays.asList(ALL, C11, CPP11, CPP14, CPP17, CPP98, JAVA8, JAVA11, PYTHON3);
 
     public static List<JudgeLanguage> getLanguages() {
         var langs = new ArrayList<>(values);

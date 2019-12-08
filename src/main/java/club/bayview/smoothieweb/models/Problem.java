@@ -66,11 +66,11 @@ public class Problem {
 
     private List<ProblemLimits> limits;
 
-    private Collection<ProblemBatchCase> testData;
+    private List<List<ProblemBatchCase>> testData;
 
     private String problemStatement;
 
-    private Collection<ObjectId> submissions;
+    private List<ObjectId> submissions;
 
     private boolean allowPartial;
     private int totalScoreWorth;
@@ -78,59 +78,50 @@ public class Problem {
     private int rateOfAC, usersSolved;
     private long timeCreated;
 
-    public ProblemLimits getLimit(String lang) {
-        for (ProblemLimits l : getLimits()) {
-            if (l.getLang().equals(lang)) return l;
-        }
-        return null;
-    }
+    public List<List<Submission.SubmissionBatchCase>> getSubmissionBatchCases() {
+        List<List<Submission.SubmissionBatchCase>> l = new ArrayList<>();
 
-    public HashMap<Integer, List<ProblemBatchCase>> getTestDataSorted() {
-        HashMap<Integer, List<ProblemBatchCase>> group = new HashMap<>();
-        for (ProblemBatchCase c : testData) {
-            group.computeIfAbsent(c.getBatchNum(), k -> new ArrayList<>(Arrays.asList(c)));
-            if (group.get(c.getBatchNum()) != null) {
-                group.get(c.getBatchNum()).add(c);
+        for (var cases : testData) {
+            l.add(new ArrayList<>());
+            for (var c : cases) {
+                l.get(l.size()-1).add(new Submission.SubmissionBatchCase(c));
             }
         }
-
-        for (var list : group.values()) Collections.sort(list);
-        return group;
+        return l;
     }
 
     public SmoothieRunner.Problem getGRPCObject(String language) {
 
-        var test = getTestDataSorted();
-        int max = 0;
-        for (int i : test.keySet()) max = Math.max(max, i);
-
-        List<SmoothieRunner.ProblemBatch> batch = new ArrayList<>();
-        for (int i = 0; i <= max+1; i++) batch.add(SmoothieRunner.ProblemBatch.newBuilder().build());
-
-        ProblemLimits limit = getLimits().get(0);
+        // get limit
+        ProblemLimits limit = null;
         for (ProblemLimits l : getLimits()) {
             if (l.getLang().equals(language)) limit = l;
+
+            if (limit == null && l.getLang().equals(JudgeLanguage.ALL.getName())) { // default with all
+                limit = l;
+            }
         }
 
-        for (int i : test.keySet()) {
-            List<SmoothieRunner.ProblemBatchCase> cases = new ArrayList<>();
-            for (var c : test.get(i)) {
-
-                cases.add(SmoothieRunner.ProblemBatchCase.newBuilder()
+        // convert to grpc test cases
+        List<SmoothieRunner.ProblemBatch> batches = new ArrayList<>();
+        for (var batch : getTestData()) {
+            SmoothieRunner.ProblemBatch.Builder b = SmoothieRunner.ProblemBatch.newBuilder();
+            for (var c : batch) {
+                b.addCases(SmoothieRunner.ProblemBatchCase.newBuilder()
                         .setInput(c.getInput())
                         .setExpectedAnswer(c.getExpectedOutput())
                         .setTimeLimit(limit.getTimeLimit())
                         .setMemLimit(limit.getMemoryLimit())
                         .build());
             }
-
-            batch.set(i, SmoothieRunner.ProblemBatch.newBuilder().addAllCases(cases).build());
+            batches.add(b.build());
         }
 
+        // get final grpc object
         return SmoothieRunner.Problem.newBuilder()
-                .setProblemID(1) // TODO
+                .setProblemID(id)
                 .setTestCasesHashCode(0) // TODO
-                .addAllTestBatches(batch)
+                .addAllTestBatches(batches)
                 .setGrader(SmoothieRunner.ProblemGrader.newBuilder()
                         .setType("strict") // TODO
                         .build())

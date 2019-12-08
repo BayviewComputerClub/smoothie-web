@@ -68,6 +68,7 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
     /**
      * Run a full grader session asynchronously
      */
+
     public void grade(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req, Submission submission) {
         SmoothieRunner runner = getAvailableRunner(JudgeLanguage.valueOf(req.getSolution().getLanguage()));
 
@@ -78,19 +79,20 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
 
             @Override
             public void onNext(club.bayview.smoothieweb.SmoothieRunner.TestSolutionResponse value) {
-
                 if (!value.getCompileError().equals("")) { // compile error
                     submission.setCompileError(value.getCompileError());
                 } else if (value.getCompletedTesting()) { // testing has completed
                     submission.setJudgingCompleted(true);
                 } else {
-                    for (Submission.SubmissionBatchCase c : submission.getBatchCases()) {
-                        if (c.getBatchNumber() == value.getTestCaseResult().getBatchNumber() && c.getCaseNumber() == value.getTestCaseResult().getCaseNumber()) {
-                            c.setError(value.getTestCaseResult().getResultInfo());
-                            c.setMemUsage(value.getTestCaseResult().getMemUsage());
-                            c.setTime(value.getTestCaseResult().getTime());
-                            c.setResultCode(value.getTestCaseResult().getResult());
-                            // TODO send to websocket
+                    for (var cases : submission.getBatchCases()) {
+                        for (var c : cases) {
+                            if (c.getBatchNumber() == value.getTestCaseResult().getBatchNumber() && c.getCaseNumber() == value.getTestCaseResult().getCaseNumber()) {
+                                c.setError(value.getTestCaseResult().getResultInfo());
+                                c.setMemUsage(value.getTestCaseResult().getMemUsage());
+                                c.setTime(value.getTestCaseResult().getTime());
+                                c.setResultCode(value.getTestCaseResult().getResult());
+                                // TODO send to websocket
+                            }
                         }
                     }
                 }
@@ -100,7 +102,8 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
 
             @Override
             public void onError(Throwable t) {
-                logger.error(t.toString());
+                t.printStackTrace();
+                logger.error(t.getMessage());
             }
 
             @Override
@@ -111,10 +114,12 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
 
         // send request
         observer.onNext(req);
+        observer.onCompleted();
     }
 
     /**
      * Get an available runner for judging.
+     *
      * @param language the programming language needed
      * @return the runner, or null if none are available
      */

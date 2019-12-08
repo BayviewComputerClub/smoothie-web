@@ -1,21 +1,14 @@
 package club.bayview.smoothieweb.controllers;
 
-import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieSubmissionService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 public class SubmissionController {
@@ -36,10 +29,30 @@ public class SubmissionController {
             if (submission == null) return Mono.just("404");
 
             model.addAttribute("submission", submission);
-            model.addAttribute("user", userService.findById(submission.getUserId()).block());
-            model.addAttribute("problem", problemService.findProblemById(submission.getProblemId()).block());
 
-            return Mono.just("submission");
+            System.out.println(submission.getUserId() + " " + userService.findUserById(submission.getUserId()).block());
+            return Mono.zip(userService.findUserById(submission.getUserId()), problemService.findProblemById(submission.getProblemId())).flatMap(tuple -> {
+                model.addAttribute("user", tuple.getT1());
+                model.addAttribute("problem", tuple.getT2());
+                System.out.println("YIHIHOPIHN -=-=--=-=-=-=-=");
+                return Mono.just("submission");
+            });
+        });
+    }
+
+    @GetMapping("/submission/{submissionId}/code")
+    // TODO make sure you have permission
+    public Mono<String> routeGetSubmissionCode(@PathVariable String submissionId, Model model) {
+        return submissionService.findSubmissionById(submissionId).flatMap(submission -> {
+            if (submission == null) return Mono.just("404");
+
+            model.addAttribute("submission", submission);
+
+            return Mono.zip(userService.findUserById(submission.getUserId()), problemService.findProblemById(submission.getProblemId())).flatMap(tuple -> {
+                model.addAttribute("user", tuple.getT1());
+                model.addAttribute("problem", tuple.getT2());
+                return Mono.just("submission-code");
+            });
         });
     }
 

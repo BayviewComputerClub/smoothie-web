@@ -145,11 +145,10 @@
 
     let timeCreated = document.getElementById("time-created");
     let date = new Date(timeCreated.innerText*1000);
-    timeCreated.innerText = date.getDate() + "/" + (date.getMonth()+1) + "/" + date.getFullYear();
+    timeCreated.innerText = ("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear();
 </script>
 
 <script>
-
     // load problem statement
     function mdToHTML(text) {
         // render markdown with latex combining texme and katex

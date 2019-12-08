@@ -33,6 +33,12 @@ public class Submission {
             resultCode = AWAITING_RESULTS;
         }
 
+        public SubmissionBatchCase(Problem.ProblemBatchCase c) {
+            this();
+            this.batchNumber = c.getBatchNum();
+            this.caseNumber = c.getCaseNum();
+        }
+
         public boolean isAwaitingResults() {
             return resultCode.equals(AWAITING_RESULTS);
         }
@@ -53,26 +59,8 @@ public class Submission {
     private Long timeSubmitted;
 
     private String compileError;
-    private ArrayList<SubmissionBatchCase> batchCases;
+    private List<List<SubmissionBatchCase>> batchCases;
 
     private boolean judgingCompleted;
 
-    public List<List<SubmissionBatchCase>> getBatchesOrganized() {
-        HashMap<Long, List<SubmissionBatchCase>> m = new HashMap<>();
-
-        long max = 0;
-        for (SubmissionBatchCase c : batchCases) {
-            m.computeIfAbsent(c.getBatchNumber(), k -> new ArrayList<>(Arrays.asList(c)));
-            if (m.get(c.getBatchNumber()) != null) {
-                m.get(c.getBatchNumber()).add(c);
-            }
-            max = Math.max(max, c.getBatchNumber());
-        }
-
-        List<List<SubmissionBatchCase>> batches = new ArrayList<>();
-        for (int i = 0; i <= max+1; i++) batches.add(new ArrayList<>());
-
-        for (long l : m.keySet()) batches.set((int) l, m.get(l));
-        return batches;
-    }
 }
