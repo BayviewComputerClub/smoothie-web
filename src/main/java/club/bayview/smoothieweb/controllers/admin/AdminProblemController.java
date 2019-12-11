@@ -24,7 +24,10 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -181,8 +184,11 @@ public class AdminProblemController {
         if (file == null) return new ArrayList<>();
 
         List<List<Problem.ProblemBatchCase>> list = new ArrayList<>();
-        ZipInputStream zis = new ZipInputStream(file.getInputStream());
+        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(file.getInputStream()));
         ZipEntry entry;
+
+        byte[] buffer = new byte[1024];
+        int read = 0;
 
         // TODO make this better with error checking and instruction file for points
         // format: 0-0.in, 0-0.out, 0-1.in, 0-1.out, etc...
@@ -195,8 +201,10 @@ public class AdminProblemController {
 
             // get data
             StringBuilder data = new StringBuilder();
-            Scanner scan = new Scanner(zis);
-            while (scan.hasNextLine()) data.append(scan.nextLine());
+            while (zis.read(buffer, 0, 1024) >= 0) {
+                data.append(new String(buffer, 0, 1024).replace("\u0000", "").replace("\\u0000", ""));
+            }
+            String dataString = data.toString();
 
             // add to list
             boolean found = false;
@@ -211,16 +219,16 @@ public class AdminProblemController {
                 if (c.getCaseNum() == caseNum) {
                     found = true;
                     if (isInput) {
-                        c.setInput(data.toString());
+                        c.setInput(dataString);
                     } else {
-                        c.setExpectedOutput(data.toString());
+                        c.setExpectedOutput(dataString);
                     }
                 }
             }
 
             if (!found) {
-                if (isInput) list.get(batchNum).add(new Problem.ProblemBatchCase(batchNum, caseNum, data.toString(), ""));
-                else list.get(batchNum).add(new Problem.ProblemBatchCase(batchNum, caseNum, "", data.toString()));
+                if (isInput) list.get(batchNum).add(new Problem.ProblemBatchCase(batchNum, caseNum, dataString, ""));
+                else list.get(batchNum).add(new Problem.ProblemBatchCase(batchNum, caseNum, "", dataString));
             }
         }
 

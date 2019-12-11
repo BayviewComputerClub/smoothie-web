@@ -4,7 +4,6 @@ import club.bayview.smoothieweb.models.ProblemRepository;
 import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.models.SubmissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

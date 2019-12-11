@@ -41,6 +41,7 @@ public class Problem {
 
         public ProblemBatchCase(int batchNum, int caseNum, String input, String expectedOutput) {
             this.batchNum = batchNum;
+            this.caseNum = caseNum;
             this.input = input;
             this.expectedOutput = expectedOutput;
         }
