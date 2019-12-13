@@ -263,7 +263,6 @@ public class AdminProblemController {
             problem.getLimits().add(new Problem.ProblemLimits(JudgeLanguage.prettyToName(l.getLang()), l.timeLimit, l.memoryLimit));
         }
 
-        problem.setSubmissions(new ArrayList<>());
         return problem;
     }
 

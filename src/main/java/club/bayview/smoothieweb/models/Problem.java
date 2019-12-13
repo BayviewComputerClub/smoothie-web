@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -67,11 +66,10 @@ public class Problem {
 
     private List<ProblemLimits> limits;
 
+    private String testDataId;
     private List<List<ProblemBatchCase>> testData;
 
     private String problemStatement;
-
-    private List<ObjectId> submissions;
 
     private boolean allowPartial;
     private int totalScoreWorth;

@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
 import org.springframework.data.mongodb.core.mapping.event.LoggingEventListener;
+import org.springframework.data.mongodb.gridfs.ReactiveGridFsTemplate;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
 import javax.annotation.PostConstruct;
@@ -46,6 +47,11 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
     @Bean
     public MongoClient reactiveMongoClient() {
         return MongoClients.create(String.format("mongodb://localhost:%d", port));
+    }
+
+    @Bean
+    public ReactiveGridFsTemplate reactiveGridFsTemplate() throws Exception {
+        return new ReactiveGridFsTemplate(reactiveMongoDbFactory(), mappingMongoConverter());
     }
 
     @Autowired

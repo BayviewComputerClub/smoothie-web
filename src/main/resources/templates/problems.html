@@ -53,20 +53,18 @@
 
         <tr>
             <th>Name</th>
-            <th>Submissions</th>
             <th>Users</th>
             <th>AC %</th>
             <th>Points</th>
         </tr>
         <tr>
-            <th colspan="5"><hr/></th>
+            <th colspan="4"><hr/></th>
         </tr>
         </thead>
         <tbody>
 
         <tr th:each="problem: ${problems}">
             <td><a th:href="@{'/problem/' + ${problem.name}}" th:text="${problem.prettyName}"></a></td>
-            <td th:text="${problem.submissions.size()}"></td>
             <td th:text="${problem.usersSolved}"></td>
             <td th:text="${problem.rateOfAC}"></td>
             <td th:text="${problem.totalScoreWorth}"></td>
