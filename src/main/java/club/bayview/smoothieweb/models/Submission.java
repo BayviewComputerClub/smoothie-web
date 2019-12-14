@@ -1,16 +1,12 @@
 package club.bayview.smoothieweb.models;
 
-import club.bayview.smoothieweb.SmoothieRunner;
 import lombok.Getter;
 import lombok.Setter;
-import org.bson.types.ObjectId;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.redis.core.index.Indexed;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * Represents a submission made by a user for a problem.

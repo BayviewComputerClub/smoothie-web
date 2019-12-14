@@ -1,8 +1,6 @@
 package club.bayview.smoothieweb.services;
 
-import club.bayview.smoothieweb.models.Problem;
-import club.bayview.smoothieweb.models.ProblemRepository;
-import club.bayview.smoothieweb.models.User;
+import club.bayview.smoothieweb.models.*;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +12,9 @@ public class SmoothieProblemService {
 
     @Autowired
     private ProblemRepository problemRepository;
+
+    @Autowired
+    private TestDataRepository testDataRepository;
 
     public Mono<Problem> findProblemById(String id) {
         return problemRepository.findById(id);
@@ -27,7 +28,23 @@ public class SmoothieProblemService {
         return problemRepository.findAll();
     }
 
-    public void saveProblem(Problem problem) {
-        problemRepository.save(problem).block();
+    public Mono<String> findProblemTestDataHash(String id) throws Exception {
+        return testDataRepository.getTestDataHash(id);
+    }
+
+    public Mono<TestData> findProblemTestData(String id) throws Exception {
+        //System.out.println(testDataRepository.getTestData(id).block().toString()); debug
+        return testDataRepository.getTestData(id);
+    }
+
+    public Mono<Problem> saveTestDataForProblem(TestData data, Problem problem) throws Exception {
+        return testDataRepository.addTestData(data, problem.getId()).flatMap(objectId -> {
+            problem.setTestDataId(objectId.toString());
+            return saveProblem(problem);
+        });
+    }
+
+    public Mono<Problem> saveProblem(Problem problem) {
+        return problemRepository.save(problem);
     }
 }

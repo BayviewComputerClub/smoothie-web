@@ -1,14 +1,15 @@
 package club.bayview.smoothieweb.models;
 
 import club.bayview.smoothieweb.SmoothieRunner;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import club.bayview.smoothieweb.SmoothieWebApplication;
+import club.bayview.smoothieweb.services.SmoothieProblemService;
+import lombok.*;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -34,7 +35,8 @@ public class Problem {
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class ProblemBatchCase implements Comparable<ProblemBatchCase> {
+    @ToString
+    public static class ProblemBatchCase implements Comparable<ProblemBatchCase>, Serializable {
         private int batchNum, caseNum, scoreWorth;
         private String input, expectedOutput;
 
@@ -67,7 +69,6 @@ public class Problem {
     private List<ProblemLimits> limits;
 
     private String testDataId;
-    private List<List<ProblemBatchCase>> testData;
 
     private String problemStatement;
 
@@ -77,10 +78,20 @@ public class Problem {
     private int rateOfAC, usersSolved;
     private long timeCreated;
 
+    public TestData getTestData() {
+        // TODO
+        try {
+            return SmoothieWebApplication.context.getBean(SmoothieProblemService.class).findProblemTestData(getTestDataId()).block();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public List<List<Submission.SubmissionBatchCase>> getSubmissionBatchCases() {
         List<List<Submission.SubmissionBatchCase>> l = new ArrayList<>();
 
-        for (var cases : testData) {
+        for (var cases : getTestData().testData) {
             l.add(new ArrayList<>());
             for (var c : cases) {
                 l.get(l.size()-1).add(new Submission.SubmissionBatchCase(c));
@@ -103,7 +114,7 @@ public class Problem {
 
         // convert to grpc test cases
         List<SmoothieRunner.ProblemBatch> batches = new ArrayList<>();
-        for (var batch : getTestData()) {
+        for (var batch : getTestData().testData) {
             SmoothieRunner.ProblemBatch.Builder b = SmoothieRunner.ProblemBatch.newBuilder();
             for (var c : batch) {
                 b.addCases(SmoothieRunner.ProblemBatchCase.newBuilder()

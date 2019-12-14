@@ -1,8 +1,8 @@
 package club.bayview.smoothieweb.controllers.admin;
 
-import club.bayview.smoothieweb.SmoothieRunner;
 import club.bayview.smoothieweb.models.JudgeLanguage;
 import club.bayview.smoothieweb.models.Problem;
+import club.bayview.smoothieweb.models.TestData;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -26,9 +25,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -37,6 +37,8 @@ public class AdminProblemController {
 
     @Autowired
     SmoothieProblemService problemService;
+
+    // -=-=-=-=-=-=-=-=-=-=- Schema -=-=-=-=-=-=-=-=-=-=-
 
     @Getter
     @Setter
@@ -104,6 +106,8 @@ public class AdminProblemController {
                 "```\n";
     }
 
+    // -=-=-=-=-=-=-=-=-=-=- Routes -=-=-=-=-=-=-=-=-=-=-
+
     @GetMapping("/admin/new-problem")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> getNewProblemRoute(Model model) {
@@ -130,25 +134,35 @@ public class AdminProblemController {
 
     @PostMapping("/admin/new-problem")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
-    public ModelAndView postNewProblemRoute(@Valid ProblemForm form, BindingResult result) throws IOException {
-        ModelAndView page = new ModelAndView();
+    public Mono<String> postNewProblemRoute(@Valid ProblemForm form, BindingResult result, Model model) throws IOException {
 
         if (result.hasErrors()) { // TODO
-            page.addObject("newProblem", true);
-            page.addObject("problem", form);
-            page.addObject("languages", JudgeLanguage.values);
-            page.setViewName("admin/problem");
+            model.addAttribute("newProblem", true);
+            model.addAttribute("problem", form);
+            model.addAttribute("languages", JudgeLanguage.values);
+            return Mono.just("admin/problem");
         } else {
             Problem p = problemFormToProblem(null, form);
-            if (form.getTestData() != null) p.setTestData(getTestCasesFromZip(form.getTestData()));
-
             p.setTimeCreated(System.currentTimeMillis() / 1000L);
 
-            problemService.saveProblem(p);
-            page.setViewName("redirect:/admin/problems");
-        }
+            return problemService.saveProblem(p).flatMap(problem -> {
 
-        return page;
+                // set test data
+                if (form.getTestData() != null) {
+                    try {
+
+                        return problemService.saveTestDataForProblem(getTestCasesFromZip(form.getTestData()), problem)
+                                .then(Mono.just("redirect:/problem/" + p.getName()));
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return Mono.error(e);
+                    }
+                }
+                return Mono.just("redirect:/problem/" + p.getName());
+
+            }).doOnError(e -> Mono.just("500"));
+        }
     }
 
     @PostMapping("/problem/{name}/edit")
@@ -165,30 +179,37 @@ public class AdminProblemController {
             return problemService.findProblemByName(name).flatMap(originalProblem -> {
                 if (originalProblem == null) return Mono.just("404");
 
-                try {
-                    Problem p = problemFormToProblem(originalProblem, form);
-                    if (form.getTestData() != null) p.setTestData(getTestCasesFromZip(form.getTestData()));
+                Problem p = problemFormToProblem(originalProblem, form);
 
-                    problemService.saveProblem(p);
+                return problemService.saveProblem(p);
+            }).flatMap(problem -> {
+                if (problem instanceof String) return Mono.just((String) problem);
+
+                // set test data
+                if (form.getTestData() != null) {
+                    try {
+
+                        return problemService.saveTestDataForProblem(getTestCasesFromZip(form.getTestData()), (Problem) problem)
+                                .then(Mono.just("redirect:/problem/" + name));
+
+                    } catch (Exception e) {
+                        return Mono.error(e);
+                    }
+                } else {
                     return Mono.just("redirect:/problem/" + name);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return Mono.just("500");
                 }
-            });
+
+            }).doOnError(e -> Mono.just("500"));
 
         }
     }
 
-    private List<List<Problem.ProblemBatchCase>> getTestCasesFromZip(MultipartFile file) throws IOException {
-        if (file == null) return new ArrayList<>();
+    private TestData getTestCasesFromZip(MultipartFile file) throws IOException {
+        if (file == null) return new TestData(new ArrayList<>());
 
         List<List<Problem.ProblemBatchCase>> list = new ArrayList<>();
         ZipInputStream zis = new ZipInputStream(new BufferedInputStream(file.getInputStream()));
         ZipEntry entry;
-
-        byte[] buffer = new byte[1024];
-        int read = 0;
 
         // TODO make this better with error checking and instruction file for points
         // format: 0-0.in, 0-0.out, 0-1.in, 0-1.out, etc...
@@ -200,6 +221,7 @@ public class AdminProblemController {
             boolean isInput = entry.getName().split("\\.")[1].equals("in");
 
             // get data
+            byte[] buffer = new byte[1024];
             StringBuilder data = new StringBuilder();
             while (zis.read(buffer, 0, 1024) >= 0) {
                 data.append(new String(buffer, 0, 1024).replace("\u0000", "").replace("\\u0000", ""));
@@ -218,11 +240,8 @@ public class AdminProblemController {
             for (var c : list.get(batchNum)) {
                 if (c.getCaseNum() == caseNum) {
                     found = true;
-                    if (isInput) {
-                        c.setInput(dataString);
-                    } else {
-                        c.setExpectedOutput(dataString);
-                    }
+                    if (isInput) c.setInput(dataString);
+                    else c.setExpectedOutput(dataString);
                 }
             }
 
@@ -232,7 +251,12 @@ public class AdminProblemController {
             }
         }
 
-        return list;
+        // sort cases into order
+        for (var cases : list) {
+            Collections.sort(cases);
+        }
+
+        return new TestData(list);
     }
 
     private ProblemForm problemToProblemForm(Problem p) {

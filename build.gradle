@@ -80,6 +80,8 @@ dependencies {
 
     compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
     compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64'
+    compile group: 'de.ruedigermoeller', name: 'fst', version: '2.57'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.13'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
