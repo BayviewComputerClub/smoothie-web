@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.services;
 
+import club.bayview.smoothieweb.controllers.LiveSubmissionController;
 import club.bayview.smoothieweb.models.*;
 import com.google.common.collect.Iterables;
 import io.grpc.stub.StreamObserver;
@@ -22,6 +23,9 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
 
     @Autowired
     private SubmissionRepository submissionRepository;
+
+    @Autowired
+    private LiveSubmissionController liveSubmissionController;
 
     private Logger logger = LoggerFactory.getLogger(SmoothieRunner.class);
 
@@ -91,7 +95,7 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
                                 c.setMemUsage(value.getTestCaseResult().getMemUsage());
                                 c.setTime(value.getTestCaseResult().getTime());
                                 c.setResultCode(value.getTestCaseResult().getResult());
-                                // TODO send to websocket
+                                liveSubmissionController.sendSubmissionBatch(submission.getId(), c);
                             }
                         }
                     }

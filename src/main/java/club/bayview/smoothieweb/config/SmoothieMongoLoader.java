@@ -1,4 +1,4 @@
-package club.bayview.smoothieweb;
+package club.bayview.smoothieweb.config;
 
 import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;

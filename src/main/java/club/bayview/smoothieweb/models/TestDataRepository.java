@@ -1,6 +1,6 @@
 package club.bayview.smoothieweb.models;
 
-import club.bayview.smoothieweb.SmoothieMongoLoader;
+import club.bayview.smoothieweb.config.SmoothieMongoLoader;
 import com.google.common.primitives.Bytes;
 import com.mongodb.reactivestreams.client.gridfs.helpers.AsyncStreamHelper;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -8,7 +8,6 @@ import org.bson.types.ObjectId;
 import org.nustaq.serialization.FSTConfiguration;
 import org.nustaq.serialization.simpleapi.DefaultCoder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;

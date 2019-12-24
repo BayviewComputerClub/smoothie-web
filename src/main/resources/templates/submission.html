@@ -118,8 +118,8 @@
         <li th:each="batch, iter : ${submission.batchCases}">
             Batch #[[${iter.index}+1]]:
             <ul>
-                <li th:each="case, iter : ${batch}">
-                    Case #[[${iter.index}+1]]: [[${case.resultCode}]] ([[${case.time}]]s) ([[${case.memUsage}]]MB)
+                <li th:each="case, iter2 : ${batch}" th:id="'batch-' + ${iter.index} + '-case-' + ${iter2.index}">
+                    Case #[[${iter2.index}+1]]: [[${case.resultCode}]] ([[${case.time}]]s) ([[${case.memUsage}]]MB)
                 </li>
             </ul>
         </li>
@@ -127,10 +127,39 @@
 
 </div>
 
-<script>
-    let timeSubmitted = document.getElementById("time-submitted");
-    let date = new Date(timeSubmitted.innerText*1000);
-    timeSubmitted.innerText = ("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear() + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
+<script th:src="@{/js/stomp.min.js}"></script>
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+
+<script th:inline="javascript">
+    let stompClient = null;
+    let id = /*[[${submission.id}]]*/;
+    console.log('ID: ' + id);
+
+    function connect() {
+        let socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, frame => {
+            console.log('Connected to ws: ' + frame);
+            stompClient.subscribe('/live-submission/' + id, c => {
+                console.log(c);
+                JSON.parse(c.body).forEach(sub => {
+                    $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber+1) + ": " + sub.resultCode + " (" + sub.time + " s) (" + sub.memUsage + "MB)");
+                });
+            });
+        });
+    }
+
+    $(() => {
+        // properly format time
+        let timeSubmitted = $("#time-submitted");
+        let date = new Date(timeSubmitted.text()*1000);
+        timeSubmitted.text(("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear() + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2));
+
+        // connect to websocket
+        connect();
+    })
+
 </script>
 
 </body>

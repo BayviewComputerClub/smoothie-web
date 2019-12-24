@@ -114,7 +114,7 @@ public class AdminProblemController {
         model.addAttribute("newProblem", true);
         model.addAttribute("problem", defaultProblem);
         model.addAttribute("languages", JudgeLanguage.values);
-        return Mono.just("admin/problem");
+        return Mono.just("admin/edit-problem");
     }
 
     @GetMapping("/problem/{name}/edit")
@@ -128,7 +128,19 @@ public class AdminProblemController {
             model.addAttribute("newProblem", false);
             model.addAttribute("problem", problemToProblemForm(p));
             model.addAttribute("languages", JudgeLanguage.values);
-            return Mono.just("admin/problem");
+            return Mono.just("admin/edit-problem");
+        });
+    }
+
+    @GetMapping("/problem/{name}/manage")
+    @PreAuthorize("hasRole('ROLE_EDITOR')")
+    public Mono<String> getManageProblemRoute(@PathVariable String name, Model model) {
+        if (name == null) return Mono.just("404");
+
+        return problemService.findProblemByName(name).flatMap(p -> {
+            if (p == null) return Mono.just("404");
+            
+            return Mono.just("admin/manage-problem");
         });
     }
 
@@ -140,7 +152,7 @@ public class AdminProblemController {
             model.addAttribute("newProblem", true);
             model.addAttribute("problem", form);
             model.addAttribute("languages", JudgeLanguage.values);
-            return Mono.just("admin/problem");
+            return Mono.just("admin/edit-problem");
         } else {
             Problem p = problemFormToProblem(null, form);
             p.setTimeCreated(System.currentTimeMillis() / 1000L);
@@ -172,16 +184,13 @@ public class AdminProblemController {
             model.addAttribute("newProblem", false);
             model.addAttribute("problem", form);
             model.addAttribute("languages", JudgeLanguage.values);
-            return Mono.just("admin/problem");
+            return Mono.just("admin/edit-problem");
         } else {
 
             // save problem
             return problemService.findProblemByName(name).flatMap(originalProblem -> {
                 if (originalProblem == null) return Mono.just("404");
-
-                Problem p = problemFormToProblem(originalProblem, form);
-
-                return problemService.saveProblem(p);
+                return problemService.saveProblem(problemFormToProblem(originalProblem, form));
             }).flatMap(problem -> {
                 if (problem instanceof String) return Mono.just((String) problem);
 
