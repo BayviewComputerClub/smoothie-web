@@ -55,8 +55,18 @@ public class SubmissionController {
     }
 
     @GetMapping("/user/{handle}/submissions")
-    public String getSubmissionsRoute(@PathVariable String handle, Model model) {
-        return "submissions";
+    public Mono<String> getSubmissionsRoute(@PathVariable String handle, Model model) {
+        return userService.findUserByHandle(handle).flatMap(user -> {
+            if (user == null) return Mono.just("404");
+
+            model.addAttribute("user", user);
+            return submissionService.findSubmissionsByUser(user.getId()).collectList();
+        }).flatMap(submissions -> {
+            if (submissions.equals("404")) return Mono.just("404");
+
+            model.addAttribute("submissions", submissions);
+            return Mono.just("submissions-user");
+        });
     }
 
     @GetMapping("/problem/{name}/submissions")
@@ -64,8 +74,13 @@ public class SubmissionController {
         return problemService.findProblemByName(name).flatMap(p -> {
             if (p == null) return Mono.just("404");
 
-            model.addAttribute("submissions", submissionService.findSubmissionsByProblem(p.getId()).collectList().block());
-            return Mono.just("submissions");
+            model.addAttribute("problem", p);
+            return submissionService.findSubmissionsByProblem(p.getId()).collectList();
+        }).flatMap(submissions -> {
+            if (submissions.equals("404")) return Mono.just("404");
+
+            model.addAttribute("submissions", submissions);
+            return Mono.just("submissions-problem");
         });
     }
 

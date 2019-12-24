@@ -24,6 +24,10 @@ public class SmoothieSubmissionService {
         return submissionRepository.findByProblemIdIsOrderByTimeSubmittedDesc(problemId);
     }
 
+    public Flux<Submission> findSubmissionsByUser(String userId) {
+        return submissionRepository.findByUserIdIsOrderByTimeSubmittedDesc(userId);
+    }
+
     public Mono<Void> saveSubmission(Submission submission) {
         return submissionRepository.save(submission).then();
     }

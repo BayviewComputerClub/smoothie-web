@@ -47,7 +47,7 @@ public class User implements UserDetails {
         super();
         this.handle = handle;
         this.email = email;
-        this.password = password; // encoded to argon2 in smoothieuserdetailsservice
+        this.password = password; // encoded to argon2 in smoothieuserservice
         this.solved = new ArrayList<>();
         this.enabled = false;
         roles = new HashSet<>(Arrays.asList(Role.ROLE_USER));

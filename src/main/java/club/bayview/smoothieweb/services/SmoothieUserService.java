@@ -3,6 +3,7 @@ package club.bayview.smoothieweb.services;
 import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.models.UserRepository;
+import club.bayview.smoothieweb.security.SmoothieAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,6 +24,9 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    SmoothieAuthenticationProvider authenticationProvider;
 
     public Mono<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -46,7 +50,7 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
     }
 
     public Mono<User> saveUser(User user) {
-        user.setPassword(new Argon2PasswordEncoder().encode(user.getPassword()));
+        user.setPassword(authenticationProvider.passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 

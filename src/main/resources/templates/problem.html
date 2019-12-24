@@ -6,6 +6,7 @@
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/top-flex-bar.css}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css"
           integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -52,35 +53,12 @@
             transition: box-shadow 0.3s;
         }
 
-        .topbar {
-            font-family: Nunito, sans-serif;
-            color: #757575;
-            font-size: 20px;
-            line-height: 2;
-            display: flex;
-            align-items: stretch;
-            flex-direction: row;
-            flex-wrap: wrap;
-            margin-bottom: 50px;
-            width: 100%;
-        }
-
-        .topbar-item {
-            margin-right: 80px;
-            text-align: center;
-        }
-
         hr {
             color: #9e9e9e;
             margin-top: 20px;
             margin-bottom: 20px;
         }
 
-        .topbar-bottom-text {
-            font-size: 18px;
-            color: #9e9e9e;
-            line-height: 1.5
-        }
     </style>
 </head>
 <body>

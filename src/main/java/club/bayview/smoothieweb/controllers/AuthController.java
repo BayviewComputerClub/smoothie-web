@@ -45,14 +45,13 @@ public class AuthController {
         return "logout";
     }
 
-
     @GetMapping("/login")
-    public Mono<String> loginGetRoute(Model model) {
+    public Mono<String> loginGetRoute() {
         return Mono.just("login");
     }
 
     @GetMapping("/register")
-    public String registerGetRoute(Model model) {
+    public String registerGetRoute() {
         return "register";
     }
 
