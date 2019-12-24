@@ -51,7 +51,7 @@ public class UserController {
 
     @PostMapping("{handle}/edit")
     public Mono<String> postEditProfileRoute(@PathVariable String handle, Model model, Principal principal) {
-
+        return Mono.just("profile");
     }
 
 }
