@@ -5,7 +5,6 @@
     border-radius: 15px;
     box-shadow: 1px 1px 5px 0 #e91e63;
     margin: 10px 10px 10px 10px;
-    animation: header-fade-in 0.8s;
 }
 
 .header-admin a {

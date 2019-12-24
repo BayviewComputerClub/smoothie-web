@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.models;
 
+import club.bayview.smoothieweb.util.Verdict;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -20,14 +21,13 @@ public class Submission {
     @Getter
     @Setter
     public static class SubmissionBatchCase {
-        public static final String AWAITING_RESULTS = "AR";
 
         private long batchNumber, caseNumber;
         String resultCode, error;
         private double time, memUsage;
 
         public SubmissionBatchCase() {
-            resultCode = AWAITING_RESULTS;
+            resultCode = Verdict.AR.toString();
         }
 
         public SubmissionBatchCase(Problem.ProblemBatchCase c) {
@@ -37,7 +37,7 @@ public class Submission {
         }
 
         public boolean isAwaitingResults() {
-            return resultCode.equals(AWAITING_RESULTS);
+            return resultCode.equals(Verdict.AR.toString());
         }
     }
 
@@ -59,8 +59,32 @@ public class Submission {
     private String compileError;
     private List<List<SubmissionBatchCase>> batchCases;
 
-    private String verdict;
+    private String verdict = Verdict.AR.toString();
 
     private boolean judgingCompleted;
+
+    /**
+     * Determines the verdict based on the submission information.
+     */
+
+    public void determineVerdict() {
+        // compile error
+        if (compileError != null) {
+            verdict = Verdict.CE.toString();
+            return;
+        }
+
+        for (var batch : batchCases) {
+            for (var c : batch) {
+                if (!c.getResultCode().equals(Verdict.AC.toString())) {
+                    verdict = c.getResultCode();
+                    return;
+                }
+            }
+        }
+
+        // set to AC if all cases AC
+        verdict = Verdict.AC.toString();
+    }
 
 }

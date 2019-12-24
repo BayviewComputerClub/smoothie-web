@@ -139,7 +139,7 @@ public class AdminProblemController {
 
         return problemService.findProblemByName(name).flatMap(p -> {
             if (p == null) return Mono.just("404");
-            
+
             return Mono.just("admin/manage-problem");
         });
     }

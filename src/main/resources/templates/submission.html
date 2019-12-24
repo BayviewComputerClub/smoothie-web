@@ -144,7 +144,7 @@
             stompClient.subscribe('/live-submission/' + id, c => {
                 console.log(c);
                 JSON.parse(c.body).forEach(sub => {
-                    $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber+1) + ": " + sub.resultCode + " (" + sub.time + " s) (" + sub.memUsage + "MB)");
+                    $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber+1) + ": " + sub.resultCode + " (" + sub.time + "s) (" + sub.memUsage + "MB)");
                 });
             });
         });

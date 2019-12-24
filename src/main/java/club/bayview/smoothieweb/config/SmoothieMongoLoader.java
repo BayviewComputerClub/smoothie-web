@@ -71,7 +71,7 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
             User admin = new User("admin", "", adminPassword);
             admin.getRoles().add(Role.ROLE_ADMIN);
             admin.getRoles().add(Role.ROLE_EDITOR);
-            userService.saveUser(admin);
+            userService.saveUser(admin).block();
         }
         logger.info("-=-=-=-=- MongoDB Loaded -=-=-=-=-");
     }

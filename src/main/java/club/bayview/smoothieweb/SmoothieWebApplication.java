@@ -8,10 +8,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.context.request.RequestContextListener;
 
 @SpringBootApplication
 @EnableReactiveMongoRepositories
+@EnableScheduling
 public class SmoothieWebApplication {
 
     private Logger logger = LoggerFactory.getLogger(SmoothieWebApplication.class);

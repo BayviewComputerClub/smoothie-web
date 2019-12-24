@@ -4,8 +4,6 @@ import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.models.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -15,7 +13,10 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class SmoothieUserService implements ReactiveUserDetailsService {
@@ -35,10 +36,6 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
         return userRepository.findById(id);
     }
 
-    public UserRepository getUserRepository() {
-        return userRepository;
-    }
-
     @Override
     public Mono<UserDetails> findByUsername(String handle) {
         return userRepository.findByHandle(handle).cast(UserDetails.class);
@@ -48,9 +45,9 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
         return userRepository.findAll();
     }
 
-    public void saveUser(User user) {
+    public Mono<User> saveUser(User user) {
         user.setPassword(new Argon2PasswordEncoder().encode(user.getPassword()));
-        userRepository.save(user).block();
+        return userRepository.save(user);
     }
 
     private List<GrantedAuthority> getUserAuthority(Set<Role> userRoles) {

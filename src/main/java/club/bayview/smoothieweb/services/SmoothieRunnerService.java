@@ -1,11 +1,12 @@
 package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.controllers.LiveSubmissionController;
-import club.bayview.smoothieweb.models.*;
+import club.bayview.smoothieweb.models.JudgeLanguage;
+import club.bayview.smoothieweb.models.Runner;
+import club.bayview.smoothieweb.models.RunnerRepository;
+import club.bayview.smoothieweb.models.Submission;
 import com.google.common.collect.Iterables;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -22,12 +23,16 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
     private RunnerRepository runnerRepository;
 
     @Autowired
-    private SubmissionRepository submissionRepository;
+    private SmoothieSubmissionService submissionService;
 
     @Autowired
     private LiveSubmissionController liveSubmissionController;
 
-    private Logger logger = LoggerFactory.getLogger(SmoothieRunner.class);
+    @Autowired
+    private SmoothieUserService userService;
+
+    @Autowired
+    private SmoothieProblemService problemService;
 
     private HashMap<String, SmoothieRunner> runners = new HashMap<>();
 
@@ -77,44 +82,9 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
         SmoothieRunner runner = getAvailableRunner(JudgeLanguage.valueOf(req.getSolution().getLanguage()));
 
         submission.setRunnerId(findRunnerById(runner.getId()).block().getId());
-        submissionRepository.save(submission).subscribe();
+        submissionService.saveSubmission(submission).subscribe();
 
-        StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> observer = runner.getAsyncStub().testSolution(new StreamObserver<>() {
-
-            @Override
-            public void onNext(club.bayview.smoothieweb.SmoothieRunner.TestSolutionResponse value) {
-                if (!value.getCompileError().equals("")) { // compile error
-                    submission.setCompileError(value.getCompileError());
-                } else if (value.getCompletedTesting()) { // testing has completed
-                    submission.setJudgingCompleted(true);
-                } else {
-                    for (var cases : submission.getBatchCases()) {
-                        for (var c : cases) {
-                            if (c.getBatchNumber() == value.getTestCaseResult().getBatchNumber() && c.getCaseNumber() == value.getTestCaseResult().getCaseNumber()) {
-                                c.setError(value.getTestCaseResult().getResultInfo());
-                                c.setMemUsage(value.getTestCaseResult().getMemUsage());
-                                c.setTime(value.getTestCaseResult().getTime());
-                                c.setResultCode(value.getTestCaseResult().getResult());
-                                liveSubmissionController.sendSubmissionBatch(submission.getId(), c);
-                            }
-                        }
-                    }
-                }
-
-                submissionRepository.save(submission).subscribe();
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                t.printStackTrace();
-                logger.error(t.getMessage());
-            }
-
-            @Override
-            public void onCompleted() {
-                logger.info("Judging has completed for submission " + submission.getId() + ".");
-            }
-        });
+        StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> observer = runner.getAsyncStub().testSolution(new GraderStreamObserver(liveSubmissionController, submissionService, userService, problemService, submission));
 
         // send request
         observer.onNext(req);

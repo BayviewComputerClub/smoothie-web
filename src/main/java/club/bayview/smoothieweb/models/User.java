@@ -39,9 +39,7 @@ public class User implements UserDetails {
 
     private Set<Role> roles;
 
-    private List<ObjectId> submissions;
-
-    private List<ObjectId> solved;
+    private List<String> solved; // problems solved by id
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -50,7 +48,6 @@ public class User implements UserDetails {
         this.handle = handle;
         this.email = email;
         this.password = password; // encoded to argon2 in smoothieuserdetailsservice
-        this.submissions = new ArrayList<>();
         this.solved = new ArrayList<>();
         this.enabled = false;
         roles = new HashSet<>(Arrays.asList(Role.ROLE_USER));

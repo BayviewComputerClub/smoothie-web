@@ -69,7 +69,7 @@ public class AuthController {
         if (result.hasErrors()) {
             page.setViewName("register");
         } else {
-            userDetailsService.saveUser(new User(form.username, form.email, form.password));
+            userDetailsService.saveUser(new User(form.username, form.email, form.password)).block();
             page.setViewName("redirect:/login");
             // TODO success registering message
         }
