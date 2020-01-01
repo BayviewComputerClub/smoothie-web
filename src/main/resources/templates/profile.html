@@ -7,6 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/top-flex-bar.css}"/>
+    <link rel="stylesheet" th:href="@{/css/button.css}"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
@@ -33,31 +34,6 @@
             line-height: 1.5;
         }
 
-        button, .button-link {
-            border-radius: 10px;
-            box-shadow: 1px 1px 5px 0 #607d8b;
-            cursor: pointer;
-            transition: box-shadow 0.3s;
-            font-family: Nunito, sans-serif;
-            font-size: 18px;
-            padding: 10px 20px 10px 20px;
-            background-color: #FFFFFF;
-            border-style: solid;
-            border-color: #FFFFFF;
-            border-width: 2px;
-            color: #424242;
-            text-decoration: none;
-        }
-
-        button:focus, .button-link:focus {
-            outline: 0;
-        }
-
-        button:hover, .button-link:hover {
-            box-shadow: 1px 1px 15px 0 #607d8b;
-            transition: box-shadow 0.3s;
-        }
-
         hr {
             color: #9e9e9e;
             margin-top: 20px;
@@ -75,21 +51,17 @@
     <div class="topbar">
         <div class="topbar-item">
             Solved
-            <br/> <span th:text="${submission.timeSubmitted}" id="time-submitted" class="topbar-bottom-text"></span>
+            <br/> <span th:text="${user.solved.size()}" id="time-submitted" class="topbar-bottom-text"></span>
         </div>
         <div class="topbar-item">
-            Language
-            <br/> <span th:text="${submission.lang}" class="topbar-bottom-text"></span>
-        </div>
-        <div class="topbar-item">
-            <a class="button-link" th:href="@{'/submission/' + ${submission.id} + '/code'}">Code</a>
+            <a class="button-link" th:href="@{'/user/' + ${user.handle} + '/edit'}">Edit</a>
+            <a class="button-link" th:href="@{'/account/settings'}">User Settings</a>
         </div>
     </div>
 
     <p>
         [[${user.description}]]
     </p>
-
 
 </div>
 

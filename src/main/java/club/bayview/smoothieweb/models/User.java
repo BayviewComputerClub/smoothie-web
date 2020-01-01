@@ -2,7 +2,6 @@ package club.bayview.smoothieweb.models;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
  * Represents a user on the site.
  */
 
-@Document
+@Document(collation =  "{ 'locale' : 'en_US', 'strength': 2 }") // case insensitive
 @Getter
 @Setter
 public class User implements UserDetails {

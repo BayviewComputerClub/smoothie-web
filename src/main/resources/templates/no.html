@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>smoothie-web - 404</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+
+    <style>
+        h1 {
+            font-size: 64px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 128px;
+        }
+        p {
+            font-size: 32px;
+            font-family: Metropolis, sans-serif;
+            line-height: 128px;
+
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+        }
+
+        @keyframes bouncy-no {
+            0% {
+                transform: scale(0.9) skewY(5deg);
+            }
+            10% {
+                transform: scale(1) skewY(-5deg);
+            }
+            20% {
+                transform: scale(0.9) skewY(8deg);
+            }
+            30% {
+                transform: scale(1) skewY(-7deg);
+            }
+            40% {
+                transform: scale(0.9) skewY(15deg);
+            }
+            50% {
+                transform: scale(1) skewY(-15deg) rotate(360deg);
+            }
+            60% {
+                transform: scale(0.9) skewY(3deg) rotate(360deg);
+            }
+            70% {
+                transform: scale(1) skewY(-5deg) rotate(360deg);
+            }
+            80% {
+                transform: scale(0.9) skewY(15deg) rotate(360deg);
+            }
+            90% {
+                transform: scale(1) skewY(-15deg);
+            }
+            100% {
+                transform: scale(0.9) skewY(5deg);
+            }
+        }
+        h2 {
+            font-family: 'Nunito', sans-serif;
+            font-size: 48px;
+            padding-left: 30%;
+            padding-right: 30%;
+            padding-top: 10%;
+            animation: 10s bouncy-no infinite;
+            font-weight: 100;
+            text-align: center;
+        }
+        #what {
+            letter-spacing: 10px;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <h1>no!</h1>
+    <h2>(~˘▾˘)~ <span id="what">~ahh!~</span> \ (•◡•) /</h2>
+    <p>
+        no permission...
+    </p>
+</div>
+</body>
+</html>

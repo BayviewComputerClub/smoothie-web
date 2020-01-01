@@ -1,21 +1,27 @@
 package club.bayview.smoothieweb.controllers;
 
+import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
 import java.security.Principal;
 
 @Controller
-@RequestMapping("/user")
 public class UserController {
 
     @Autowired
@@ -24,11 +30,19 @@ public class UserController {
     @Autowired
     SmoothieProblemService problemService;
 
-    class ProfileForm {
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    static class ProfileForm {
+        String description;
 
+        private User toUser(User user) {
+            user.setDescription(getDescription());
+            return user;
+        }
     }
 
-    @GetMapping("{handle}")
+    @GetMapping("/user/{handle}")
     public Mono<String> getProfileRoute(@PathVariable String handle, Model model) {
         return userService.findUserByHandle(handle).flatMap(user -> {
             if (user == null) return Mono.just("404");
@@ -38,20 +52,79 @@ public class UserController {
         });
     }
 
-    @GetMapping("{handle}/edit")
+    @GetMapping("/user/{handle}/edit")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public Mono<String> getEditProfileRoute(@PathVariable String handle, Model model, Principal principal) {
+
+        if (!principal.getName().equalsIgnoreCase(handle)) {
+            return Mono.just("no"); // no permission
+        }
+
         return userService.findUserByHandle(handle).flatMap(user -> {
             if (user == null) return Mono.just("404");
-
 
             model.addAttribute("user", user);
             return Mono.just("edit-profile");
         });
     }
 
-    @PostMapping("{handle}/edit")
-    public Mono<String> postEditProfileRoute(@PathVariable String handle, Model model, Principal principal) {
-        return Mono.just("profile");
+    @PostMapping("/user/{handle}/edit")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public Mono<String> postEditProfileRoute(@Valid ProfileForm form, BindingResult res, @PathVariable String handle, Model model, Principal principal) {
+        if (!principal.getName().equalsIgnoreCase(handle)) {
+            return Mono.just("no");
+        }
+
+        return userService.findUserByHandle(handle).flatMap(user -> {
+            if (user == null) return Mono.just("404");
+
+            if (res.hasErrors()) {
+                model.addAttribute("user", user);
+                return Mono.just("edit-profile");
+            }
+
+            return userService.saveUser(form.toUser(user))
+                    .flatMap(user1 ->  Mono.just("redirect:/user/" + user.getHandle()));
+        });
     }
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    static class UserSettingsForm {
+        String password;
+
+        private User toUser(User user) {
+            user.setPassword(password);
+            return user;
+        }
+    }
+
+    @GetMapping("/account/settings")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public Mono<String> getSettingsRoute(Model model, Principal principal) {
+        return userService.findUserByHandle(principal.getName()).flatMap(user -> {
+            if (user == null) return Mono.just("404");
+
+            model.addAttribute("user", user);
+            return Mono.just("edit-user");
+        });
+    }
+
+    @PostMapping("/account/settings")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public Mono<String> postSettingsRoute(@Valid UserSettingsForm form, BindingResult res, Model model, Principal principal) {
+
+        return userService.findUserByHandle(principal.getName()).flatMap(user -> {
+            if (user == null) return Mono.just("404");
+
+            if (res.hasErrors()) {
+                model.addAttribute("user", user);
+                return Mono.just("edit-user");
+            }
+
+            return userService.saveUser(form.toUser(user))
+                    .flatMap(user1 -> Mono.just("redirect:/edit-user"));
+        });
+    }
 }

@@ -146,7 +146,7 @@ public class AdminProblemController {
 
     @PostMapping("/admin/new-problem")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
-    public Mono<String> postNewProblemRoute(@Valid ProblemForm form, BindingResult result, Model model) throws IOException {
+    public Mono<String> postNewProblemRoute(@Valid ProblemForm form, BindingResult result, Model model) {
 
         if (result.hasErrors()) { // TODO
             model.addAttribute("newProblem", true);

@@ -14,7 +14,7 @@
         </div>
         <div sec:authorize="isAuthenticated()">
             <a href="/logout" th:href="@{/logout}" >Logout</a>
-            <a class="header-hello">Hello, <span th:text="${#authentication.getPrincipal().getUsername()}"></span>!</a>
+            <a class="header-hello" th:href="@{'/user/' + ${#authentication.getPrincipal().getUsername()}}">Hello, <span th:text="${#authentication.getPrincipal().getUsername()}"></span>!</a>
         </div>
     </div>
 </header>

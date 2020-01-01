@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.*;
 
@@ -16,7 +17,7 @@ import java.util.*;
  * Represents a programming problem on the site.
  */
 
-@Document
+@Document(collation =  "{ 'locale' : 'en_US', 'strength': 2 }") // case insensitive
 @Getter
 @Setter
 @NoArgsConstructor
@@ -57,7 +58,6 @@ public class Problem {
             return caseNum > problemBatchCase.caseNum ? 1 : -1;
         }
     }
-
 
     @Id
     private String id;
