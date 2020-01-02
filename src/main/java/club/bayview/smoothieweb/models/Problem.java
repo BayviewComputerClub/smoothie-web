@@ -73,7 +73,7 @@ public class Problem {
     private String problemStatement;
 
     private boolean allowPartial;
-    private int totalScoreWorth;
+    private int totalPointsWorth;
 
     private int rateOfAC, usersSolved;
     private long timeCreated;

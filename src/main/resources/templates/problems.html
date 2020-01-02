@@ -9,7 +9,7 @@
 
     <style>
         h1 {
-            font-size: 64px;
+            font-size: 48px;
             font-family: Metropolis-bold, sans-serif;
             line-height: 128px;
         }
@@ -67,7 +67,7 @@
             <td><a th:href="@{'/problem/' + ${problem.name}}" th:text="${problem.prettyName}"></a></td>
             <td th:text="${problem.usersSolved}"></td>
             <td th:text="${problem.rateOfAC}"></td>
-            <td th:text="${problem.totalScoreWorth}"></td>
+            <td th:text="${problem.totalPointsWorth}"></td>
         </tr>
 
         </tbody>

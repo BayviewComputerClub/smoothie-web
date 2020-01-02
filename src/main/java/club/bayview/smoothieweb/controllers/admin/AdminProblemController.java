@@ -274,7 +274,7 @@ public class AdminProblemController {
         pf.setPrettyName(p.getPrettyName());
         pf.setProblemStatement(p.getProblemStatement());
         pf.setAllowPartial(p.isAllowPartial());
-        pf.setTotalScoreWorth(p.getTotalScoreWorth());
+        pf.setTotalScoreWorth(p.getTotalPointsWorth());
         pf.setLimits(new ArrayList<>());
         for (Problem.ProblemLimits l : p.getLimits()) {
             pf.getLimits().add(new ProblemFormLimit(JudgeLanguage.nameToPretty(l.getLang()), l.getTimeLimit(), l.getMemoryLimit()));
@@ -289,7 +289,7 @@ public class AdminProblemController {
         problem.setPrettyName(form.getPrettyName());
         problem.setProblemStatement(form.getProblemStatement());
         problem.setAllowPartial(form.isAllowPartial());
-        problem.setTotalScoreWorth(form.getTotalScoreWorth());
+        problem.setTotalPointsWorth(form.getTotalScoreWorth());
 
         problem.setLimits(new ArrayList<>());
         for (ProblemFormLimit l : form.getLimits()) {

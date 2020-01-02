@@ -3,6 +3,7 @@ package club.bayview.smoothieweb.services;
 import club.bayview.smoothieweb.SmoothieRunner;
 import club.bayview.smoothieweb.controllers.LiveSubmissionController;
 import club.bayview.smoothieweb.models.Submission;
+import club.bayview.smoothieweb.util.Verdict;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,15 +68,21 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
         submission.determineVerdict();
         submissionService.saveSubmission(submission).subscribe();
 
-        userService.findUserById(submission.getUserId()).flatMap(user -> {
-            if (user == null) return Mono.empty();
-            if (user.getSolved().contains(submission.getProblemId())) return Mono.empty();
+        // do stuff with verdict
+        if (submission.getVerdict().equals(Verdict.AC.toString())) {
+            userService.findUserById(submission.getUserId()).flatMap(user -> {
+                if (user == null) return Mono.empty();
+                if (user.getSolved().contains(submission.getProblemId())) return Mono.empty();
 
-            user.getSolved().add(submission.getProblemId());
-            return userService.saveUser(user).then(problemService.findProblemById(submission.getProblemId())).flatMap(problem -> {
-                problem.setUsersSolved(problem.getUsersSolved()+1);
-                return problemService.saveProblem(problem);
-            });
-        }).subscribe();
+                user.getSolved().add(submission.getProblemId()); // first time solving
+                return userService.saveUser(user).then(problemService.findProblemById(submission.getProblemId())).flatMap(problem -> {
+
+                    problem.setUsersSolved(problem.getUsersSolved() + 1);
+                    user.setPoints(user.getPoints()+problem.getTotalPointsWorth()); // TODO partial
+
+                    return Mono.zip(userService.saveUser(user), problemService.saveProblem(problem));
+                });
+            }).subscribe();
+        }
     }
 }
