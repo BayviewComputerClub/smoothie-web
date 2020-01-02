@@ -80,9 +80,9 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
         // create default admin account
         if (userService.findByUsername("admin").block() == null) {
             User admin = new User("admin", "", adminPassword);
+            admin.encodePassword();
             admin.getRoles().add(Role.ROLE_ADMIN);
             admin.getRoles().add(Role.ROLE_EDITOR);
-            admin.setPassword(authenticationProvider.passwordEncoder.encode(admin.getPassword()));;
             userService.saveUser(admin).block();
         }
         logger.info("-=-=-=-=- MongoDB Loaded -=-=-=-=-");

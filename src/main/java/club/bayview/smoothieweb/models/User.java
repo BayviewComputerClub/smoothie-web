@@ -1,5 +1,8 @@
 package club.bayview.smoothieweb.models;
 
+import club.bayview.smoothieweb.SmoothieWebApplication;
+import club.bayview.smoothieweb.security.SmoothieAuthenticationProvider;
+import club.bayview.smoothieweb.services.SmoothieProblemService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,7 +52,8 @@ public class User implements UserDetails {
         super();
         this.handle = handle;
         this.email = email;
-        this.password = password; // encoded to argon2 in smoothieuserservice
+        this.password = password;
+        setPassword(password); // encoded to argon2
         this.solved = new ArrayList<>();
         this.enabled = false;
         this.description = "(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ no description... ✧ﾟ･: *ヽ(◕ヮ◕ヽ)";
@@ -56,6 +61,18 @@ public class User implements UserDetails {
     }
 
     // ~~~~~
+
+    public boolean isPassword(String password) {
+        return SmoothieWebApplication.context.getBean(SmoothieAuthenticationProvider.class).passwordEncoder.matches(password, getPassword());
+    }
+
+    /**
+     * MUST be called when creating a user or update its password
+     */
+
+    public void encodePassword() {
+        this.password = SmoothieWebApplication.context.getBean(SmoothieAuthenticationProvider.class).passwordEncoder.encode(this.password);
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

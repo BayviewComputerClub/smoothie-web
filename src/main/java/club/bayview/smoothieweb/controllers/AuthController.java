@@ -73,7 +73,7 @@ public class AuthController {
             page.setViewName("register");
         } else {
             User user = new User(form.username, form.email, form.password);
-            user.setPassword(authenticationProvider.passwordEncoder.encode(user.getPassword()));
+            user.encodePassword();
             userDetailsService.saveUser(user).block();
             page.setViewName("redirect:/login");
             // TODO success registering message

@@ -12,9 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionInformation;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,7 +66,7 @@ public class UserController {
             }
 
             model.addAttribute("user", user);
-            return Mono.just("profile");
+            return Mono.just("user/profile");
         });
     }
 
@@ -79,7 +83,7 @@ public class UserController {
 
             model.addAttribute("profileForm", new ProfileForm(user));
             model.addAttribute("user", user);
-            return Mono.just("edit-profile");
+            return Mono.just("user/edit-profile");
         });
     }
 
@@ -96,7 +100,7 @@ public class UserController {
             if (res.hasErrors()) {
                 model.addAttribute("profileForm", form);
                 model.addAttribute("user", user);
-                return Mono.just("edit-profile");
+                return Mono.just("user/edit-profile");
             }
 
             return userService.saveUser(form.toUser(user))
@@ -109,14 +113,12 @@ public class UserController {
     @AllArgsConstructor
     @NoArgsConstructor
     static class UserSettingsForm {
-        String password;
-
-        UserSettingsForm(User user) {
-            password = user.getPassword();
-        }
+        String password, currentPassword;
 
         private User toUser(User user) {
             user.setPassword(password);
+            user.encodePassword();
+
             return user;
         }
     }
@@ -127,9 +129,9 @@ public class UserController {
         return userService.findUserByHandle(principal.getName()).flatMap(user -> {
             if (user == null) return Mono.just("404");
 
-            model.addAttribute("userSettingsForm", new UserSettingsForm(user));
+            model.addAttribute("userSettingsForm", new UserSettingsForm());
             model.addAttribute("user", user);
-            return Mono.just("edit-user");
+            return Mono.just("user/edit-user");
         });
     }
 
@@ -139,15 +141,18 @@ public class UserController {
 
         return userService.findUserByHandle(principal.getName()).flatMap(user -> {
             if (user == null) return Mono.just("404");
+            if (!user.isPassword(form.currentPassword)) {
+                res.addError(new ObjectError("incorrect password", "incorrect password"));
+            }
 
             if (res.hasErrors()) {
                 model.addAttribute("userSettingsForm", form);
                 model.addAttribute("user", user);
-                return Mono.just("edit-user");
+                return Mono.just("user/edit-user");
             }
 
             return userService.saveUser(form.toUser(user))
-                    .flatMap(user1 -> Mono.just("redirect:/edit-user"));
+                    .flatMap(user1 -> Mono.just("redirect:/user/" + user.getHandle()));
         });
     }
 }

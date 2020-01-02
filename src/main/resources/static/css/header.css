@@ -31,6 +31,7 @@ header a {
     font-size: 18px;
     line-height: 15px;
     transition: text-shadow 0.5s;
+    outline: none;
 }
 
 header a:hover {

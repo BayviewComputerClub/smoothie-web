@@ -12,6 +12,7 @@ button, .button-link {
     border-width: 2px;
     color: #424242;
     text-decoration: none;
+    outline: none;
 }
 
 button:focus, .button-link:focus {

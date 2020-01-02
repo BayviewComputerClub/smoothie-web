@@ -43,7 +43,9 @@
             <th>Name</th>
         </tr>
         <tr th:each="user: ${users}">
-            <td th:text="${user.handle}"></td>
+            <td>
+                <a th:href="@{'/user/' + ${user.handle}}" th:text="${user.handle}"></a>
+            </td>
         </tr>
     </table>
 </div>

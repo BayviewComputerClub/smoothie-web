@@ -70,6 +70,7 @@
             box-shadow: 1px 1px 5px 0 #424242;
             transition: box-shadow 0.5s;
             box-sizing: content-box;
+            outline: none;
         }
         #register:hover {
             box-shadow: 1px 1px 15px 0 #424242;
@@ -146,18 +147,18 @@
 
 <script>
 
-    var password = document.getElementById("confirmPassword"), confirm_password = document.getElementById("passwordBox");
+    let password = document.getElementById("confirmPassword"), confirmPassword = document.getElementById("passwordBox");
 
     function validatePassword(){
         if(password.value != confirm_password.value) {
-            confirm_password.setCustomValidity("Passwords Don't Match");
+            confirmPassword.setCustomValidity("Passwords Don't Match");
         } else {
-            confirm_password.setCustomValidity('');
+            confirmPassword.setCustomValidity('');
         }
     }
 
     password.onchange = validatePassword;
-    confirm_password.onkeyup = validatePassword;
+    confirmPassword.onkeyup = validatePassword;
 
 </script>
 

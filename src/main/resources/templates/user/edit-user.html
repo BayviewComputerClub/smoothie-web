@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>smoothie-web</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
+    <link rel="stylesheet" th:href="@{/css/button.css}"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        h1 {
+            font-size: 48px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 96px;
+        }
+
+        h3 {
+            font-size: 24px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 48px;
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 1.5;
+            font-family: Metropolis, sans-serif;
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+            line-height: 1.5;
+        }
+
+        textarea {
+            border: 1px solid #607d8b;
+            width: 80%;
+            border-radius: 10px;
+            font-family: Nunito, sans-serif;
+            font-size: 18px;
+            line-height: 1.5;
+            color: #424242;
+            outline: none;
+            transition: box-shadow 0.5s;
+            padding: 13px;
+        }
+
+        textarea:focus {
+            box-shadow: 1px 1px 10px 0 #607d8b;
+            transition: box-shadow 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <h1>Settings</h1>
+
+    <form method="POST" id="form" th:object="${userSettingsForm}">
+        <h3>Change Password</h3>
+
+        <input type="password" id="current" th:field="*{currentPassword}" placeholder="current password" required class="inputbox">
+        <br/>
+        <input type="password" id="confirmPassword" placeholder="new password" required class="inputbox">
+        <br/>
+        <input type="password" id="passwordBox" th:field="*{password}" placeholder="confirm password" required class="inputbox">
+
+        <br/>
+        <input value="Save" type="submit">
+    </form>
+
+</div>
+
+<script>
+    let password = document.getElementById("confirmPassword"), confirmPassword = document.getElementById("passwordBox");
+
+    function validatePassword(){
+        if(password.value != confirm_password.value) {
+            confirmPassword.setCustomValidity("Passwords Don't Match");
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    }
+
+    password.onchange = validatePassword;
+    confirmPassword.onkeyup = validatePassword;
+
+</script>
+
+</body>
+</html>

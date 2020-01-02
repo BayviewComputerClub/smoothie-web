@@ -1,7 +1,7 @@
 /* -=-=-=-=-=-=-=- Text Box -=-=-=-=-=-=-=- */
 
 
-input[type="text"], input[type="number"] {
+input[type="text"], input[type="number"], input[type="password"] {
     margin: 3px 3px 3px 0;
     width: 400px;
     padding: 10px;
@@ -14,13 +14,13 @@ input[type="text"], input[type="number"] {
     transition: box-shadow 0.3s, background 0.5s;
 }
 
-input[type="text"]:hover, input[type="number"]:hover {
+input[type="text"]:hover, input[type="number"]:hover, input[type="password"]:hover {
     box-shadow: 1px 4px 2px -2px #9E9E9E;
     border-color: #757575;
     transition: border-color 0.5s, box-shadow 0.3s, background 0.5s;
 }
 
-input[type="text"]:focus, input[type="number"]:focus {
+input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus {
     border-color: #424242;
     box-shadow: 1px 4px 2px -2px #9E9E9E;
 }
@@ -143,6 +143,7 @@ input[type="submit"] {
     text-align: center;
     box-shadow: 1px 1px 5px 0 #424242;
     transition: box-shadow 0.5s;
+    outline: none;
 }
 
 input[type="submit"]:hover {
