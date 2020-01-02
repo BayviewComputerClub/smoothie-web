@@ -13,7 +13,7 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>[[${user.handle}]]'s submissions </h1>
+    <h1><a th:href="@{'/user/' + ${user.handle}}">[[${user.handle}]]</a>'s submissions </h1>
     <table style="width: 80%">
         <thead>
         <tr>

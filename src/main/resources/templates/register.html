@@ -145,12 +145,14 @@
     </form>
 </div>
 
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+
 <script>
 
     let password = document.getElementById("confirmPassword"), confirmPassword = document.getElementById("passwordBox");
 
     function validatePassword(){
-        if(password.value != confirm_password.value) {
+        if(password.value != confirmPassword.value) {
             confirmPassword.setCustomValidity("Passwords Don't Match");
         } else {
             confirmPassword.setCustomValidity('');

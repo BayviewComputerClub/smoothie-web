@@ -23,33 +23,19 @@
             line-height: 48px;
         }
 
-        p {
-            font-size: 18px;
-            line-height: 1.5;
-            font-family: Metropolis, sans-serif;
-        }
-
         .container {
             animation: header-fade-in 1s;
             line-height: 1.5;
         }
 
-        textarea {
-            border: 1px solid #607d8b;
-            width: 80%;
-            border-radius: 10px;
-            font-family: Nunito, sans-serif;
-            font-size: 18px;
-            line-height: 1.5;
-            color: #424242;
-            outline: none;
-            transition: box-shadow 0.5s;
-            padding: 13px;
+        a {
+            text-decoration: none;
+            color: #009688;
+            transition: text-shadow 0.3s;
         }
-
-        textarea:focus {
-            box-shadow: 1px 1px 10px 0 #607d8b;
-            transition: box-shadow 0.5s;
+        a:hover {
+            text-shadow: 0 0 2px #00bcd4;
+            transition: text-shadow 0.3s;
         }
     </style>
 </head>
@@ -58,38 +44,11 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>Settings</h1>
+    <h1>Account Settings</h1>
 
-    <form method="POST" id="form" th:object="${userSettingsForm}">
-        <h3>Change Password</h3>
-
-        <input type="password" id="current" th:field="*{currentPassword}" placeholder="current password" required class="inputbox">
-        <br/>
-        <input type="password" id="confirmPassword" placeholder="new password" required class="inputbox">
-        <br/>
-        <input type="password" id="passwordBox" th:field="*{password}" placeholder="confirm password" required class="inputbox">
-
-        <br/>
-        <input value="Save" type="submit">
-    </form>
-
+    <h3><a th:href="@{'/user/' + ${user.handle} + '/edit'}">Edit Profile</a></h3>
+    <h3><a th:href="@{/account/change-password}">Change Password</a></h3>
 </div>
-
-<script>
-    let password = document.getElementById("confirmPassword"), confirmPassword = document.getElementById("passwordBox");
-
-    function validatePassword(){
-        if(password.value != confirm_password.value) {
-            confirmPassword.setCustomValidity("Passwords Don't Match");
-        } else {
-            confirmPassword.setCustomValidity('');
-        }
-    }
-
-    password.onchange = validatePassword;
-    confirmPassword.onkeyup = validatePassword;
-
-</script>
 
 </body>
 </html>

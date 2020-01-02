@@ -112,13 +112,12 @@ public class UserController {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    static class UserSettingsForm {
+    static class ChangePasswordForm {
         String password, currentPassword;
 
         private User toUser(User user) {
             user.setPassword(password);
             user.encodePassword();
-
             return user;
         }
     }
@@ -128,16 +127,26 @@ public class UserController {
     public Mono<String> getSettingsRoute(Model model, Principal principal) {
         return userService.findUserByHandle(principal.getName()).flatMap(user -> {
             if (user == null) return Mono.just("404");
-
-            model.addAttribute("userSettingsForm", new UserSettingsForm());
             model.addAttribute("user", user);
             return Mono.just("user/edit-user");
         });
     }
 
-    @PostMapping("/account/settings")
+    @GetMapping("/account/change-password")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public Mono<String> postSettingsRoute(@Valid UserSettingsForm form, BindingResult res, Model model, Principal principal) {
+    public Mono<String> getChangePasswordRoute(Model model, Principal principal) {
+        return userService.findUserByHandle(principal.getName()).flatMap(user -> {
+            if (user == null) return Mono.just("404");
+
+            model.addAttribute("changePasswordForm", new ChangePasswordForm());
+            model.addAttribute("user", user);
+            return Mono.just("user/change-password");
+        });
+    }
+
+    @PostMapping("/account/change-password")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public Mono<String> postChangePasswordRoute(@Valid ChangePasswordForm form, BindingResult res, Model model, Principal principal) {
 
         return userService.findUserByHandle(principal.getName()).flatMap(user -> {
             if (user == null) return Mono.just("404");
@@ -146,13 +155,13 @@ public class UserController {
             }
 
             if (res.hasErrors()) {
-                model.addAttribute("userSettingsForm", form);
+                model.addAttribute("changePasswordForm", form);
                 model.addAttribute("user", user);
-                return Mono.just("user/edit-user");
+                return Mono.just("user/change-password");
             }
 
             return userService.saveUser(form.toUser(user))
-                    .flatMap(user1 -> Mono.just("redirect:/user/" + user.getHandle()));
+                    .flatMap(user1 -> Mono.just("redirect:/account/settings"));
         });
     }
 }
