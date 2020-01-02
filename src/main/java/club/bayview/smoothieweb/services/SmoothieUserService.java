@@ -9,7 +9,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,9 +23,6 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    SmoothieAuthenticationProvider authenticationProvider;
 
     public Mono<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -50,7 +46,6 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
     }
 
     public Mono<User> saveUser(User user) {
-        user.setPassword(authenticationProvider.passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 

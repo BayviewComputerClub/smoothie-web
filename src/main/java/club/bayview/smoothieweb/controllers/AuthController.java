@@ -1,6 +1,7 @@
 package club.bayview.smoothieweb.controllers;
 
 import club.bayview.smoothieweb.models.User;
+import club.bayview.smoothieweb.security.SmoothieAuthenticationProvider;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,9 @@ public class AuthController {
 
     @Autowired
     private SmoothieUserService userDetailsService;
+
+    @Autowired
+    SmoothieAuthenticationProvider authenticationProvider;
 
     @Getter
     @Setter
@@ -68,7 +72,9 @@ public class AuthController {
         if (result.hasErrors()) {
             page.setViewName("register");
         } else {
-            userDetailsService.saveUser(new User(form.username, form.email, form.password)).block();
+            User user = new User(form.username, form.email, form.password);
+            user.setPassword(authenticationProvider.passwordEncoder.encode(user.getPassword()));
+            userDetailsService.saveUser(user).block();
             page.setViewName("redirect:/login");
             // TODO success registering message
         }

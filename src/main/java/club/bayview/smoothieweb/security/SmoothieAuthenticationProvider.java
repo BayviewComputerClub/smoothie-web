@@ -6,7 +6,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ public class SmoothieAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private SmoothieUserService userService;
 
-    public PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    public PasswordEncoder passwordEncoder = new Argon2PasswordEncoder();
 
     @Override
     public Authentication authenticate(Authentication authentication) {

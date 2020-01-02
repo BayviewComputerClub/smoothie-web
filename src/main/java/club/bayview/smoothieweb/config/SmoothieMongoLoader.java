@@ -2,6 +2,7 @@ package club.bayview.smoothieweb.config;
 
 import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
+import club.bayview.smoothieweb.security.SmoothieAuthenticationProvider;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
@@ -34,6 +35,9 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
 
     @Value("${smoothieweb.admin.password:'password'}")
     private String adminPassword;
+
+    @Autowired
+    SmoothieAuthenticationProvider authenticationProvider;
 
     @Bean
     public LoggingEventListener mongoEventListener() {
@@ -78,6 +82,7 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
             User admin = new User("admin", "", adminPassword);
             admin.getRoles().add(Role.ROLE_ADMIN);
             admin.getRoles().add(Role.ROLE_EDITOR);
+            admin.setPassword(authenticationProvider.passwordEncoder.encode(admin.getPassword()));;
             userService.saveUser(admin).block();
         }
         logger.info("-=-=-=-=- MongoDB Loaded -=-=-=-=-");
