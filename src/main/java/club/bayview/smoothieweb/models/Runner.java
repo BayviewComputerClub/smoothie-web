@@ -32,7 +32,11 @@ public class Runner {
     }
 
     public ConnectivityState getState() {
-        return getSmoothieRunnerService().getSmoothieRunner(id) == null ? null : getSmoothieRunnerService().getSmoothieRunner(id).getStatus();
+        return getSmoothieRunner() == null ? null : getSmoothieRunner().getStatus();
+    }
+
+    public club.bayview.smoothieweb.SmoothieRunner.ServiceHealth getHealth() {
+        return getSmoothieRunner() == null ? null : getSmoothieRunner().getHealth();
     }
 
     public SmoothieRunner getSmoothieRunner() {

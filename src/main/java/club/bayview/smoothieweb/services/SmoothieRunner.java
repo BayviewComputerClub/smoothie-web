@@ -67,6 +67,10 @@ public class SmoothieRunner {
         return channel.getState(true);
     }
 
+    public club.bayview.smoothieweb.SmoothieRunner.ServiceHealth getHealth() {
+        return getBlockingStub().health(club.bayview.smoothieweb.SmoothieRunner.Empty.getDefaultInstance());
+    }
+
     public void cleanStop() {
         // clean shutdown, allowing threads to finish
         channel.shutdown();

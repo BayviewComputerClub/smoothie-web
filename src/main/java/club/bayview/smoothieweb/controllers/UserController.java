@@ -4,6 +4,7 @@ import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
+import club.bayview.smoothieweb.util.SessionUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,6 +37,9 @@ public class UserController {
 
     @Autowired
     SmoothieProblemService problemService;
+
+    @Autowired
+    SessionUtils sessionUtils;
 
     @Getter
     @Setter

@@ -64,6 +64,7 @@ public class Problem {
     @Indexed(unique = true)
     private String name;
 
+    @Indexed(unique = true)
     private String prettyName;
 
     private List<ProblemLimits> limits;

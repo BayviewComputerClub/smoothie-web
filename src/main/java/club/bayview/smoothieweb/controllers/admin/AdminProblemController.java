@@ -70,7 +70,22 @@ public class AdminProblemController {
         @NotNull
         private List<ProblemFormLimit> limits;
 
-        private MultipartFile testData;
+        private Problem toProblem(Problem original) {
+            Problem problem = original == null ? new Problem() : original;
+
+            problem.setName(this.getName());
+            problem.setPrettyName(this.getPrettyName());
+            problem.setProblemStatement(this.getProblemStatement());
+            problem.setAllowPartial(this.isAllowPartial());
+            problem.setTotalPointsWorth(this.getTotalScoreWorth());
+
+            problem.setLimits(new ArrayList<>());
+            for (ProblemFormLimit l : this.getLimits()) {
+                problem.getLimits().add(new Problem.ProblemLimits(JudgeLanguage.prettyToName(l.getLang()), l.timeLimit, l.memoryLimit));
+            }
+
+            return problem;
+        }
     }
 
     private static ProblemForm defaultProblem;
@@ -140,6 +155,8 @@ public class AdminProblemController {
         return problemService.findProblemByName(name).flatMap(p -> {
             if (p == null) return Mono.just("404");
 
+            model.addAttribute("problem", p);
+
             return Mono.just("admin/manage-problem");
         });
     }
@@ -154,26 +171,11 @@ public class AdminProblemController {
             model.addAttribute("languages", JudgeLanguage.values);
             return Mono.just("admin/edit-problem");
         } else {
-            Problem p = problemFormToProblem(null, form);
+            Problem p = form.toProblem(null);
             p.setTimeCreated(System.currentTimeMillis() / 1000L);
 
-            return problemService.saveProblem(p).flatMap(problem -> {
-
-                // set test data
-                if (form.getTestData() != null) {
-                    try {
-
-                        return problemService.saveTestDataForProblem(getTestCasesFromZip(form.getTestData()), problem)
-                                .then(Mono.just("redirect:/problem/" + p.getName()));
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return Mono.error(e);
-                    }
-                }
-                return Mono.just("redirect:/problem/" + p.getName());
-
-            }).doOnError(e -> Mono.just("500"));
+            return problemService.saveProblem(p)
+                    .then(Mono.just("redirect:/problem/" + p.getName() + "/manage"));
         }
     }
 
@@ -186,86 +188,15 @@ public class AdminProblemController {
             model.addAttribute("languages", JudgeLanguage.values);
             return Mono.just("admin/edit-problem");
         } else {
-
             // save problem
             return problemService.findProblemByName(name).flatMap(originalProblem -> {
                 if (originalProblem == null) return Mono.just("404");
-                return problemService.saveProblem(problemFormToProblem(originalProblem, form));
-            }).flatMap(problem -> {
-                if (problem instanceof String) return Mono.just((String) problem);
 
-                // set test data
-                if (form.getTestData() != null) {
-                    try {
-
-                        return problemService.saveTestDataForProblem(getTestCasesFromZip(form.getTestData()), (Problem) problem)
-                                .then(Mono.just("redirect:/problem/" + name));
-
-                    } catch (Exception e) {
-                        return Mono.error(e);
-                    }
-                } else {
-                    return Mono.just("redirect:/problem/" + name);
-                }
-
-            }).doOnError(e -> Mono.just("500"));
+                return problemService.saveProblem(form.toProblem(originalProblem))
+                        .then(Mono.just("redirect:/problem/" + name));
+            });
 
         }
-    }
-
-    private TestData getTestCasesFromZip(MultipartFile file) throws IOException {
-        if (file == null) return new TestData(new ArrayList<>());
-
-        List<List<Problem.ProblemBatchCase>> list = new ArrayList<>();
-        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(file.getInputStream()));
-        ZipEntry entry;
-
-        // TODO make this better with error checking and instruction file for points
-        // format: 0-0.in, 0-0.out, 0-1.in, 0-1.out, etc...
-        while ((entry = zis.getNextEntry()) != null) {
-
-            // get vals
-            String[] spl = entry.getName().split("-");
-            int batchNum = Integer.parseInt(spl[0]), caseNum = Integer.parseInt(spl[1].split("\\.")[0]);
-            boolean isInput = entry.getName().split("\\.")[1].equals("in");
-
-            // get data
-            byte[] buffer = new byte[1024];
-            StringBuilder data = new StringBuilder();
-            while (zis.read(buffer, 0, 1024) >= 0) {
-                data.append(new String(buffer, 0, 1024).replace("\u0000", "").replace("\\u0000", ""));
-            }
-            String dataString = data.toString();
-
-            // add to list
-            boolean found = false;
-
-            if (batchNum >= list.size()) {
-                for (int i = list.size(); i <= batchNum; i++) {
-                    list.add(new ArrayList<>());
-                }
-            }
-
-            for (var c : list.get(batchNum)) {
-                if (c.getCaseNum() == caseNum) {
-                    found = true;
-                    if (isInput) c.setInput(dataString);
-                    else c.setExpectedOutput(dataString);
-                }
-            }
-
-            if (!found) {
-                if (isInput) list.get(batchNum).add(new Problem.ProblemBatchCase(batchNum, caseNum, dataString, ""));
-                else list.get(batchNum).add(new Problem.ProblemBatchCase(batchNum, caseNum, "", dataString));
-            }
-        }
-
-        // sort cases into order
-        for (var cases : list) {
-            Collections.sort(cases);
-        }
-
-        return new TestData(list);
     }
 
     private ProblemForm problemToProblemForm(Problem p) {
@@ -280,23 +211,6 @@ public class AdminProblemController {
             pf.getLimits().add(new ProblemFormLimit(JudgeLanguage.nameToPretty(l.getLang()), l.getTimeLimit(), l.getMemoryLimit()));
         }
         return pf;
-    }
-
-    private Problem problemFormToProblem(Problem original, ProblemForm form) {
-        Problem problem = original == null ? new Problem() : original;
-
-        problem.setName(form.getName());
-        problem.setPrettyName(form.getPrettyName());
-        problem.setProblemStatement(form.getProblemStatement());
-        problem.setAllowPartial(form.isAllowPartial());
-        problem.setTotalPointsWorth(form.getTotalScoreWorth());
-
-        problem.setLimits(new ArrayList<>());
-        for (ProblemFormLimit l : form.getLimits()) {
-            problem.getLimits().add(new Problem.ProblemLimits(JudgeLanguage.prettyToName(l.getLang()), l.timeLimit, l.memoryLimit));
-        }
-
-        return problem;
     }
 
 }

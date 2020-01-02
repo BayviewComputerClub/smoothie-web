@@ -46,10 +46,14 @@ public class Submission {
 
     private String lang;
 
+    @Indexed
     private String userId;
 
     @Indexed
     private String problemId;
+
+    @Indexed
+    private String contestId;
 
     private String runnerId;
 
