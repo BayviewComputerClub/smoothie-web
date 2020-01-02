@@ -2,6 +2,7 @@ package club.bayview.smoothieweb.controllers;
 
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.security.SmoothieAuthenticationProvider;
+import club.bayview.smoothieweb.security.captcha.CaptchaService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,11 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import reactor.core.publisher.Mono;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -26,6 +29,9 @@ public class AuthController {
 
     @Autowired
     SmoothieAuthenticationProvider authenticationProvider;
+
+    @Autowired
+    private CaptchaService captchaService;
 
     @Getter
     @Setter
@@ -60,8 +66,15 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ModelAndView registerPostRoute(@Valid RegisterForm form, BindingResult result) {
+    public ModelAndView registerPostRoute(@Valid RegisterForm form, BindingResult result, HttpServletRequest req) {
         ModelAndView page = new ModelAndView();
+
+        try {
+            String captchaRes = req.getParameter("g-recaptcha-response");
+            captchaService.processResponse(captchaRes);
+        } catch (Exception e) {
+            result.reject("captcha", "Incorrect captcha!");
+        }
 
         if (userDetailsService.findUserByHandle(form.username).block() != null) {
             result.rejectValue("username", "error.user", "The username has already been taken!");

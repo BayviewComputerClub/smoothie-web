@@ -34,9 +34,6 @@ public class CaptchaService {
     @Autowired
     private RestOperations restTemplate;
 
-    @Autowired
-    ClientHttpRequestFactory clientHttpRequestFactory;
-
     private static final Pattern RESPONSE_PATTERN = Pattern.compile("[A-Za-z0-9_-]+");
 
     public static final class ReCaptchaUnavailableException extends RuntimeException {
@@ -54,17 +51,11 @@ public class CaptchaService {
     }
 
     @Bean
-    public ClientHttpRequestFactory clientHttpRequestFactory() {
+    public RestOperations restTemplate() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(3 * 1000);
         factory.setReadTimeout(7 * 1000);
-        return factory;
-    }
-
-    @Bean
-    public RestOperations restTemplate() {
-        RestTemplate restTemplate = new RestTemplate(clientHttpRequestFactory);
-        return restTemplate;
+        return new RestTemplate(factory);
     }
 
     public void processResponse(final String response) {

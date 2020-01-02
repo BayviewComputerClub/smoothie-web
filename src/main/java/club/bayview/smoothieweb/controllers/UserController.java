@@ -151,7 +151,7 @@ public class UserController {
         return userService.findUserByHandle(principal.getName()).flatMap(user -> {
             if (user == null) return Mono.just("404");
             if (!user.isPassword(form.currentPassword)) {
-                res.addError(new ObjectError("incorrect password", "incorrect password"));
+                res.rejectValue("currentPassword", "error.pass", "Incorrect password!");
             }
 
             if (res.hasErrors()) {

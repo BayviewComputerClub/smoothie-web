@@ -140,12 +140,17 @@
             <input type="password" id="passwordBox" name="password" placeholder="confirm password" required class="inputbox">
         </div>
         <br/>
+        <div class="g-recaptcha col-sm-5"
+             th:attr="data-sitekey=${@captchaSettings.getSite()}"></div>
+        <span id="captchaError" class="alert alert-danger col-sm-4"
+              style="display:none"></span>
         <br/>
         <input type="submit" id="register" value="Register">
     </form>
 </div>
 
 <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script src='https://www.google.com/recaptcha/api.js'></script>
 
 <script>
 
