@@ -41,12 +41,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public SecurityWebFilterChain securitygWebFilterChain(ServerHttpSecurity http) {
 
         return http
-                .httpBasic().disable()
+                /*.httpBasic().disable()
                 .formLogin().disable()
                 .csrf().disable()
-                .logout().disable()
                 .authorizeExchange().anyExchange().permitAll()
-                .and()
+                .and()*/
                 .build();
     }
 

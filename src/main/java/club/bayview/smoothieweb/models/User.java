@@ -2,6 +2,7 @@ package club.bayview.smoothieweb.models;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -16,9 +17,10 @@ import java.util.stream.Collectors;
  * Represents a user on the site.
  */
 
-@Document(collation =  "{ 'locale' : 'en_US', 'strength': 2 }") // case insensitive
+@Document(collation =  "{ 'locale' : 'en_US', 'strength': 2 }") // indexes case insensitive
 @Getter
 @Setter
+@ToString
 public class User implements UserDetails {
 
     @Id // do not use @mongoid
@@ -34,7 +36,7 @@ public class User implements UserDetails {
 
     // profile
     private String description;
-    private double score;
+    private double points;
 
     private Set<Role> roles;
 
@@ -49,6 +51,7 @@ public class User implements UserDetails {
         this.password = password; // encoded to argon2 in smoothieuserservice
         this.solved = new ArrayList<>();
         this.enabled = false;
+        this.description = "(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ no description... ✧ﾟ･: *ヽ(◕ヮ◕ヽ)";
         roles = new HashSet<>(Arrays.asList(Role.ROLE_USER));
     }
 

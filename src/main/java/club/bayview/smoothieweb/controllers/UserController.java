@@ -1,14 +1,17 @@
 package club.bayview.smoothieweb.controllers;
 
+import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -33,8 +36,13 @@ public class UserController {
     @Getter
     @Setter
     @AllArgsConstructor
+    @NoArgsConstructor
     static class ProfileForm {
         String description;
+
+        ProfileForm (User user) {
+            description = user.getDescription();
+        }
 
         private User toUser(User user) {
             user.setDescription(getDescription());
@@ -43,9 +51,15 @@ public class UserController {
     }
 
     @GetMapping("/user/{handle}")
-    public Mono<String> getProfileRoute(@PathVariable String handle, Model model) {
+    public Mono<String> getProfileRoute(@PathVariable String handle, Model model, Authentication auth, Principal principal) {
         return userService.findUserByHandle(handle).flatMap(user -> {
             if (user == null) return Mono.just("404");
+
+            if (auth != null && auth.getAuthorities() != null && auth.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.getName())) || (principal != null && principal.getName().equalsIgnoreCase(user.getHandle()))) {
+                model.addAttribute("allowEdit", true);
+            } else {
+                model.addAttribute("allowEdit", false);
+            }
 
             model.addAttribute("user", user);
             return Mono.just("profile");
@@ -63,6 +77,7 @@ public class UserController {
         return userService.findUserByHandle(handle).flatMap(user -> {
             if (user == null) return Mono.just("404");
 
+            model.addAttribute("profileForm", new ProfileForm(user));
             model.addAttribute("user", user);
             return Mono.just("edit-profile");
         });
@@ -79,6 +94,7 @@ public class UserController {
             if (user == null) return Mono.just("404");
 
             if (res.hasErrors()) {
+                model.addAttribute("profileForm", form);
                 model.addAttribute("user", user);
                 return Mono.just("edit-profile");
             }
@@ -91,8 +107,13 @@ public class UserController {
     @Getter
     @Setter
     @AllArgsConstructor
+    @NoArgsConstructor
     static class UserSettingsForm {
         String password;
+
+        UserSettingsForm(User user) {
+            password = user.getPassword();
+        }
 
         private User toUser(User user) {
             user.setPassword(password);
@@ -106,6 +127,7 @@ public class UserController {
         return userService.findUserByHandle(principal.getName()).flatMap(user -> {
             if (user == null) return Mono.just("404");
 
+            model.addAttribute("userSettingsForm", new UserSettingsForm(user));
             model.addAttribute("user", user);
             return Mono.just("edit-user");
         });
@@ -119,6 +141,7 @@ public class UserController {
             if (user == null) return Mono.just("404");
 
             if (res.hasErrors()) {
+                model.addAttribute("userSettingsForm", form);
                 model.addAttribute("user", user);
                 return Mono.just("edit-user");
             }

@@ -17,7 +17,7 @@ import java.util.*;
  * Represents a programming problem on the site.
  */
 
-@Document(collation =  "{ 'locale' : 'en_US', 'strength': 2 }") // case insensitive
+@Document(collation =  "{ 'locale' : 'en_US', 'strength': 2 }") // indexes case insensitive
 @Getter
 @Setter
 @NoArgsConstructor
