@@ -31,7 +31,7 @@
             <td><a th:href="@{'/submission/' + ${submission.id}}" th:text="${submission.id}"></a></td>
             <td th:text="${submission.verdict}"></td>
             <td th:text="${submission.lang}"></td>
-            <td th:text="${submission.userId}"></td>
+            <td><a th:href="@{'/user/' + ${users.get(submission.userId)}}" th:text="${users.get(submission.userId)}"></a></td>
             <td th:text="${submission.timeSubmitted}" class="timeSubmitted"></td>
         </tr>
 

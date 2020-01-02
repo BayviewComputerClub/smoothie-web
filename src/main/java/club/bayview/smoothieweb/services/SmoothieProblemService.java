@@ -9,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.List;
 
 @Service
 public class SmoothieProblemService {
@@ -29,6 +30,10 @@ public class SmoothieProblemService {
 
     public Flux<Problem> findProblems() {
         return problemRepository.findAll();
+    }
+
+    public Flux<Problem> findProblemsWithIds(List<String> ids) {
+        return problemRepository.findAllByIdIn(ids);
     }
 
     public Mono<String> findProblemTestDataHash(String id) throws Exception {

@@ -3,7 +3,6 @@ package club.bayview.smoothieweb.services;
 import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.models.UserRepository;
-import club.bayview.smoothieweb.security.SmoothieAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,6 +33,10 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
 
     public Mono<User> findUserById(String id) {
         return userRepository.findById(id);
+    }
+
+    public Flux<User> findUsersWithIds(List<String> ids) {
+        return userRepository.findAllByIdIn(ids);
     }
 
     @Override
