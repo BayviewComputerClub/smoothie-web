@@ -1,6 +1,5 @@
 package club.bayview.smoothieweb.controllers;
 
-import club.bayview.smoothieweb.SmoothieRunner;
 import club.bayview.smoothieweb.models.*;
 import club.bayview.smoothieweb.services.*;
 import club.bayview.smoothieweb.util.NotFoundException;
@@ -21,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Controller
 public class JudgeController {
@@ -108,6 +108,7 @@ public class JudgeController {
     }
 
     private Mono<String> gradeSubmission(Problem problem, SubmitRequest form, User user) {
+
         Submission sub = new Submission();
         sub.setId(ObjectId.get().toString());
         sub.setLang(form.language);
@@ -115,15 +116,17 @@ public class JudgeController {
         sub.setProblemId(problem.getId());
         sub.setCode(form.code);
         sub.setTimeSubmitted(System.currentTimeMillis() / 1000L);
-        sub.setBatchCases(problem.getSubmissionBatchCases());
         sub.setJudgingCompleted(false);
 
-        return submissionService.saveSubmission(sub)
+        return problem.getSubmissionBatchCases()
+                .flatMap(batches -> {
+                    sub.setBatchCases(batches);
+                    return submissionService.saveSubmission(sub);
+                })
                 .flatMap(s -> queuedSubmissionService.saveQueuedSubmission(new QueuedSubmission(s.getId(), problem.getId())))
                 .flatMap(q -> {
                     queuedSubmissionService.checkRunnersTask();
                     return Mono.just(q.getSubmissionId());
                 });
     }
-
 }

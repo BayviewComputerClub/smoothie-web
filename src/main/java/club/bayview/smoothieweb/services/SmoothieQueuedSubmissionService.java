@@ -1,7 +1,9 @@
 package club.bayview.smoothieweb.services;
 
+import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.QueuedSubmission;
 import club.bayview.smoothieweb.models.QueuedSubmissionRepository;
+import club.bayview.smoothieweb.models.Submission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class SmoothieQueuedSubmissionService {
@@ -42,6 +45,10 @@ public class SmoothieQueuedSubmissionService {
         return queuedSubmissionRepository.deleteAllById(id);
     }
 
+    /**
+     * Find tasks for runners to work on.
+     */
+
     @Async
     public synchronized void checkRunnersTask() {
         var runners = new ArrayList<>(runnerService.getSmoothieRunners().values());
@@ -57,24 +64,33 @@ public class SmoothieQueuedSubmissionService {
 
             // grade if there are no tasks in the queue
             if (runner.getHealth().getNumOfTasksInQueue() == 0) {
+
+                AtomicReference<Submission> s = new AtomicReference<>();
                 deleteQueuedSubmissionById(sub.getId())
                         .flatMap(t -> Mono.zip(problemService.findProblemById(sub.getProblemId()), submissionService.findSubmissionById(sub.getSubmissionId())))
-                        .subscribe(s -> {
-                            // create grpc object to send
-                            club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req = club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest.newBuilder()
-                                    .setTestBatchEvenIfFailed(false)
-                                    .setCancelTesting(false)
-                                    .setSolution(club.bayview.smoothieweb.SmoothieRunner.Solution.newBuilder()
-                                            .setCode(s.getT2().getCode())
-                                            .setLanguage(s.getT2().getLang())
-                                            .setProblem(s.getT1().getGRPCObject(s.getT2().getLang()))
-                                            .build())
-                                    .build();
-
-                            runner.grade(req, s.getT2());
-                        });
+                        .flatMap(t -> {
+                            s.set(t.getT2());
+                            return toTestSolutionRequest(t.getT1(), t.getT2());
+                        })
+                        .flatMap(tsr -> {
+                            runner.grade(tsr, s.get());
+                            return submissionService.saveSubmission(s.get()); // the runner id was set
+                        }).subscribe();
             }
         });
+    }
+
+    // create grpc object to send
+    private Mono<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> toTestSolutionRequest(Problem p, Submission s) {
+        return p.getGRPCObject(s.getLang()).flatMap(grpcProblem -> Mono.just(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest.newBuilder()
+                .setTestBatchEvenIfFailed(false)
+                .setCancelTesting(false)
+                .setSolution(club.bayview.smoothieweb.SmoothieRunner.Solution.newBuilder()
+                        .setCode(s.getCode())
+                        .setLanguage(s.getLang())
+                        .setProblem(grpcProblem)
+                        .build())
+                .build()));
     }
 
     public ArrayList<SmoothieRunner> sortRunnersForSubmission(ArrayList<SmoothieRunner> runners, QueuedSubmission submission) {

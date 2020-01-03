@@ -29,7 +29,7 @@ public class QueuedSubmission {
     public QueuedSubmission(String submissionId, String problemId) {
         this.submissionId = submissionId;
         this.problemId = problemId;
-        this.timeRequested = System.currentTimeMillis();
+        this.timeRequested = System.currentTimeMillis() / 1000L;
     }
 
 }

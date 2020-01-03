@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,19 +25,19 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
     private UserRepository userRepository;
 
     public Mono<User> findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmail(email).cache(Duration.ofMinutes(2));
     }
 
     public Mono<User> findUserByHandle(String handle) {
-        return userRepository.findByHandle(handle);
+        return userRepository.findByHandle(handle).cache(Duration.ofMinutes(2));
     }
 
     public Mono<User> findUserById(String id) {
-        return userRepository.findById(id);
+        return userRepository.findById(id).cache(Duration.ofMinutes(2));
     }
 
     public Flux<User> findUsersWithIds(List<String> ids) {
-        return userRepository.findAllByIdIn(ids);
+        return userRepository.findAllByIdIn(ids).cache(Duration.ofMinutes(2));
     }
 
     @Override

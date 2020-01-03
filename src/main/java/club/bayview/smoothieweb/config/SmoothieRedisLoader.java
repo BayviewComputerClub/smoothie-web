@@ -20,4 +20,17 @@ public class SmoothieRedisLoader {
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
     }
 
+    /*
+    @Bean
+    public RedisCacheManager cacheManager() {
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new MonoRedisSerializer()))
+                .disableCachingNullValues();
+
+        return RedisCacheManager.RedisCacheManagerBuilder
+                .fromConnectionFactory(redisConnectionFactory())
+                .cacheDefaults(config)
+                .build();
+    }*/
+
 }

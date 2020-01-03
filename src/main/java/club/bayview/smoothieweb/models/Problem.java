@@ -4,12 +4,11 @@ import club.bayview.smoothieweb.SmoothieRunner;
 import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import lombok.*;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.*;
 
@@ -79,30 +78,51 @@ public class Problem {
     private int rateOfAC, usersSolved;
     private long timeCreated;
 
-    public TestData getTestData() {
-        // TODO
+    public Mono<TestData> getTestData() {
         try {
-            return SmoothieWebApplication.context.getBean(SmoothieProblemService.class).findProblemTestData(getTestDataId()).block();
+            return SmoothieWebApplication.context.getBean(SmoothieProblemService.class).findProblemTestData(getTestDataId());
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return Mono.error(e);
         }
     }
 
-    public List<List<Submission.SubmissionBatchCase>> getSubmissionBatchCases() {
+    public Mono<List<List<Submission.SubmissionBatchCase>>> getSubmissionBatchCases() {
         List<List<Submission.SubmissionBatchCase>> l = new ArrayList<>();
 
-        for (var cases : getTestData().testData) {
-            l.add(new ArrayList<>());
-            for (var c : cases) {
-                l.get(l.size()-1).add(new Submission.SubmissionBatchCase(c));
+        return getTestData().flatMap(testData -> {
+            for (var cases : testData.getTestData()) {
+                l.add(new ArrayList<>());
+                for (var c : cases) {
+                    l.get(l.size()-1).add(new Submission.SubmissionBatchCase(c));
+                }
             }
-        }
-        return l;
+            return Mono.just(l);
+        });
     }
 
-    public SmoothieRunner.Problem getGRPCObject(String language) {
+    public Mono<List<SmoothieRunner.ProblemBatch>> getGRPCBatches(ProblemLimits limit) {
+        // convert to grpc test cases
+        List<SmoothieRunner.ProblemBatch> batches = new ArrayList<>();
 
+        return getTestData().flatMap(testData -> {
+            for (var batch : testData.getTestData()) {
+                SmoothieRunner.ProblemBatch.Builder b = SmoothieRunner.ProblemBatch.newBuilder();
+                for (var c : batch) {
+                    b.addCases(SmoothieRunner.ProblemBatchCase.newBuilder()
+                            .setInput(c.getInput())
+                            .setExpectedAnswer(c.getExpectedOutput())
+                            .setTimeLimit(limit.getTimeLimit())
+                            .setMemLimit(limit.getMemoryLimit())
+                            .build());
+                }
+                batches.add(b.build());
+            }
+            return Mono.just(batches);
+        });
+    }
+
+    public ProblemLimits getProblemLimitForLang(String language) {
         // get limit
         ProblemLimits limit = null;
         for (ProblemLimits l : getLimits()) {
@@ -112,31 +132,19 @@ public class Problem {
                 limit = l;
             }
         }
+        return limit;
+    }
 
-        // convert to grpc test cases
-        List<SmoothieRunner.ProblemBatch> batches = new ArrayList<>();
-        for (var batch : getTestData().testData) {
-            SmoothieRunner.ProblemBatch.Builder b = SmoothieRunner.ProblemBatch.newBuilder();
-            for (var c : batch) {
-                b.addCases(SmoothieRunner.ProblemBatchCase.newBuilder()
-                        .setInput(c.getInput())
-                        .setExpectedAnswer(c.getExpectedOutput())
-                        .setTimeLimit(limit.getTimeLimit())
-                        .setMemLimit(limit.getMemoryLimit())
-                        .build());
-            }
-            batches.add(b.build());
-        }
-
+    public Mono<SmoothieRunner.Problem> getGRPCObject(String language) {
         // get final grpc object
-        return SmoothieRunner.Problem.newBuilder()
-                .setProblemID(id)
-                .setTestCasesHashCode(0) // TODO
-                .addAllTestBatches(batches)
-                .setGrader(SmoothieRunner.ProblemGrader.newBuilder()
-                        .setType("strict") // TODO
-                        .build())
-                .build();
+        return getGRPCBatches(getProblemLimitForLang(language)).flatMap(batches -> Mono.just(SmoothieRunner.Problem.newBuilder()
+            .setProblemID(id)
+            .setTestCasesHashCode(0) // TODO
+            .addAllTestBatches(batches)
+            .setGrader(SmoothieRunner.ProblemGrader.newBuilder()
+                    .setType("strict") // TODO
+                    .build())
+            .build()));
     }
 
 
