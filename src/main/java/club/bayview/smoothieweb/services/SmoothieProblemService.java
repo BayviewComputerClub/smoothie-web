@@ -46,13 +46,28 @@ public class SmoothieProblemService {
     }
 
     public Mono<Problem> saveTestDataForProblem(TestData data, Problem problem) throws Exception {
+        String id = problem.getTestDataId();
         return testDataRepository.addTestData(data, problem.getId()).flatMap(objectId -> {
             problem.setTestDataId(objectId.toString());
-            return saveProblem(problem);
-        });
+
+            try {
+                return id == null || id.equals("") ? Mono.empty() : testDataRepository.removeTestData(id);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return Mono.empty();
+            }
+        }).then(saveProblem(problem));
     }
 
     public Mono<Problem> saveProblem(Problem problem) {
         return problemRepository.save(problem);
+    }
+
+    public Mono<Void> deleteProblem(Problem problem) {
+        return problemRepository.delete(problem);
+    }
+
+    public Mono<Void> deleteProblemById(String id) {
+        return problemRepository.deleteById(id);
     }
 }

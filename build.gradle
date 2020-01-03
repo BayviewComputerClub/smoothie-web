@@ -82,7 +82,9 @@ dependencies {
     compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.64'
     compile group: 'de.ruedigermoeller', name: 'fst', version: '2.57'
     compile group: 'commons-codec', name: 'commons-codec', version: '1.13'
+    compile group: 'de.codecentric', name: 'spring-boot-admin-starter-client', version: '2.2.1'
 
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

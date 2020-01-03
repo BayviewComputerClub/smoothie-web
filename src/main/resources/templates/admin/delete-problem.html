@@ -7,7 +7,6 @@
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
-    <link rel="stylesheet" th:href="@{/css/form.css}"/>
     <link rel="stylesheet" th:href="@{/css/button.css}"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -23,23 +22,24 @@
         h1 {
             font-size: 48px;
             font-family: Metropolis-bold, sans-serif;
-            line-height: 128px;
+            line-height: 64px;
         }
 
         h2 {
             font-family: 'Nunito', sans-serif;
-            font-size: 48px;
-            padding-left: 30%;
-            padding-right: 30%;
-            padding-top: 10%;
+            font-size: 24px;
             font-weight: 100;
-            text-align: center;
+            line-height: 2;
         }
 
         body {
             font-size: 20px;
             line-height: 1.5;
             font-family: Metropolis, sans-serif;
+        }
+
+        .button-link {
+            margin-right: 20px;
         }
 
         .container {
@@ -56,10 +56,14 @@
 <div class="container">
     <h1>Deleting <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.name}]]</a></h1>
 
-    <h2>ᕙ(⇀‸↼‶)ᕗ Are you sure? :')</h2>
+    <h2>Are you sure? ᕙ(⇀‸↼‶)ᕗ </h2>
 
-    <a>Yes</a>
-    <a>No</a>
+    <form method="POST">
+        <div style="display: flex; margin-top: 20px;">
+        <input type="submit" class="button-link" value="Yes">
+        <a class="button-link" th:href="@{'/problem/' + ${problem.name} + '/manage'}">No</a>
+        </div>
+    </form>
 </div>
 </body>
 </html>

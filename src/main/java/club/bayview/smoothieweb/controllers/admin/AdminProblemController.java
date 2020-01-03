@@ -181,9 +181,7 @@ public class AdminProblemController {
 
         return problemService.findProblemByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(p -> {
-                    return problemService.del
-                })
+                .flatMap(p -> problemService.deleteProblemById(p.getId()).then(Mono.just("redirect:/problems")))
                 .onErrorResume(e -> Mono.just("404"));
     }
 

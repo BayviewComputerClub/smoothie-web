@@ -23,4 +23,6 @@ smoothieweb.admin.password=password
 spring.servlet.multipart.max-file-size = 1GB
 spring.servlet.multipart.max-request-size = 1GB
 
+# Spring boot admin server
+spring.boot.admin.client.url=http://localhost:8081
 ```
