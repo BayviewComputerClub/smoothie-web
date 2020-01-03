@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>smoothie-web</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
+    <link rel="stylesheet" th:href="@{/css/button.css}"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css"
+          integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"
+            integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz"
+            crossorigin="anonymous"></script>
+
+    <style>
+
+        h1 {
+            font-size: 48px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 128px;
+        }
+
+        h2 {
+            font-family: 'Nunito', sans-serif;
+            font-size: 48px;
+            padding-left: 30%;
+            padding-right: 30%;
+            padding-top: 10%;
+            font-weight: 100;
+            text-align: center;
+        }
+
+        body {
+            font-size: 20px;
+            line-height: 1.5;
+            font-family: Metropolis, sans-serif;
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+        }
+
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header-admin"></div>
+
+<div class="container">
+    <h1>Deleting <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.name}]]</a></h1>
+
+    <h2>ᕙ(⇀‸↼‶)ᕗ Are you sure? :')</h2>
+
+    <a>Yes</a>
+    <a>No</a>
+</div>
+</body>
+</html>

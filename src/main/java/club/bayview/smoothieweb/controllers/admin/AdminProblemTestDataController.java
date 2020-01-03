@@ -3,6 +3,7 @@ package club.bayview.smoothieweb.controllers.admin;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.TestData;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
+import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,22 +44,20 @@ public class AdminProblemTestDataController {
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> getEditTestDataRoute(@PathVariable String name, Model model) {
 
-        return problemService.findProblemByName(name).flatMap(p -> {
-           if (p == null) return Mono.just("404");
+        return problemService.findProblemByName(name).switchIfEmpty(Mono.error(new NotFoundException())).flatMap(p -> {
 
             model.addAttribute("problem", p);
             model.addAttribute("testDataForm", new TestDataForm());
 
             return Mono.just("admin/edit-problem-testdata");
-        });
+        }).onErrorResume(e -> Mono.just("404"));
     }
 
     @PostMapping("/problem/{name}/edit/testdata")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> postEditTestDataRoute(@Valid TestDataForm form, BindingResult result, @PathVariable String name, Model model) {
 
-        return problemService.findProblemByName(name).flatMap(p -> {
-            if (p == null) return Mono.just("404");
+        return problemService.findProblemByName(name).switchIfEmpty(Mono.error(new NotFoundException())).flatMap(p -> {
 
             if (result.hasErrors()) {
                 model.addAttribute("problem", p);
@@ -73,7 +72,7 @@ public class AdminProblemTestDataController {
                 return Mono.error(e);
             }
 
-        }).doOnError(e -> Mono.just("500"));
+        }).onErrorResume(e -> e instanceof NotFoundException ? Mono.just("404") : Mono.just("500"));
     }
 
     private TestData getTestCasesFromZip(MultipartFile file) throws IOException {

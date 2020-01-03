@@ -4,6 +4,7 @@ import club.bayview.smoothieweb.models.JudgeLanguage;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.TestData;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
+import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -137,14 +138,13 @@ public class AdminProblemController {
     public Mono<String> getEditProblemRoute(@PathVariable String name, Model model) {
         if (name == null) return Mono.just("404");
 
-        return problemService.findProblemByName(name).flatMap(p -> {
-            if (p == null) return Mono.just("404");
+        return problemService.findProblemByName(name).switchIfEmpty(Mono.error(new NotFoundException())).flatMap(p -> {
 
             model.addAttribute("newProblem", false);
             model.addAttribute("problem", problemToProblemForm(p));
             model.addAttribute("languages", JudgeLanguage.values);
             return Mono.just("admin/edit-problem");
-        });
+        }).onErrorResume(e -> Mono.just("404"));
     }
 
     @GetMapping("/problem/{name}/manage")
@@ -152,13 +152,39 @@ public class AdminProblemController {
     public Mono<String> getManageProblemRoute(@PathVariable String name, Model model) {
         if (name == null) return Mono.just("404");
 
-        return problemService.findProblemByName(name).flatMap(p -> {
-            if (p == null) return Mono.just("404");
+        return problemService.findProblemByName(name).switchIfEmpty(Mono.error(new NotFoundException())).flatMap(p -> {
 
             model.addAttribute("problem", p);
-
             return Mono.just("admin/manage-problem");
-        });
+
+        }).onErrorResume(e -> Mono.just("404"));
+    }
+
+    @GetMapping("/problem/{name}/delete")
+    @PreAuthorize("hasRole('ROLE_EDITOR')")
+    public Mono<String> getDeleteProblemRoute(@PathVariable String name, Model model) {
+        if (name == null) return Mono.just("404");
+
+        return problemService.findProblemByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(p -> {
+                    model.addAttribute("problem", p);
+                    return Mono.just("admin/delete-problem");
+                })
+                .onErrorResume(e -> Mono.just("404"));
+    }
+
+    @PostMapping("/problem/{name}/delete")
+    @PreAuthorize("hasRole('ROLE_EDITOR')")
+    public Mono<String> postDeleteProblemRoute(@PathVariable String name, Model model) {
+        if (name == null) return Mono.just("404");
+
+        return problemService.findProblemByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(p -> {
+                    return problemService.del
+                })
+                .onErrorResume(e -> Mono.just("404"));
     }
 
     @PostMapping("/admin/new-problem")
@@ -181,7 +207,7 @@ public class AdminProblemController {
 
     @PostMapping("/problem/{name}/edit")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
-    public Mono<String> postEditProblemRoute(@PathVariable String name, @Valid ProblemForm form, BindingResult result, Model model) throws IOException {
+    public Mono<String> postEditProblemRoute(@PathVariable String name, @Valid ProblemForm form, BindingResult result, Model model) {
         if (result.hasErrors()) { // TODO form errors
             model.addAttribute("newProblem", false);
             model.addAttribute("problem", form);
@@ -189,13 +215,9 @@ public class AdminProblemController {
             return Mono.just("admin/edit-problem");
         } else {
             // save problem
-            return problemService.findProblemByName(name).flatMap(originalProblem -> {
-                if (originalProblem == null) return Mono.just("404");
-
-                return problemService.saveProblem(form.toProblem(originalProblem))
-                        .then(Mono.just("redirect:/problem/" + name));
-            });
-
+            return problemService.findProblemByName(name).switchIfEmpty(Mono.error(new NotFoundException()))
+                    .flatMap(originalProblem -> problemService.saveProblem(form.toProblem(originalProblem))
+                            .then(Mono.just("redirect:/problem/" + name))).onErrorResume(e -> Mono.just("404"));
         }
     }
 

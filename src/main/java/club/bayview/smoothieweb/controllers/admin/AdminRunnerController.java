@@ -2,6 +2,7 @@ package club.bayview.smoothieweb.controllers.admin;
 
 import club.bayview.smoothieweb.models.Runner;
 import club.bayview.smoothieweb.services.SmoothieRunnerService;
+import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -72,12 +73,12 @@ public class AdminRunnerController {
     public Mono<String> getRunnerRoute(@PathVariable String name, Model model) {
         if (name == null) return Mono.just("404");
 
-        return runnerService.findRunnerByName(name).flatMap(runner -> {
-            if (runner == null) return Mono.just("404");
-
-            model.addAttribute("runner", runner);
-            return Mono.just("admin/runner");
-        });
+        return runnerService.findRunnerByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(runner -> {
+                    model.addAttribute("runner", runner);
+                    return Mono.just("admin/runner");
+                }).onErrorResume(e -> Mono.just("404"));
     }
 
     @GetMapping("/admin/new-runner")
@@ -93,13 +94,15 @@ public class AdminRunnerController {
     public Mono<String> getEditRunnerRoute(@PathVariable String name, Model model) {
         if (name == null) return Mono.just("404");
 
-        return runnerService.findRunnerByName(name).flatMap(runner -> {
-            if (runner == null) return Mono.just("404");
+        return runnerService.findRunnerByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(runner -> {
+                    if (runner == null) return Mono.just("404");
 
-            model.addAttribute("newRunner", false);
-            model.addAttribute("runner", runnerToRunnerForm(runner));
-            return Mono.just("admin/runner-edit");
-        });
+                    model.addAttribute("newRunner", false);
+                    model.addAttribute("runner", runnerToRunnerForm(runner));
+                    return Mono.just("admin/runner-edit");
+                }).onErrorResume(e -> Mono.just("404"));
     }
 
     @PostMapping("/admin/new-runner")
@@ -129,13 +132,16 @@ public class AdminRunnerController {
             return Mono.just("admin/runner-edit");
         }
 
-        return runnerService.findRunnerByName(name).flatMap(runner -> {
-            if (runner == null) return Mono.just("404");
+        return runnerService.findRunnerByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(runner -> {
+                    if (runner == null) return Mono.just("404");
 
-            Runner r = runnerFormToRunner(runner, form);
-            runnerService.updateSmoothieRunner(r);
-            return runnerService.saveRunner(r);
-        }).then(Mono.just("redirect:/admin/runners"));
+                    Runner r = runnerFormToRunner(runner, form);
+                    runnerService.updateSmoothieRunner(r);
+                    return runnerService.saveRunner(r);
+                }).onErrorResume(e -> Mono.just("404"))
+                .then(Mono.just("redirect:/admin/runners"));
     }
 
     private Runner runnerFormToRunner(Runner runner, RunnerForm form) {

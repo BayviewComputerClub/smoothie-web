@@ -2,6 +2,7 @@ package club.bayview.smoothieweb.controllers;
 
 import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.services.SmoothieSubmissionService;
+import club.bayview.smoothieweb.util.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -12,6 +13,8 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+// stomp over websocket
 
 @Controller
 public class LiveSubmissionController {
@@ -28,13 +31,14 @@ public class LiveSubmissionController {
 
     @MessageMapping("/live-submission/{submissionId}")
     public Mono<List<Submission.SubmissionBatchCase>> liveSubmissionRoute(@DestinationVariable String submissionId) {
-        return submissionService.findSubmissionById(submissionId).flatMap(s -> {
-            if (s == null) return Mono.just(new ArrayList<>());
-
-            List<Submission.SubmissionBatchCase> l = new ArrayList<>();
-            for (var nl : s.getBatchCases()) l.addAll(nl);
-            return Mono.just(l);
-        });
+        return submissionService.findSubmissionById(submissionId)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(s -> {
+                    List<Submission.SubmissionBatchCase> l = new ArrayList<>();
+                    for (var nl : s.getBatchCases()) l.addAll(nl);
+                    return Mono.just(l);
+                })
+                .onErrorResume(e -> Mono.just(new ArrayList<>()));
     }
 
     public void sendSubmissionBatch(String submissionId, Submission.SubmissionBatchCase batchCase) {

@@ -84,7 +84,7 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
         submission.setRunnerId(findRunnerById(runner.getId()).block().getId());
         submissionService.saveSubmission(submission).subscribe();
 
-        StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> observer = runner.getAsyncStub().testSolution(new GraderStreamObserver(liveSubmissionController, submissionService, userService, problemService, submission));
+        StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> observer = runner.getAsyncStub().testSolution(new GraderStreamObserver(submission));
 
         // send request
         observer.onNext(req);
@@ -98,6 +98,7 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
      * @return the runner, or null if none are available
      */
     public SmoothieRunner getAvailableRunner(JudgeLanguage language) {
+
         return Iterables.get(runners.values(), 0); // TODO this is temporary
     }
 

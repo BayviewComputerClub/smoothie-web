@@ -4,6 +4,7 @@ import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
+import club.bayview.smoothieweb.util.NotFoundException;
 import club.bayview.smoothieweb.util.SessionUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -48,7 +49,7 @@ public class UserController {
     static class ProfileForm {
         String description;
 
-        ProfileForm (User user) {
+        ProfileForm(User user) {
             description = user.getDescription();
         }
 
@@ -60,18 +61,18 @@ public class UserController {
 
     @GetMapping("/user/{handle}")
     public Mono<String> getProfileRoute(@PathVariable String handle, Model model, Authentication auth, Principal principal) {
-        return userService.findUserByHandle(handle).flatMap(user -> {
-            if (user == null) return Mono.just("404");
-
-            if (auth != null && auth.getAuthorities() != null && auth.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.getName())) || (principal != null && principal.getName().equalsIgnoreCase(user.getHandle()))) {
-                model.addAttribute("allowEdit", true);
-            } else {
-                model.addAttribute("allowEdit", false);
-            }
-
-            model.addAttribute("user", user);
-            return Mono.just("user/profile");
-        });
+        return userService.findUserByHandle(handle)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(user -> {
+                    if (auth != null && auth.getAuthorities() != null && auth.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.getName())) || (principal != null && principal.getName().equalsIgnoreCase(user.getHandle()))) {
+                        model.addAttribute("allowEdit", true);
+                    } else {
+                        model.addAttribute("allowEdit", false);
+                    }
+                    model.addAttribute("user", user);
+                    return Mono.just("user/profile");
+                })
+                .onErrorResume(e -> Mono.just("404"));
     }
 
     @GetMapping("/user/{handle}/edit")
@@ -82,13 +83,14 @@ public class UserController {
             return Mono.just("no"); // no permission
         }
 
-        return userService.findUserByHandle(handle).flatMap(user -> {
-            if (user == null) return Mono.just("404");
-
-            model.addAttribute("profileForm", new ProfileForm(user));
-            model.addAttribute("user", user);
-            return Mono.just("user/edit-profile");
-        });
+        return userService.findUserByHandle(handle)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(user -> {
+                    model.addAttribute("profileForm", new ProfileForm(user));
+                    model.addAttribute("user", user);
+                    return Mono.just("user/edit-profile");
+                })
+                .onErrorResume(e -> Mono.just("404"));
     }
 
     @PostMapping("/user/{handle}/edit")
@@ -98,18 +100,19 @@ public class UserController {
             return Mono.just("no");
         }
 
-        return userService.findUserByHandle(handle).flatMap(user -> {
-            if (user == null) return Mono.just("404");
+        return userService.findUserByHandle(handle)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(user -> {
+                    if (res.hasErrors()) {
+                        model.addAttribute("profileForm", form);
+                        model.addAttribute("user", user);
+                        return Mono.just("user/edit-profile");
+                    }
 
-            if (res.hasErrors()) {
-                model.addAttribute("profileForm", form);
-                model.addAttribute("user", user);
-                return Mono.just("user/edit-profile");
-            }
-
-            return userService.saveUser(form.toUser(user))
-                    .flatMap(user1 ->  Mono.just("redirect:/user/" + user.getHandle()));
-        });
+                    return userService.saveUser(form.toUser(user))
+                            .flatMap(user1 -> Mono.just("redirect:/user/" + user.getHandle()));
+                })
+                .onErrorResume(e -> Mono.just("404"));
     }
 
     @Getter
@@ -129,43 +132,47 @@ public class UserController {
     @GetMapping("/account/settings")
     @PreAuthorize("hasRole('ROLE_USER')")
     public Mono<String> getSettingsRoute(Model model, Principal principal) {
-        return userService.findUserByHandle(principal.getName()).flatMap(user -> {
-            if (user == null) return Mono.just("404");
-            model.addAttribute("user", user);
-            return Mono.just("user/edit-user");
-        });
+        return userService.findUserByHandle(principal.getName())
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(user -> {
+                    model.addAttribute("user", user);
+                    return Mono.just("user/edit-user");
+                })
+                .onErrorResume(e -> Mono.just("404"));
     }
 
     @GetMapping("/account/change-password")
     @PreAuthorize("hasRole('ROLE_USER')")
     public Mono<String> getChangePasswordRoute(Model model, Principal principal) {
-        return userService.findUserByHandle(principal.getName()).flatMap(user -> {
-            if (user == null) return Mono.just("404");
-
-            model.addAttribute("changePasswordForm", new ChangePasswordForm());
-            model.addAttribute("user", user);
-            return Mono.just("user/change-password");
-        });
+        return userService.findUserByHandle(principal.getName())
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(user -> {
+                    model.addAttribute("changePasswordForm", new ChangePasswordForm());
+                    model.addAttribute("user", user);
+                    return Mono.just("user/change-password");
+                })
+                .onErrorResume(e -> Mono.just("404"));
     }
 
     @PostMapping("/account/change-password")
     @PreAuthorize("hasRole('ROLE_USER')")
     public Mono<String> postChangePasswordRoute(@Valid ChangePasswordForm form, BindingResult res, Model model, Principal principal) {
 
-        return userService.findUserByHandle(principal.getName()).flatMap(user -> {
-            if (user == null) return Mono.just("404");
-            if (!user.isPassword(form.currentPassword)) {
-                res.rejectValue("currentPassword", "error.pass", "Incorrect password!");
-            }
+        return userService.findUserByHandle(principal.getName())
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(user -> {
+                    if (!user.isPassword(form.currentPassword)) {
+                        res.rejectValue("currentPassword", "error.pass", "Incorrect password!");
+                    }
 
-            if (res.hasErrors()) {
-                model.addAttribute("changePasswordForm", form);
-                model.addAttribute("user", user);
-                return Mono.just("user/change-password");
-            }
+                    if (res.hasErrors()) {
+                        model.addAttribute("changePasswordForm", form);
+                        model.addAttribute("user", user);
+                        return Mono.just("user/change-password");
+                    }
 
-            return userService.saveUser(form.toUser(user))
-                    .flatMap(user1 -> Mono.just("redirect:/account/settings"));
-        });
+                    return userService.saveUser(form.toUser(user))
+                            .flatMap(user1 -> Mono.just("redirect:/account/settings"));
+                }).onErrorResume(e -> Mono.just("404"));
     }
 }

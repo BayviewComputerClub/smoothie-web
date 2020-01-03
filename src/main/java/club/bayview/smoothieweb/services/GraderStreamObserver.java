@@ -1,30 +1,32 @@
 package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.SmoothieRunner;
+import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.controllers.LiveSubmissionController;
 import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.util.Verdict;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestSolutionResponse> {
 
-    private LiveSubmissionController liveSubmissionController;
-    private SmoothieSubmissionService submissionService;
-    private SmoothieUserService userService;
-    private SmoothieProblemService problemService;
+    LiveSubmissionController liveSubmissionController;
+    SmoothieSubmissionService submissionService;
+    SmoothieUserService userService;
+    SmoothieProblemService problemService;
 
     private Submission submission;
 
     private Logger logger = LoggerFactory.getLogger(GraderStreamObserver.class);
 
-    public GraderStreamObserver(LiveSubmissionController liveSubmissionController, SmoothieSubmissionService submissionService, SmoothieUserService userService, SmoothieProblemService problemService, Submission submission) {
-        this.liveSubmissionController = liveSubmissionController;
-        this.submissionService = submissionService;
-        this.userService = userService;
-        this.problemService = problemService;
+    public GraderStreamObserver(Submission submission) {
+        this.liveSubmissionController = SmoothieWebApplication.context.getBean(LiveSubmissionController.class);
+        this.submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
+        this.userService = SmoothieWebApplication.context.getBean(SmoothieUserService.class);
+        this.problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
         this.submission = submission;
     }
 

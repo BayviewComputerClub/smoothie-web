@@ -9,6 +9,7 @@ import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieRunnerService;
 import club.bayview.smoothieweb.services.SmoothieSubmissionService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
+import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
@@ -58,12 +59,15 @@ public class JudgeController {
 
     @GetMapping("/problem/{name}")
     public Mono<String> getProblemRoute(@PathVariable String name, Model model) {
-        return problemService.findProblemByName(name).flatMap(p -> {
-           if (p == null) return Mono.just("404");
+        return problemService.findProblemByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(p -> {
+                    if (p == null) return Mono.just("404");
 
-           model.addAttribute("problem", p);
-           return Mono.just("problem");
-        });
+                    model.addAttribute("problem", p);
+                    return Mono.just("problem");
+                })
+                .onErrorResume(e -> Mono.just("404"));
     }
 
     @Getter
@@ -79,14 +83,15 @@ public class JudgeController {
     @GetMapping("/problem/{name}/submit")
     @PreAuthorize("hasRole('ROLE_USER')")
     public Mono<String> getProblemSubmitRoute(@PathVariable String name, Model model) {
-        return problemService.findProblemByName(name).flatMap(p -> {
-            if (p == null) return Mono.just("404");
-
-            model.addAttribute("problemName", p.getPrettyName());
-            model.addAttribute("submitRequest", new SubmitRequest());
-            model.addAttribute("languages", JudgeLanguage.getLanguages());
-            return Mono.just("submit");
-        });
+        return problemService.findProblemByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(p -> {
+                    model.addAttribute("problemName", p.getPrettyName());
+                    model.addAttribute("submitRequest", new SubmitRequest());
+                    model.addAttribute("languages", JudgeLanguage.getLanguages());
+                    return Mono.just("submit");
+                })
+                .onErrorResume(e -> Mono.just("404"));
     }
 
     @PostMapping("/problem/{name}/submit")
@@ -94,13 +99,15 @@ public class JudgeController {
     public Mono<String> postProblemSubmitRoute(@PathVariable String name, @Valid SubmitRequest form, BindingResult result, Authentication auth) {
         form.setLanguage(JudgeLanguage.prettyToName(form.getLanguage()));
 
-        return problemService.findProblemByName(name).flatMap(p -> {
-            if (p == null) return Mono.just("404");
-            if (result.hasErrors()) return Mono.just("redirect:/error"); // TODO
+        return Mono.zip(problemService.findProblemByName(name), userService.findUserByHandle(auth.getName()))
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(t -> {
+                    if (result.hasErrors()) return Mono.just("redirect:/error");
 
-            String id = gradeSubmission(p, form, userService.findUserByHandle(auth.getName()).block());
-            return Mono.just("redirect:/submission/" + id); // TODO
-        });
+                    String id = gradeSubmission(t.getT1(), form, t.getT2());
+                    return Mono.just("redirect:/submission/" + id);
+                })
+                .onErrorResume(e -> Mono.just("404"));
     }
 
     private String gradeSubmission(Problem problem, SubmitRequest form, User user) {
