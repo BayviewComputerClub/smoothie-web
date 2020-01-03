@@ -10,5 +10,5 @@ public interface QueuedSubmissionRepository extends ReactiveMongoRepository<Queu
 
     Flux<QueuedSubmission> findAllByOrderByTimeRequestedAsc();
 
-    Mono<Void> deleteAllById(String id);
+    Mono<Long> deleteAllById(String id);
 }

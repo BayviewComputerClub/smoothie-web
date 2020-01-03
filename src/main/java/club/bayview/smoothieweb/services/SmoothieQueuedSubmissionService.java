@@ -38,7 +38,7 @@ public class SmoothieQueuedSubmissionService {
         return queuedSubmissionRepository.findAllByOrderByTimeRequestedAsc();
     }
 
-    public Mono<Void> deleteQueuedSubmissionById(String id) {
+    public Mono<Long> deleteQueuedSubmissionById(String id) {
         return queuedSubmissionRepository.deleteAllById(id);
     }
 
@@ -53,14 +53,13 @@ public class SmoothieQueuedSubmissionService {
             var smoothieRunners = sortRunnersForSubmission(runners, sub);
             var runner = smoothieRunners.get(0);
 
-            logger.debug("Looking at submission" + sub.getSubmissionId() + " for runners..");
+            logger.debug("Looking at submission " + sub.getSubmissionId() + " for runners..");
 
             // grade if there are no tasks in the queue
             if (runner.getHealth().getNumOfTasksInQueue() == 0) {
                 deleteQueuedSubmissionById(sub.getId())
-                        .flatMap(t -> Mono.zip(problemService.findProblemById(sub.getProblemId()), submissionService.findSubmissionById(sub.getId())))
+                        .flatMap(t -> Mono.zip(problemService.findProblemById(sub.getProblemId()), submissionService.findSubmissionById(sub.getSubmissionId())))
                         .subscribe(s -> {
-
                             // create grpc object to send
                             club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req = club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest.newBuilder()
                                     .setTestBatchEvenIfFailed(false)

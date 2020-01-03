@@ -1,12 +1,7 @@
 package club.bayview.smoothieweb.services;
 
-import club.bayview.smoothieweb.controllers.LiveSubmissionController;
-import club.bayview.smoothieweb.models.JudgeLanguage;
 import club.bayview.smoothieweb.models.Runner;
 import club.bayview.smoothieweb.models.RunnerRepository;
-import club.bayview.smoothieweb.models.Submission;
-import com.google.common.collect.Iterables;
-import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -54,16 +49,16 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
         runners.put(runner.getId(), new SmoothieRunner(runner));
     }
 
+    public HashMap<String, SmoothieRunner> getSmoothieRunners() {
+        return runners;
+    }
+
     // -=-=-=-=-=- Functional -=-=-=-=-=-
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent e) {
         // initialize runners
         findAllRunners().subscribe(runner -> runners.put(runner.getId(), new SmoothieRunner(runner)));
-    }
-
-    public HashMap<String, SmoothieRunner> getSmoothieRunners() {
-        return runners;
     }
 
 }

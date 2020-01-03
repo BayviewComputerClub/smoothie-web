@@ -1,6 +1,5 @@
 package club.bayview.smoothieweb.services;
 
-import club.bayview.smoothieweb.models.ProblemRepository;
 import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.models.SubmissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
