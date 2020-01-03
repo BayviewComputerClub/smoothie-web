@@ -1,15 +1,18 @@
 package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.SmoothieRunnerAPIGrpc;
+import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.models.Runner;
+import club.bayview.smoothieweb.models.Submission;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SmoothieRunner {
+public class SmoothieRunner implements Comparable<SmoothieRunner> {
 
     private ManagedChannel channel;
 
@@ -76,4 +79,27 @@ public class SmoothieRunner {
         channel.shutdown();
     }
 
+    /**
+     * Run a full grader session asynchronously
+     */
+
+    public void grade(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req, Submission submission) {
+        logger.info(String.format("Runner %s grading submission %s for problem %s.", getName(), submission.getId(), submission.getProblemId()));
+
+        submission.setRunnerId(getId());
+        SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class).saveSubmission(submission).subscribe();
+
+        StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> observer = getAsyncStub().testSolution(new GraderStreamObserver(submission));
+
+        // send request
+        observer.onNext(req);
+        observer.onCompleted();
+    }
+
+    @Override
+    public int compareTo(SmoothieRunner runner) {
+        var s1 = this.getHealth();
+        var s2 = runner.getHealth();
+        return Long.compare(s1.getNumOfTasksInQueue(), s2.getNumOfTasksToBeDone());
+    }
 }

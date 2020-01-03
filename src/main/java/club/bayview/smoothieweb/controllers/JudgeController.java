@@ -1,14 +1,8 @@
 package club.bayview.smoothieweb.controllers;
 
 import club.bayview.smoothieweb.SmoothieRunner;
-import club.bayview.smoothieweb.models.JudgeLanguage;
-import club.bayview.smoothieweb.models.Problem;
-import club.bayview.smoothieweb.models.Submission;
-import club.bayview.smoothieweb.models.User;
-import club.bayview.smoothieweb.services.SmoothieProblemService;
-import club.bayview.smoothieweb.services.SmoothieRunnerService;
-import club.bayview.smoothieweb.services.SmoothieSubmissionService;
-import club.bayview.smoothieweb.services.SmoothieUserService;
+import club.bayview.smoothieweb.models.*;
+import club.bayview.smoothieweb.services.*;
 import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,6 +36,9 @@ public class JudgeController {
 
     @Autowired
     private SmoothieUserService userService;
+
+    @Autowired
+    private SmoothieQueuedSubmissionService queuedSubmissionService;
 
     @RequestMapping("/contests")
     public String getContestsRoute(Model model) {
@@ -104,23 +101,13 @@ public class JudgeController {
                 .flatMap(t -> {
                     if (result.hasErrors()) return Mono.just("redirect:/error");
 
-                    String id = gradeSubmission(t.getT1(), form, t.getT2());
-                    return Mono.just("redirect:/submission/" + id);
+                    return gradeSubmission(t.getT1(), form, t.getT2())
+                            .flatMap(id -> Mono.just("redirect:/submission/" + id));
                 })
                 .onErrorResume(e -> Mono.just("404"));
     }
 
-    private String gradeSubmission(Problem problem, SubmitRequest form, User user) {
-        SmoothieRunner.TestSolutionRequest req = SmoothieRunner.TestSolutionRequest.newBuilder()
-                .setTestBatchEvenIfFailed(false)
-                .setCancelTesting(false)
-                .setSolution(SmoothieRunner.Solution.newBuilder()
-                        .setCode(form.code)
-                        .setLanguage(form.language)
-                        .setProblem(problem.getGRPCObject(form.language))
-                        .build())
-                .build();
-
+    private Mono<String> gradeSubmission(Problem problem, SubmitRequest form, User user) {
         Submission sub = new Submission();
         sub.setId(ObjectId.get().toString());
         sub.setLang(form.language);
@@ -131,10 +118,12 @@ public class JudgeController {
         sub.setBatchCases(problem.getSubmissionBatchCases());
         sub.setJudgingCompleted(false);
 
-        submissionService.saveSubmission(sub).block();
-        runnerService.grade(req, sub);
-
-        return sub.getId();
+        return submissionService.saveSubmission(sub)
+                .flatMap(s -> queuedSubmissionService.saveQueuedSubmission(new QueuedSubmission(s.getId(), problem.getId())))
+                .flatMap(q -> {
+                    queuedSubmissionService.checkRunnersTask();
+                    return Mono.just(q.getSubmissionId());
+                });
     }
 
 }

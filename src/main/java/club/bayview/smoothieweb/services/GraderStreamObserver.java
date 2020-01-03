@@ -17,6 +17,7 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
     SmoothieSubmissionService submissionService;
     SmoothieUserService userService;
     SmoothieProblemService problemService;
+    SmoothieQueuedSubmissionService queuedSubmissionService;
 
     private Submission submission;
 
@@ -27,6 +28,7 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
         this.submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
         this.userService = SmoothieWebApplication.context.getBean(SmoothieUserService.class);
         this.problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
+        this.queuedSubmissionService = SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class);
         this.submission = submission;
     }
 
@@ -86,5 +88,8 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
                 });
             }).subscribe();
         }
+
+        // find next task to do
+        queuedSubmissionService.checkRunnersTask();
     }
 }

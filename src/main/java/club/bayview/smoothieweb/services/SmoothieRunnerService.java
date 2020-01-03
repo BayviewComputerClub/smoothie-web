@@ -22,18 +22,6 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
     @Autowired
     private RunnerRepository runnerRepository;
 
-    @Autowired
-    private SmoothieSubmissionService submissionService;
-
-    @Autowired
-    private LiveSubmissionController liveSubmissionController;
-
-    @Autowired
-    private SmoothieUserService userService;
-
-    @Autowired
-    private SmoothieProblemService problemService;
-
     private HashMap<String, SmoothieRunner> runners = new HashMap<>();
 
     // -=-=-=-=-=- CRUD -=-=-=-=-=-
@@ -74,32 +62,8 @@ public class SmoothieRunnerService implements ApplicationListener<ContextRefresh
         findAllRunners().subscribe(runner -> runners.put(runner.getId(), new SmoothieRunner(runner)));
     }
 
-    /**
-     * Run a full grader session asynchronously
-     */
-
-    public void grade(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req, Submission submission) {
-        SmoothieRunner runner = getAvailableRunner(JudgeLanguage.valueOf(req.getSolution().getLanguage()));
-
-        submission.setRunnerId(findRunnerById(runner.getId()).block().getId());
-        submissionService.saveSubmission(submission).subscribe();
-
-        StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> observer = runner.getAsyncStub().testSolution(new GraderStreamObserver(submission));
-
-        // send request
-        observer.onNext(req);
-        observer.onCompleted();
-    }
-
-    /**
-     * Get an available runner for judging.
-     *
-     * @param language the programming language needed
-     * @return the runner, or null if none are available
-     */
-    public SmoothieRunner getAvailableRunner(JudgeLanguage language) {
-
-        return Iterables.get(runners.values(), 0); // TODO this is temporary
+    public HashMap<String, SmoothieRunner> getSmoothieRunners() {
+        return runners;
     }
 
 }

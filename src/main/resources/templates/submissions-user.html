@@ -28,7 +28,7 @@
         <tbody>
 
         <tr th:each="submission: ${submissions}">
-            <td><a th:href="@{'/problem/' + ${problems.get(submission.problemId).name}}" th:text="${problems.get(submission.problemId).prettyName}"></a></td>
+            <td><a th:href="@{'/problem/' + ${problems.get(submission.problemId)?.name}}" th:text="${problems.get(submission.problemId)?.prettyName}"></a></td>
             <td><a th:href="@{'/submission/' + ${submission.id}}" th:text="${submission.id}"></a></td>
             <td th:text="${submission.verdict}"></td>
             <td th:text="${submission.lang}"></td>

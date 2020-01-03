@@ -63,6 +63,7 @@ public class SubmissionController {
     }
 
     @GetMapping("/user/{handle}/submissions")
+    // TODO remove problems that don't exit
     public Mono<String> getSubmissionsRoute(@PathVariable String handle, Model model) {
         return userService.findUserByHandle(handle).flatMap(user -> {
             if (user == null) return Mono.just("404");
@@ -90,6 +91,7 @@ public class SubmissionController {
     }
 
     @GetMapping("/problem/{name}/submissions")
+    // TODO remove users that don't exist
     public Mono<String> getProblemSubmissionsRoute(@PathVariable String name, Model model) {
         return problemService.findProblemByName(name).flatMap(p -> {
             if (p == null) return Mono.just("404");

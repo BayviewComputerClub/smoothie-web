@@ -13,8 +13,6 @@ public class SmoothieSubmissionService {
 
     @Autowired
     private SubmissionRepository submissionRepository;
-    @Autowired
-    private ProblemRepository problemRepository;
 
     public Mono<Submission> findSubmissionById(String id) {
         return submissionRepository.findById(id);
@@ -28,8 +26,8 @@ public class SmoothieSubmissionService {
         return submissionRepository.findByUserIdIsOrderByTimeSubmittedDesc(userId);
     }
 
-    public Mono<Void> saveSubmission(Submission submission) {
-        return submissionRepository.save(submission).then();
+    public Mono<Submission> saveSubmission(Submission submission) {
+        return submissionRepository.save(submission);
     }
 
 }

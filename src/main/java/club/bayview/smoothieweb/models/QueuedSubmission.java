@@ -19,5 +19,17 @@ public class QueuedSubmission {
     @Indexed
     String submissionId;
 
+    String problemId;
+
+    @Indexed
+    long timeRequested;
+
     List<String> requestedRunnerIds; // leave empty for all
+
+    public QueuedSubmission(String submissionId, String problemId) {
+        this.submissionId = submissionId;
+        this.problemId = problemId;
+        this.timeRequested = System.currentTimeMillis();
+    }
+
 }
