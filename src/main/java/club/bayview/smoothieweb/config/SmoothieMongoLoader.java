@@ -77,13 +77,17 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
     @PostConstruct
     public void init() {
 
-        // create default admin account
-        if (userService.findByUsername("admin").block() == null) {
-            User admin = new User("admin", "", adminPassword);
-            admin.encodePassword();
-            admin.getRoles().add(Role.ROLE_ADMIN);
-            admin.getRoles().add(Role.ROLE_EDITOR);
-            userService.saveUser(admin).block();
+        try {
+            // create default admin account
+            if (userService.findByUsername("admin").block() == null) {
+                User admin = new User("admin", "", adminPassword);
+                admin.encodePassword();
+                admin.getRoles().add(Role.ROLE_ADMIN);
+                admin.getRoles().add(Role.ROLE_EDITOR);
+                userService.saveUser(admin).block();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         logger.info("-=-=-=-=- MongoDB Loaded -=-=-=-=-");
     }
