@@ -6,6 +6,7 @@ import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieSubmissionService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
+import club.bayview.smoothieweb.util.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,88 +34,85 @@ public class SubmissionController {
     @GetMapping("/submission/{submissionId}")
     // TODO make sure you have permission
     public Mono<String> routeGetSubmission(@PathVariable String submissionId, Model model) {
-        return submissionService.findSubmissionById(submissionId).flatMap(submission -> {
-            if (submission == null) return Mono.just("404");
-
-            model.addAttribute("submission", submission);
-
-            return Mono.zip(userService.findUserById(submission.getUserId()), problemService.findProblemById(submission.getProblemId())).flatMap(tuple -> {
-                model.addAttribute("user", tuple.getT1());
-                model.addAttribute("problem", tuple.getT2());
-                return Mono.just("submission");
-            });
-        });
+        return submissionService.findSubmissionById(submissionId)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(submission -> {
+                    model.addAttribute("submission", submission);
+                    return Mono.zip(userService.findUserById(submission.getUserId()), problemService.findProblemById(submission.getProblemId()));
+                })
+                .flatMap(tuple -> {
+                    model.addAttribute("user", tuple.getT1());
+                    model.addAttribute("problem", tuple.getT2());
+                    return Mono.just("submission");
+                })
+                .onErrorResume(e -> Mono.just("404"));
     }
 
     @GetMapping("/submission/{submissionId}/code")
     // TODO make sure you have permission
     public Mono<String> routeGetSubmissionCode(@PathVariable String submissionId, Model model) {
-        return submissionService.findSubmissionById(submissionId).flatMap(submission -> {
-            if (submission == null) return Mono.just("404");
-
-            model.addAttribute("submission", submission);
-
-            return Mono.zip(userService.findUserById(submission.getUserId()), problemService.findProblemById(submission.getProblemId())).flatMap(tuple -> {
-                model.addAttribute("user", tuple.getT1());
-                model.addAttribute("problem", tuple.getT2());
-                return Mono.just("submission-code");
-            });
-        });
+        return submissionService.findSubmissionById(submissionId)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(submission -> {
+                    model.addAttribute("submission", submission);
+                    return Mono.zip(userService.findUserById(submission.getUserId()), problemService.findProblemById(submission.getProblemId()));
+                })
+                .flatMap(tuple -> {
+                    model.addAttribute("user", tuple.getT1());
+                    model.addAttribute("problem", tuple.getT2());
+                    return Mono.just("submission-code");
+                })
+                .onErrorResume(e -> Mono.just("404"));
     }
 
     @GetMapping("/user/{handle}/submissions")
     // TODO remove problems that don't exit
     public Mono<String> getSubmissionsRoute(@PathVariable String handle, Model model) {
-        return userService.findUserByHandle(handle).flatMap(user -> {
-            if (user == null) return Mono.just("404");
+        return userService.findUserByHandle(handle)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(user -> {
+                    model.addAttribute("user", user);
+                    return submissionService.findSubmissionsByUser(user.getId()).collectList();
+                }).flatMap(submissions -> {
+                    List<String> ids = new ArrayList<>();
+                    submissions.forEach(s -> ids.add(s.getProblemId()));
 
-            model.addAttribute("user", user);
-            return submissionService.findSubmissionsByUser(user.getId()).collectList();
-        }).flatMap(submissions -> {
-            if (submissions.equals("404")) return Mono.just("404");
+                    Collections.reverse(ids);
 
-            List<String> ids = new ArrayList<>();
-            ((List<Submission>) submissions).forEach(s -> ids.add(s.getProblemId()));
-
-            Collections.reverse(ids);
-
-            model.addAttribute("submissions", submissions);
-            return problemService.findProblemsWithIds(ids).collectList();
-        }).flatMap(problems -> {
-            if (problems.equals("404")) return Mono.just("404");
-
-            HashMap<String, Problem> problemsMap = new HashMap<>();
-            ((List<Problem>) problems).forEach(problem -> problemsMap.put(problem.getId(), problem));
-            model.addAttribute("problems", problemsMap);
-            return Mono.just("submissions-user");
-        });
+                    model.addAttribute("submissions", submissions);
+                    return problemService.findProblemsWithIds(ids).collectList();
+                }).flatMap(problems -> {
+                    HashMap<String, Problem> problemsMap = new HashMap<>();
+                    problems.forEach(problem -> problemsMap.put(problem.getId(), problem));
+                    model.addAttribute("problems", problemsMap);
+                    return Mono.just("submissions-user");
+                })
+                .onErrorResume(e -> Mono.just("404"));
     }
 
     @GetMapping("/problem/{name}/submissions")
     // TODO remove users that don't exist
     public Mono<String> getProblemSubmissionsRoute(@PathVariable String name, Model model) {
-        return problemService.findProblemByName(name).flatMap(p -> {
-            if (p == null) return Mono.just("404");
+        return problemService.findProblemByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(p -> {
+                    model.addAttribute("problem", p);
+                    return submissionService.findSubmissionsByProblem(p.getId()).collectList();
+                }).flatMap(submissions -> {
+                    List<String> ids = new ArrayList<>();
+                    submissions.forEach(s -> ids.add(s.getUserId()));
 
-            model.addAttribute("problem", p);
-            return submissionService.findSubmissionsByProblem(p.getId()).collectList();
-        }).flatMap(submissions -> {
-            if (submissions.equals("404") || !(submissions instanceof List)) return Mono.just("404");
-            List<String> ids = new ArrayList<>();
-            ((List<Submission>) submissions).forEach(s -> ids.add(s.getUserId()));
+                    Collections.reverse(ids);
 
-            Collections.reverse(ids);
-
-            model.addAttribute("submissions", submissions);
-            return userService.findUsersWithIds(ids).collectList();
-        }).flatMap(users -> {
-            if (users.equals("404")) return Mono.just("404");
-
-            HashMap<String, String> usersMap = new HashMap<>();
-            ((List<User>) users).forEach(user -> usersMap.put(user.getId(), user.getHandle()));
-            model.addAttribute("users", usersMap);
-            return Mono.just("submissions-problem");
-        });
+                    model.addAttribute("submissions", submissions);
+                    return userService.findUsersWithIds(ids).collectList();
+                }).flatMap(users -> {
+                    HashMap<String, String> usersMap = new HashMap<>();
+                    users.forEach(user -> usersMap.put(user.getId(), user.getHandle()));
+                    model.addAttribute("users", usersMap);
+                    return Mono.just("submissions-problem");
+                })
+                .onErrorResume(e -> Mono.just("404"));
     }
 
 

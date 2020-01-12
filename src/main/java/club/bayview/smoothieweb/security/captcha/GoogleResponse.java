@@ -1,6 +1,8 @@
 package club.bayview.smoothieweb.security.captcha;
 
 import com.fasterxml.jackson.annotation.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,6 +13,8 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonPropertyOrder({ "success", "challenge_ts", "hostname", "error-codes" })
+@Getter
+@Setter
 public class GoogleResponse {
 
     @JsonProperty("success")
@@ -38,46 +42,6 @@ public class GoogleResponse {
         public static ErrorCode forValue(final String value) {
             return errorsMap.get(value.toLowerCase());
         }
-    }
-
-    @JsonProperty("success")
-    public boolean isSuccess() {
-        return success;
-    }
-
-    @JsonProperty("success")
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    @JsonProperty("challenge_ts")
-    public String getChallengeTs() {
-        return challengeTs;
-    }
-
-    @JsonProperty("challenge_ts")
-    public void setChallengeTs(String challengeTs) {
-        this.challengeTs = challengeTs;
-    }
-
-    @JsonProperty("hostname")
-    public String getHostname() {
-        return hostname;
-    }
-
-    @JsonProperty("hostname")
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    @JsonProperty("error-codes")
-    public void setErrorCodes(ErrorCode[] errorCodes) {
-        this.errorCodes = errorCodes;
-    }
-
-    @JsonProperty("error-codes")
-    public ErrorCode[] getErrorCodes() {
-        return errorCodes;
     }
 
     @JsonIgnore

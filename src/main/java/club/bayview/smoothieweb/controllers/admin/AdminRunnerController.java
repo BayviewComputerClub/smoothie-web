@@ -140,7 +140,8 @@ public class AdminRunnerController {
                     Runner r = runnerFormToRunner(runner, form);
                     runnerService.updateSmoothieRunner(r);
                     return runnerService.saveRunner(r);
-                }).onErrorResume(e -> Mono.just("404"))
+                })
+                .onErrorResume(e -> Mono.just("404"))
                 .then(Mono.just("redirect:/admin/runners"));
     }
 

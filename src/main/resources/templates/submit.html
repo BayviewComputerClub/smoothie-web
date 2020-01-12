@@ -100,9 +100,9 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>Submit solution for [[${problemName}]]</h1>
+    <h1>Submit solution for [[${problem.prettyName}]]</h1>
 
-    <form method="POST" id="submit-form" th:object="${submitRequest}" onsubmit="addCodeToPost()">
+    <form method="POST" id="submit-form" th:object="${submitRequest}" th:action="${postUrl}" onsubmit="addCodeToPost()">
         <label for="code-box">
 
         </label>
@@ -123,7 +123,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.6/ace.js"></script>
-<script>
+<script th:inline="javascript">
     let editor = ace.edit(document.getElementById("code-box"), {
         selectionStyle: "text",
         newLineMode: "unix",
@@ -132,6 +132,11 @@
         fontFamily: '"Fira Code", sans-serif',
         mode: "ace/mode/c_cpp",
     });
+
+    let code = /*[[${submitRequest.code}]]*/;
+    if (code != null) {
+        editor.setValue(code);
+    }
 
     function addCodeToPost() {
         document.getElementById("code").value = editor.getValue();

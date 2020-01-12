@@ -37,6 +37,9 @@ public class User implements UserDetails, Serializable {
     private String email;
     private boolean enabled; // enabled by email verification
 
+    @Indexed
+    private List<String> userGroupIds;
+
     private String password; // argon2id
 
     // profile

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>smoothie-web</title>
@@ -84,6 +84,7 @@
         </div>
         <div class="topbar-item">
             <a class="button-link" th:href="@{'/submission/' + ${submission.id} + '/code'}">Code</a>
+            <a class="button-link" th:href="@{'/submission/' + ${submission.id} + '/resubmit'}" sec:authorize="isAuthenticated()" th:if="${user.handle} == ${#authentication.getPrincipal().getUsername()}">Resubmit</a>
         </div>
     </div>
 
