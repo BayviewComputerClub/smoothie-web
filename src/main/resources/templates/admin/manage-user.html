@@ -90,6 +90,12 @@
         </div>
 
         <div class="input-container">
+            <label for="password">Password</label>
+            <br/>
+            <input type="password" id="password" th:field="*{password}" placeholder="Leave blank to keep" th:value="${form.password}">
+        </div>
+
+        <div class="input-container">
             <label for="is-admin">Admin</label>
             <br/>
             <label class="checkbox-switch">

@@ -82,6 +82,7 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
             if (userService.findByUsername("admin").block() == null) {
                 User admin = new User("admin", "", adminPassword);
                 admin.encodePassword();
+                admin.setEnabled(true);
                 admin.getRoles().add(Role.ROLE_ADMIN);
                 admin.getRoles().add(Role.ROLE_EDITOR);
                 userService.saveUser(admin).block();
