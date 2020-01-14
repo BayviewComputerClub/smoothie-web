@@ -25,6 +25,15 @@ public class AdminAccountController {
     @Autowired
     SmoothieUserService userService;
 
+    @GetMapping("/admin/users")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public Mono<String> getAdminUsers(Model model) {
+        return userService.findUsers().collectList().flatMap(users -> {
+            model.addAttribute("users", users);
+            return Mono.just("admin/users");
+        });
+    }
+
     @NoArgsConstructor
     @Getter
     @Setter
@@ -35,7 +44,7 @@ public class AdminAccountController {
         String handle, email, password, description;
 
         AdminAccountEditForm (User user) {
-            admin = user.getRoles().contains(Role.ROLE_ADMIN);
+            admin = user.isAdmin();
             enabled = user.isEnabled();
             handle = user.getHandle();
             email = user.getEmail();

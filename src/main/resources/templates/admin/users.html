@@ -1,10 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>smoothie-web</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
+
+    <style>
+        h1 {
+            font-size: 48px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 128px;
+        }
+        p {
+            font-size: 32px;
+            font-family: Metropolis, sans-serif;
+            line-height: 128px;
+
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+        }
+
+        th {
+            text-align: left;
+        }
+        tr {
+            line-height: 50px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #009688;
+            transition: text-shadow 0.3s;
+        }
+        a:hover {
+            text-shadow: 0 0 2px #00bcd4;
+            transition: text-shadow 0.3s;
+        }
+    </style>
 </head>
 <body>
 
+<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header-admin"></div>
+
+<div class="container">
+    <h1>Manage Users</h1>
+    <table style="width: 80%">
+        <thead>
+
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Is Admin</th>
+        </tr>
+        <tr>
+            <th colspan="3"><hr/></th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr th:each="user: ${users}">
+            <td><a th:href="@{'/user/' + ${user.handle} + '/admin'}" th:text="${user.handle}"></a></td>
+            <td th:text="${user.email}"></td>
+            <td th:if="${user.isAdmin()}">Yes</td>
+            <td th:unless="${user.isAdmin()}">No</td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
 </body>
 </html>

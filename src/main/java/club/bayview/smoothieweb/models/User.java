@@ -79,6 +79,10 @@ public class User implements UserDetails, Serializable {
         this.password =  new Argon2PasswordEncoder().encode(this.password); // TODO
     }
 
+    public boolean isAdmin() {
+        return getRoles().contains(Role.ROLE_ADMIN);
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream().map(authority -> new SimpleGrantedAuthority(authority.getName())).collect(Collectors.toList());
