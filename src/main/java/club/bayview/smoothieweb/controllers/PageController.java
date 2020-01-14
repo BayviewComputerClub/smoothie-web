@@ -11,14 +11,16 @@ import org.springframework.http.HttpMethod;
 
 // Reactive Web Client
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @Controller
 public class PageController {
+    private static String cmsHost = "http://localhost:3000";
+
     @RequestMapping("/page/{slug}")
     public String requestPage(Model model, @PathVariable("slug") String slug) throws JsonProcessingException {
 
-        WebClient client = WebClient.create("http://localhost:3000");
-
+        WebClient client = WebClient.create(cmsHost);
         WebClient.RequestBodySpec request = client
                 .method(HttpMethod.GET)
                 .uri("/pages/" + slug);
@@ -37,13 +39,38 @@ public class PageController {
         model.addAttribute("page", page);
         return "page";
     }
+    public static Page[] getNavs(int parent) {
+        // HOT PATH (each time the nav bar is rendered) Make sure it's optimized
+        WebClient client = WebClient.create(cmsHost);
+        WebClient.RequestBodySpec request;
 
+        try {
+            request = client
+                    .method(HttpMethod.GET)
+                    .uri("/navs/" + parent);
+        } catch (Exception e) {
+            // Return a blank page response if the cms server is offline.
+            return new PageResponse().pages;
+        }
+
+        return request.exchange().flatMap(res -> res.bodyToMono(String.class))
+                .flatMap(pageJson -> {
+                    try {
+                        return Mono.just(new ObjectMapper().readValue(pageJson, PageResponse.class).pages);
+                    } catch (JsonProcessingException e) {
+                        return Mono.error(e);
+                    }
+                })
+                .onErrorResume(e -> Mono.just(new Page[0]))
+                .block(); // Todo don't block
+    }
 }
 
 // JSON Objects
 class PageResponse {
     public boolean status;
     public Page[] pages;
+    public String error;
 }
 
 class Page {
