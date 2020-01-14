@@ -94,6 +94,7 @@
         table {
             margin-top: 10px;
             color: #424242;
+            width: 100%;
         }
 
         button {
@@ -144,7 +145,7 @@
 <div class="container">
     <h1>Edit Test Data for <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.name}]]</a></h1>
 
-    <form method="POST" id="testdata-form" enctype="multipart/form-data" th:object="${testDataForm}" >
+    <form method="POST" id="testdata-form" enctype="multipart/form-data" th:object="${testDataForm}">
         <!-- Test Data -->
 
         <div class="input-container">
@@ -158,6 +159,50 @@
         </div>
 
         <div class="input-container"><input type="submit" value="Save"></div>
+
+        <div class="input-container">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 50px"></th>
+                    <th><b>Batch #</b></th>
+                    <th><b>Points</b></th>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <hr/>
+                    </td>
+                </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+        </div>
+
+        <div class="input-container">
+            <!-- Batch Header -->
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 50px"></th> <!-- buttons -->
+                    <th><b>Batch</b></th>
+                    <th><b>Input File</b></th>
+                    <th><b>Output File</b></th>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <hr/>
+                    </td>
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+
+            <!-- Individual batches -->
+        </div>
 
     </form>
 </div>

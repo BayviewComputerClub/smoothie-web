@@ -75,7 +75,7 @@
 <div class="container">
     <h1>Manage User <a th:href="@{'/user/' + ${form.handle}}">[[${form.handle}]]</a></h1>
 
-    <form method="POST" id="form" th:object="${form}">
+    <form method="POST" id="form" th:object="${form}" autocomplete="off">
 
         <div class="input-container">
             <label for="handle">Username</label>
