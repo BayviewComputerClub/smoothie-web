@@ -1,10 +1,124 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <title>smoothie-web</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        label {
+            font-size: 20px;
+            font-family: Nunito, sans-serif;
+            color: #424242;
+        }
+
+        .checkbox-switch {
+            margin-top: 10px;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 96px;
+        }
+
+        h3 {
+            font-size: 24px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 48px;
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 1.5;
+            font-family: Metropolis, sans-serif;
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+            line-height: 1.5;
+        }
+
+        textarea {
+            border: 1px solid #607d8b;
+            width: 80%;
+            border-radius: 10px;
+            font-family: Nunito, sans-serif;
+            font-size: 18px;
+            line-height: 1.5;
+            color: #424242;
+            outline: none;
+            transition: box-shadow 0.5s;
+            padding: 13px;
+        }
+
+        textarea:focus {
+            box-shadow: 1px 1px 10px 0 #607d8b;
+            transition: box-shadow 0.5s;
+        }
+
+        .input-container {
+            margin-top: 40px;
+        }
+    </style>
 </head>
 <body>
+
+<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header-admin"></div>
+
+<div class="container">
+    <h1>Manage User <a th:href="@{'/user/' + ${form.handle}}">[[${form.handle}]]</a></h1>
+
+    <form method="POST" id="form" th:object="${form}">
+
+        <div class="input-container">
+            <label for="handle">Username</label>
+            <br/>
+            <input type="text" id="handle" th:field="*{handle}" placeholder="" th:value="${form.handle}">
+        </div>
+
+        <div class="input-container">
+            <label for="email">Email</label>
+            <br/>
+            <input type="text" id="email" th:field="*{email}" placeholder="" th:value="${form.email}">
+        </div>
+
+        <div class="input-container">
+            <label for="is-admin">Admin</label>
+            <br/>
+            <label class="checkbox-switch">
+                <input type="checkbox" id="is-admin" th:field="*{admin}" th:value="${form.admin}">
+                <span class="checkbox-slider"></span>
+            </label>
+        </div>
+
+        <div class="input-container">
+            <label for="is-enabled">Account Enabled</label>
+            <br/>
+            <label class="checkbox-switch">
+                <input type="checkbox" id="is-enabled" th:field="*{enabled}" th:value="${enabled}">
+                <span class="checkbox-slider"></span>
+            </label>
+        </div>
+
+        <div class="input-container">
+            <label for="description">Description</label>
+            <br/>
+            <textarea form="form" id="description" th:field="*{description}" rows="5"></textarea>
+        </div>
+        <br/>
+        <input value="Save" type="submit">
+    </form>
+
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
 
 </body>
 </html>

@@ -21,9 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,12 +51,12 @@ public class AdminProblemController {
     @Getter
     @Setter
     public static class ProblemForm {
-        @NotNull
+        @NotBlank
         @Size(min = 2)
         private String name,
                 prettyName;
 
-        @NotNull
+        @NotEmpty
         private String problemStatement;
 
         @NotNull

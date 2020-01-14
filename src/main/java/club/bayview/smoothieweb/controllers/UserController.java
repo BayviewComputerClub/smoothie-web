@@ -1,6 +1,5 @@
 package club.bayview.smoothieweb.controllers;
 
-import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
@@ -13,21 +12,16 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.session.SessionInformation;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import javax.validation.constraints.*;
 import java.security.Principal;
 
 @Controller
@@ -64,7 +58,7 @@ public class UserController {
         return userService.findUserByHandle(handle)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(user -> {
-                    if (auth != null && auth.getAuthorities() != null && auth.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.getName())) || (principal != null && principal.getName().equalsIgnoreCase(user.getHandle()))) {
+                    if (/*auth != null && auth.getAuthorities() != null && auth.getAuthorities().contains(new SimpleGrantedAuthority(Role.ROLE_ADMIN.getName())) ||*/ (principal != null && principal.getName().equalsIgnoreCase(user.getHandle()))) {
                         model.addAttribute("allowEdit", true);
                     } else {
                         model.addAttribute("allowEdit", false);
@@ -120,6 +114,9 @@ public class UserController {
     @AllArgsConstructor
     @NoArgsConstructor
     static class ChangePasswordForm {
+
+        @NotEmpty
+        @Size(min = 3)
         String password, currentPassword;
 
         private User toUser(User user) {
