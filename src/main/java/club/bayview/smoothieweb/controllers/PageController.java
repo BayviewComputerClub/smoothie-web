@@ -15,6 +15,26 @@ import reactor.core.publisher.Mono;
 
 @Controller
 public class PageController {
+
+    // JSON Objects
+    static class PageResponse {
+        public boolean status;
+        public Page[] pages;
+        public String error;
+    }
+
+    static class Page {
+        public int id;
+        public String slug;
+        public String date;
+        public boolean display_on_nav;
+        public int parent;
+        public String nav_title;
+        public String title;
+        public String meta;
+        public String content;
+    }
+
     private static String cmsHost = "http://localhost:3000";
 
     @RequestMapping("/page/{slug}")
@@ -64,23 +84,4 @@ public class PageController {
                 .onErrorResume(e -> Mono.just(new Page[0]))
                 .block(); // Todo don't block
     }
-}
-
-// JSON Objects
-class PageResponse {
-    public boolean status;
-    public Page[] pages;
-    public String error;
-}
-
-class Page {
-    public int id;
-    public String slug;
-    public String date;
-    public boolean display_on_nav;
-    public int parent;
-    public String nav_title;
-    public String title;
-    public String meta;
-    public String content;
 }

@@ -62,8 +62,6 @@ public class JudgeController {
         return problemService.findProblemByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(p -> {
-                    if (p == null) return Mono.just("404");
-
                     model.addAttribute("problem", p);
                     return Mono.just("problem");
                 })
