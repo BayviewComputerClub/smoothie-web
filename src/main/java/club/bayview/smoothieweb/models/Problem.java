@@ -2,6 +2,7 @@ package club.bayview.smoothieweb.models;
 
 import club.bayview.smoothieweb.SmoothieRunner;
 import club.bayview.smoothieweb.SmoothieWebApplication;
+import club.bayview.smoothieweb.models.testdata.StoredTestData;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -32,32 +33,6 @@ public class Problem {
         private double timeLimit, memoryLimit; // time limit in seconds, memory limit in mb
     }
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @ToString
-    public static class ProblemBatchCase implements Comparable<ProblemBatchCase>, Serializable {
-        private int batchNum, caseNum, scoreWorth;
-        private String input, expectedOutput;
-
-        public ProblemBatchCase(int batchNum, int caseNum, String input, String expectedOutput) {
-            this.batchNum = batchNum;
-            this.caseNum = caseNum;
-            this.input = input;
-            this.expectedOutput = expectedOutput;
-        }
-
-        public ProblemBatchCase(int batchNum, int caseNum, int scoreWorth, String input, String expectedOutput) {
-            this(batchNum, caseNum, input, expectedOutput);
-            this.scoreWorth = scoreWorth;
-        }
-
-        @Override
-        public int compareTo(ProblemBatchCase problemBatchCase) {
-            return caseNum > problemBatchCase.caseNum ? 1 : -1;
-        }
-    }
-
     @Id
     private String id;
     @Indexed(unique = true)
@@ -78,7 +53,7 @@ public class Problem {
     private int rateOfAC, usersSolved;
     private long timeCreated;
 
-    public Mono<TestData> getTestData() {
+    public Mono<StoredTestData.TestData> getTestData() {
         try {
             return SmoothieWebApplication.context.getBean(SmoothieProblemService.class).findProblemTestData(getTestDataId());
         } catch (Exception e) {
@@ -91,9 +66,9 @@ public class Problem {
         List<List<Submission.SubmissionBatchCase>> l = new ArrayList<>();
 
         return getTestData().flatMap(testData -> {
-            for (var cases : testData.getTestData()) {
+            for (var cases : testData.getBatchList()) {
                 l.add(new ArrayList<>());
-                for (var c : cases) {
+                for (var c : cases.getCaseList()) {
                     l.get(l.size()-1).add(new Submission.SubmissionBatchCase(c));
                 }
             }
@@ -106,9 +81,9 @@ public class Problem {
         List<SmoothieRunner.ProblemBatch> batches = new ArrayList<>();
 
         return getTestData().flatMap(testData -> {
-            for (var batch : testData.getTestData()) {
+            for (var batch : testData.getBatchList()) {
                 SmoothieRunner.ProblemBatch.Builder b = SmoothieRunner.ProblemBatch.newBuilder();
-                for (var c : batch) {
+                for (var c : batch.getCaseList()) {
                     b.addCases(SmoothieRunner.ProblemBatchCase.newBuilder()
                             .setInput(c.getInput())
                             .setExpectedAnswer(c.getExpectedOutput())

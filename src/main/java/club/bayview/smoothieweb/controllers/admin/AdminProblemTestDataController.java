@@ -1,7 +1,6 @@
 package club.bayview.smoothieweb.controllers.admin;
 
-import club.bayview.smoothieweb.models.Problem;
-import club.bayview.smoothieweb.models.TestData;
+import club.bayview.smoothieweb.models.testdata.StoredTestData;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.Getter;
@@ -22,7 +21,6 @@ import javax.validation.Valid;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -38,6 +36,8 @@ public class AdminProblemTestDataController {
     @NoArgsConstructor
     public static class TestDataForm {
         private MultipartFile testData;
+
+
     }
 
     @GetMapping("/problem/{name}/edit/testdata")
@@ -75,12 +75,14 @@ public class AdminProblemTestDataController {
         }).onErrorResume(e -> e instanceof NotFoundException ? Mono.just("404") : Mono.just("500"));
     }
 
-    private TestData getTestCasesFromZip(MultipartFile file) throws IOException {
-        if (file == null) return new TestData(new ArrayList<>());
+    private StoredTestData.TestData getTestCasesFromZip(MultipartFile file) throws IOException {
+        var testData = StoredTestData.TestData.newBuilder();
+        if (file == null) return testData.build();
 
-        List<List<Problem.ProblemBatchCase>> list = new ArrayList<>();
         ZipInputStream zis = new ZipInputStream(new BufferedInputStream(file.getInputStream()));
         ZipEntry entry;
+
+        List<List<StoredTestData.TestDataBatchCase.Builder>> builders = new ArrayList<>();
 
         // TODO make this better with error checking and instruction file for points
         // format: 0-0.in, 0-0.out, 0-1.in, 0-1.out, etc...
@@ -102,13 +104,13 @@ public class AdminProblemTestDataController {
             // add to list
             boolean found = false;
 
-            if (batchNum >= list.size()) {
-                for (int i = list.size(); i <= batchNum; i++) {
-                    list.add(new ArrayList<>());
+            if (batchNum >= builders.size()) {
+                for (int i = builders.size(); i <= batchNum; i++) {
+                    builders.add(new ArrayList<>());
                 }
             }
 
-            for (var c : list.get(batchNum)) {
+            for (var c : builders.get(batchNum)) {
                 if (c.getCaseNum() == caseNum) {
                     found = true;
                     if (isInput) c.setInput(dataString);
@@ -117,17 +119,32 @@ public class AdminProblemTestDataController {
             }
 
             if (!found) {
-                if (isInput) list.get(batchNum).add(new Problem.ProblemBatchCase(batchNum, caseNum, dataString, ""));
-                else list.get(batchNum).add(new Problem.ProblemBatchCase(batchNum, caseNum, "", dataString));
+                if (isInput) {
+                    builders.get(batchNum).add(StoredTestData.TestDataBatchCase.newBuilder()
+                            .setBatchNum(batchNum)
+                            .setCaseNum(caseNum)
+                            .setInput(dataString));
+                } else {
+                    builders.get(batchNum).add(StoredTestData.TestDataBatchCase.newBuilder()
+                            .setBatchNum(batchNum)
+                            .setCaseNum(caseNum)
+                            .setExpectedOutput(dataString));
+                }
             }
         }
 
         // sort cases into order
-        for (var cases : list) {
-            Collections.sort(cases);
+        for (var cases : builders) {
+            cases.sort((a, b) -> a.getCaseNum() > b.getCaseNum() ? 1 : -1);
+            var batch = StoredTestData.TestDataBatch.newBuilder();
+            for (var tdCase : cases) {
+                batch.addCase(tdCase.build());
+            }
+
+            testData.addBatch(batch.build());
         }
 
-        return new TestData(list);
+        return testData.build();
     }
 
 }

@@ -1,6 +1,7 @@
 package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.models.*;
+import club.bayview.smoothieweb.models.testdata.StoredTestData;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -40,12 +41,12 @@ public class SmoothieProblemService {
         return testDataRepository.getTestDataHash(id);
     }
 
-    public Mono<TestData> findProblemTestData(String id) throws Exception {
+    public Mono<StoredTestData.TestData> findProblemTestData(String id) throws Exception {
         //System.out.println(testDataRepository.getTestData(id).block().toString()); debug
         return testDataRepository.getTestData(id);
     }
 
-    public Mono<Problem> saveTestDataForProblem(TestData data, Problem problem) throws Exception {
+    public Mono<Problem> saveTestDataForProblem(StoredTestData.TestData data, Problem problem) throws Exception {
         String id = problem.getTestDataId();
         return testDataRepository.addTestData(data, problem.getId()).flatMap(objectId -> {
             problem.setTestDataId(objectId.toString());

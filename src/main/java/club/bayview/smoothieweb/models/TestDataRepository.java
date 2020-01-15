@@ -1,20 +1,19 @@
 package club.bayview.smoothieweb.models;
 
 import club.bayview.smoothieweb.config.SmoothieMongoLoader;
+import club.bayview.smoothieweb.models.testdata.StoredTestData;
 import com.google.common.primitives.Bytes;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.mongodb.reactivestreams.client.gridfs.helpers.AsyncStreamHelper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.bson.types.ObjectId;
-import org.nustaq.serialization.FSTConfiguration;
-import org.nustaq.serialization.simpleapi.DefaultCoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.gridfs.ReactiveGridFsTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -25,9 +24,6 @@ public class TestDataRepository {
     @Autowired
     SmoothieMongoLoader mongoLoader;
 
-    FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
-    DefaultCoder coder = new DefaultCoder(true, TestData.class);
-
     public Mono<String> getTestDataHash(String dataId) throws Exception {
         return mongoLoader.reactiveGridFsTemplate().findOne(new Query(Criteria.where("_id").is(dataId))).flatMap(file -> {
             if (file == null) return Mono.just("");
@@ -35,7 +31,7 @@ public class TestDataRepository {
         });
     }
 
-    public Mono<TestData> getTestData(String dataId) throws Exception {
+    public Mono<StoredTestData.TestData> getTestData(String dataId) throws Exception {
         return mongoLoader.reactiveGridFsTemplate().findOne(new Query(Criteria.where("_id").is(dataId))).flatMap(file -> {
             try {
                 return mongoLoader.reactiveGridFsTemplate().getResource(file);
@@ -44,7 +40,7 @@ public class TestDataRepository {
             }
             return Mono.just(null);
         }).flatMap(file -> {
-            if (file == null) return Mono.just(new TestData(new ArrayList<>()));
+            if (file == null) return Mono.just(StoredTestData.TestData.getDefaultInstance());
 
             try {
                 List<byte[]> bytes = new ArrayList<>();
@@ -61,17 +57,23 @@ public class TestDataRepository {
                     }
                     byte[] data = Bytes.concat(bytes.toArray(new byte[bytes.size()][]));
 
-                    return Mono.just((TestData) coder.toObject(data));
+                    try {
+                        return Mono.just(StoredTestData.TestData.parseFrom(data));
+                    } catch (InvalidProtocolBufferException e) {
+                        e.printStackTrace();
+                        return Mono.error(e);
+                    }
                 });
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return Mono.just(new TestData(new ArrayList<>()));
+            return Mono.just(StoredTestData.TestData.getDefaultInstance());
         });
     }
 
-    public Mono<ObjectId> addTestData(TestData data, String id) throws Exception {
-        byte[] serialized = conf.asByteArray(data);
+    public Mono<ObjectId> addTestData(StoredTestData.TestData data, String id) throws Exception {
+        byte[] serialized = data.toByteArray();
         String hash = DigestUtils.md5Hex(serialized);
         return mongoLoader.reactiveGridFsTemplate().store(AsyncStreamHelper.toAsyncInputStream(serialized), id, null, new TestDataMeta(hash));
     }

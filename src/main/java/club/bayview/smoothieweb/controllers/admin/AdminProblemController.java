@@ -2,7 +2,6 @@ package club.bayview.smoothieweb.controllers.admin;
 
 import club.bayview.smoothieweb.models.JudgeLanguage;
 import club.bayview.smoothieweb.models.Problem;
-import club.bayview.smoothieweb.models.TestData;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.AllArgsConstructor;
@@ -17,19 +16,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
-import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 @Controller
 public class AdminProblemController {

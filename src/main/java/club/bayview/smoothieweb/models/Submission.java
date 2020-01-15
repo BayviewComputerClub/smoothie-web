@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.models;
 
+import club.bayview.smoothieweb.models.testdata.StoredTestData;
 import club.bayview.smoothieweb.util.Verdict;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,7 +34,7 @@ public class Submission {
             resultCode = Verdict.AR.toString();
         }
 
-        public SubmissionBatchCase(Problem.ProblemBatchCase c) {
+        public SubmissionBatchCase(StoredTestData.TestDataBatchCase c) {
             this();
             this.batchNumber = c.getBatchNum();
             this.caseNumber = c.getCaseNum();

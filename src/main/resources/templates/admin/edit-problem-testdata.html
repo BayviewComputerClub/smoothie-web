@@ -77,11 +77,6 @@
             margin-top: 40px;
         }
 
-        .problem-editor {
-            margin-top: 20px;
-            width: 100%;
-        }
-
         .checkbox-switch {
             margin-top: 10px;
         }
@@ -91,11 +86,33 @@
             text-align: center;
         }
 
+        /*-=-=-=-=-=-=-=-=- table -=-=-=-=-=-=-=-=-=-=-=-*/
+
         table {
             margin-top: 10px;
             color: #424242;
             width: 100%;
         }
+
+        td {
+            text-align: center;
+        }
+
+        @keyframes table-row-in {
+            0% {
+                transform: scale(0.5);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        tr {
+            animation: table-row-in 0.5s;
+        }
+
+        /*-=-=-=-=-=-=-=-=- button -=-=-=-=-=-=-=-=-=-=-=-*/
 
         button {
             border-radius: 50%;
@@ -115,24 +132,6 @@
         button:hover {
             box-shadow: 1px 1px 15px 0 #9e9e9e;
             transition: box-shadow 0.3s;
-        }
-
-        td {
-            text-align: center;
-        }
-
-        @keyframes table-row-in {
-            0% {
-                transform: scale(0.5);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        tr {
-            animation: table-row-in 0.5s;
         }
 
     </style>
@@ -161,7 +160,7 @@
         <div class="input-container"><input type="submit" value="Save"></div>
 
         <div class="input-container">
-            <table>
+            <table id="batch-table">
                 <thead>
                 <tr>
                     <th style="width: 50px"></th>
@@ -175,14 +174,16 @@
                 </tr>
                 </thead>
                 <tbody>
-                    
+
                 </tbody>
             </table>
+
+            <button type="button" onclick="addBatchRow()" style="margin-left: 3px; margin-top: 10px;"><i
+                    class="material-icons">add</i></button>
         </div>
 
         <div class="input-container">
-            <!-- Batch Header -->
-            <table>
+            <table id="test-data-table">
                 <thead>
                 <tr>
                     <th style="width: 50px"></th> <!-- buttons -->
@@ -201,10 +202,26 @@
                 </tbody>
             </table>
 
-            <!-- Individual batches -->
+            <button type="button" onclick="addTestDataRow()" style="margin-left: 3px; margin-top: 10px;"><i
+                    class="material-icons">add</i></button>
         </div>
 
     </form>
 </div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+
+<script>
+    function addBatchRow() {
+
+    }
+
+    function addTestDataRow() {
+
+    }
+
+
+</script>
+
 </body>
 </html>

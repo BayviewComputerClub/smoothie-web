@@ -43,7 +43,10 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
         futureStub = SmoothieRunnerAPIGrpc.newFutureStub(channel);
 
         // notifiers
-        channel.notifyWhenStateChanged(ConnectivityState.READY, () -> logger.info(String.format("Runner %s changed state: READY", name)));
+        channel.notifyWhenStateChanged(ConnectivityState.READY, () -> {
+            logger.info(String.format("Runner %s changed state: READY", name));
+            SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class).checkRunnersTask(); // TODO
+        });
         channel.notifyWhenStateChanged(ConnectivityState.CONNECTING, () -> logger.info(String.format("Runner %s changed state: CONNECTING", name)));
         channel.notifyWhenStateChanged(ConnectivityState.IDLE, () -> logger.info(String.format("Runner %s changed state: IDLE", name)));
         channel.notifyWhenStateChanged(ConnectivityState.TRANSIENT_FAILURE, () -> logger.info(String.format("Runner %s changed state: TRANSIENT_FAILURE", name)));
