@@ -7,7 +7,6 @@
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
-<!--    <link rel="stylesheet" th:href="@{/css/form.css}"/>-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
@@ -28,12 +27,6 @@
             animation: header-fade-in 1s;
         }
 
-        /*-=-=-=-=-=-=-=-=- form -=-=-=-=-=-=-=-=-=-=-=-*/
-
-        .file-input {
-            display: none;
-        }
-
         label {
             font-size: 20px;
             font-family: Nunito, sans-serif;
@@ -41,99 +34,42 @@
             color: #424242;
         }
 
-        .file-upload-box {
+        .button-box {
+            width: 125px;
+            height: 125px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            margin-right: 40px;
+            font-size: 20px;
+            line-height: 1.5;
+            box-shadow: 2px 2px 10px 0 #f48fb1;
+            color: #424242;
+            transform: translateY(0);
+            transition: box-shadow 0.5s, transform 0.5s;
             display: inline-block;
-            -webkit-user-select: none;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 50px;
-            font-family: 'Nunito', sans-serif;
-            font-size: 18px;
-            border-style: solid;
-            border-color: #FFFFFF;
-            border-width: 2px;
-            color: #FFFFFF;
-            background-color: #ffb300;
-            width: 200px;
-            text-align: center;
-            line-height: 1;
-            box-shadow: 1px 1px 5px 0 #ff9800;
-            transition: box-shadow 0.5s;
         }
 
-        .file-upload-box:hover {
-            box-shadow: 1px 1px 15px 0 #ff9800;
-            transition: box-shadow 0.5s;
+        .button-box:hover {
+            animation: 1s button-hover infinite forwards;
         }
 
-        .input-container {
-            margin-top: 40px;
+        @keyframes button-hover {
+            50% {
+                transform: translateY(-10px);
+                box-shadow: 4px 4px 20px 0 #f48fb1;
+            }
+            100% {
+                transform: translateY(0);
+                box-shadow: 2px 2px 10px 0 #f48fb1;
+            }
         }
 
-        /*-=-=-=-=-=- file upload -=-=-=-=-=-*/
-
-        .upload-box-dragndrop {
+        .buttons {
             display: inline;
-        }
-
-        .upload-box-uploading,
-        .upload-box-success,
-        .upload-box-error {
-            display: none;
-        }
-
-        .upload-box {
-            border-radius: 20px;
-            background-color: white;
-            box-shadow: 1px 1px 10px 0 #607d8b;
-            display: block;
-            padding: 100px 100px;
-            text-align: center;
-        }
-
-        .upload-box-file {
-            width: 0.1px;
-            height: 0.1px;
-            opacity: 0;
-            overflow: hidden;
-            position: absolute;
-            z-index: -1;
-        }
-
-        .upload-box.is-dragover {
-            background-color: grey;
-        }
-
-        .upload-box-label {
-            display: inline;
-            cursor: pointer;
             margin: auto;
-            text-align: center;
-        }
-
-        .upload-box-button {
-            display: block;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 15px;
-            font-family: 'Nunito', sans-serif;
-            font-size: 18px;
-            border-style: solid;
-            border-color: #FFFFFF;
-            border-width: 2px;
-            color: #FFFFFF;
-            background-color: #e91e63;
-            width: 100px;
-            text-align: center;
-            line-height: 1;
-            box-shadow: 1px 1px 5px 0 #e91e63;
-            transition: box-shadow 0.5s;
-            margin: 40px auto 0;
-        }
-
-        .upload-box-button:hover {
-            box-shadow: 1px 1px 15px 0 #e91e63;
-            transition: box-shadow 0.5s;
         }
 
     </style>
@@ -146,55 +82,27 @@
 <div class="container">
     <h1>Edit Test Data for <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.name}]]</a></h1>
 
-    <label>Upload Zipped Test Data</label>
+    <label>Choose Method</label>
     <hr/>
     <br/>
 
-    <form method="post" class="upload-box" enctype="multipart/form-data" th:object="${testDataForm}">
-        <div class="upload-box-input">
-            <input class="upload-box-file" type="file" name="testData" id="file"/>
-            <label for="file" class="upload-box-label"><strong><u>Choose a file</u></strong><span
-                    class="upload-box-dragndrop"> or drag the zipped test data here.</span></label>
+    <div class="buttons">
+        <a class="button-box" th:href="@{'/problem/' + ${problem.name} + '/edit/testdata/file'}">
+            <i class="material-icons" style="font-size: 48px;">file_upload</i>
             <br/>
-            <input class="upload-box-button" type="submit" value="Upload">
-        </div>
-        <div class="upload-box-uploading">Uploading...</div>
-        <div class="upload-box-success">Done!</div>
-        <div class="upload-box-error">Error! <span></span>.</div>
-    </form>
+            Upload Test Data
+        </a>
+
+        <a class="button-box" th:href="@{'/problem/' + ${problem.name} + '/edit/testdata/table'}">
+            <i class="material-icons" style="font-size: 48px;">insert_drive_file</i>
+            <br/>
+            Edit Current Test Data
+        </a>
+    </div>
 
 </div>
 
 <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
-
-<script>
-    let form = $('.upload-box');
-
-    let droppedFiles = false;
-
-    let input = form.find('input[type="file"]'),
-        label = form.find('label'),
-        showFiles = function (files) {
-            label.text(files.length > 1 ? (input.attr('data-multiple-caption') || '').replace('{count}', files.length) : files[0].name);
-        };
-
-    $('.upload-box-file').on('change', function(e) {
-        showFiles(e.target.files);
-    });
-
-    form.on('drag dragstart dragend dragover dragenter dragleave drop', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }).on('dragover dragenter', function () {
-        form.addClass('is-dragover');
-    }).on('dragleave dragend drop', function () {
-        form.removeClass('is-dragover');
-    }).on('drop', function (e) {
-        droppedFiles = e.originalEvent.dataTransfer.files;
-        showFiles( droppedFiles );
-    });
-
-</script>
 
 </body>
 </html>

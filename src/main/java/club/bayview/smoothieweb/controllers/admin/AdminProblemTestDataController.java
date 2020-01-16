@@ -34,45 +34,70 @@ public class AdminProblemTestDataController {
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class TestDataForm {
+    public static class TestDataFileForm {
         private MultipartFile testData;
-
-
     }
 
     @GetMapping("/problem/{name}/edit/testdata")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> getEditTestDataRoute(@PathVariable String name, Model model) {
-
-        return problemService.findProblemByName(name).switchIfEmpty(Mono.error(new NotFoundException())).flatMap(p -> {
-
-            model.addAttribute("problem", p);
-            model.addAttribute("testDataForm", new TestDataForm());
-
-            return Mono.just("admin/edit-problem-testdata");
-        }).onErrorResume(e -> Mono.just("404"));
+        return problemService.findProblemByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(p -> {
+                    model.addAttribute("problem", p);
+                    return Mono.just("admin/edit-problem-testdata");
+                }).onErrorResume(e -> Mono.just("404"));
     }
 
-    @PostMapping("/problem/{name}/edit/testdata")
+    @GetMapping("/problem/{name}/edit/testdata/table")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
-    public Mono<String> postEditTestDataRoute(@Valid TestDataForm form, BindingResult result, @PathVariable String name, Model model) {
+    public Mono<String> getEditTestDataTableRoute(@PathVariable String name, Model model) {
 
-        return problemService.findProblemByName(name).switchIfEmpty(Mono.error(new NotFoundException())).flatMap(p -> {
+        return problemService.findProblemByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(p -> {
+                    model.addAttribute("problem", p);
+                    model.addAttribute("testDataForm", new TestDataFileForm());
 
-            if (result.hasErrors()) {
-                model.addAttribute("problem", p);
-                model.addAttribute("testDataForm", new TestDataForm());
-                return Mono.just("admin/edit-problem-testdata");
-            }
+                    return Mono.just("admin/edit-problem-testdata-table");
+                }).onErrorResume(e -> Mono.just("404"));
+    }
 
-            try {
-                return problemService.saveTestDataForProblem(getTestCasesFromZip(form.getTestData()), p)
-                        .then(Mono.just("redirect:/problem/" + name + "/manage"));
-            } catch (Exception e) {
-                return Mono.error(e);
-            }
+    @GetMapping("/problem/{name}/edit/testdata/file")
+    @PreAuthorize("hasRole('ROLE_EDITOR')")
+    public Mono<String> getEditTestDataFileRoute(@PathVariable String name, Model model) {
 
-        }).onErrorResume(e -> e instanceof NotFoundException ? Mono.just("404") : Mono.just("500"));
+        return problemService.findProblemByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(p -> {
+                    model.addAttribute("problem", p);
+                    model.addAttribute("testDataForm", new TestDataFileForm());
+
+                    return Mono.just("admin/edit-problem-testdata-file");
+                }).onErrorResume(e -> Mono.just("404"));
+    }
+
+    @PostMapping("/problem/{name}/edit/testdata/file")
+    @PreAuthorize("hasRole('ROLE_EDITOR')")
+    public Mono<String> postEditTestDataFileRoute(@Valid AdminProblemTestDataController.TestDataFileForm form, BindingResult result, @PathVariable String name, Model model) {
+
+        return problemService.findProblemByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(p -> {
+                    if (result.hasErrors()) {
+                        model.addAttribute("problem", p);
+                        model.addAttribute("testDataForm", new TestDataFileForm());
+                        return Mono.just("admin/edit-problem-testdata-file");
+                    }
+
+                    try {
+                        return problemService.saveTestDataForProblem(getTestCasesFromZip(form.getTestData()), p)
+                                .then(Mono.just("redirect:/problem/" + name + "/manage"));
+                    } catch (Exception e) {
+                        return Mono.error(e);
+                    }
+
+                }).onErrorResume(e -> e instanceof NotFoundException ? Mono.just("404") : Mono.just("500"));
     }
 
     private StoredTestData.TestData getTestCasesFromZip(MultipartFile file) throws IOException {

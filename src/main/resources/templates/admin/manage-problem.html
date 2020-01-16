@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>smoothie-web</title>
@@ -8,6 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/form.css}"/>
     <link rel="stylesheet" th:href="@{/css/button.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
@@ -42,6 +43,7 @@
 <body>
 
 <div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header-admin"></div>
 
 <div class="container">
     <h1>Manage Problem <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a></h1>
