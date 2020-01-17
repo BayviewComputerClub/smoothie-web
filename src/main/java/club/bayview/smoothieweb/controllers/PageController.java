@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.http.HttpMethod;
@@ -35,30 +36,54 @@ public class PageController {
         public String content;
     }
 
-    private static String cmsHost = "http://localhost:3000";
-
-    @RequestMapping("/page/{slug}")
-    public String requestPage(Model model, @PathVariable("slug") String slug) throws JsonProcessingException {
-
+    static PageResponse getPageResponseBySlug(String slug) throws Exception {
         WebClient client = WebClient.create(cmsHost);
         WebClient.RequestBodySpec request = client
                 .method(HttpMethod.GET)
-                .uri("/pages/" + slug);
+                .uri("/pages/rendered/" + slug);
 
         String pageJSON = request.exchange().block().bodyToMono(String.class).block();
 
         ObjectMapper mapper = new ObjectMapper();
-        PageResponse pageResponse = mapper.readValue(pageJSON, PageResponse.class);
+        return mapper.readValue(pageJSON, PageResponse.class);
+    }
+
+    private static String cmsHost = "http://localhost:3000";
+
+    @GetMapping("/")
+    public String getRootRoute(Model model) throws Exception{
+
+        PageResponse pageResponse;
+        try {
+            pageResponse = getPageResponseBySlug("home");
+        } catch (Exception e) {
+            Page page = new Page();
+            page.title = "Smoothie-web";
+            page.content = "<!-- The CMS Server is currently offline. -->";
+            model.addAttribute("page", page);
+            return "index";
+        }
+
+        Page page = pageResponse.pages[0];
+        model.addAttribute("page", page);
+
+        return "index";
+    }
+
+    @RequestMapping("/page/{slug}")
+    public String requestPage(Model model, @PathVariable("slug") String slug) throws Exception {
+
+        PageResponse pageResponse = getPageResponseBySlug(slug);
 
         if(pageResponse.pages.length == 0) {
             return "404";
         }
 
         Page page = pageResponse.pages[0];
-
         model.addAttribute("page", page);
         return "page";
     }
+
     public static Page[] getNavs(int parent) {
         // HOT PATH (each time the nav bar is rendered) Make sure it's optimized
         WebClient client = WebClient.create(cmsHost);

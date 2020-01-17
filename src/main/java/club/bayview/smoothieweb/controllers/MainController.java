@@ -14,11 +14,6 @@ public class MainController {
     @Autowired
     private SmoothieUserService userService;
 
-    @GetMapping("/")
-    public Mono<String> getRootRoute(Model model) {
-        return Mono.just("index");
-    }
-
     @RequestMapping("/ranking")
     public Mono<String> getRankingRoute(Model model) {
         return userService.findUsers().collectList().flatMap(users -> {
