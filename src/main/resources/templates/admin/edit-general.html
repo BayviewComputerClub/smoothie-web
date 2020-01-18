@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>smoothie-web</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
+    <link rel="stylesheet" th:href="@{/css/title.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        label {
+            font-size: 20px;
+            font-family: Nunito, sans-serif;
+            margin-bottom: 10px;
+            color: #424242;
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+            line-height: 1.5;
+        }
+
+        .input-container {
+            margin-top: 40px;
+
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header-admin"></div>
+
+<div class="container">
+    <h1>General Settings</h1>
+
+    <form method="POST" id="form" th:object="${form}" autocomplete="off">
+
+        <div class="input-container">
+            <label for="site-name">Site Name</label>
+            <br/>
+            <input type="text" id="site-name" th:field="*{siteName}" placeholder="" required>
+        </div>
+
+        <div class="input-container">
+            <label for="home-page-information">Home Page Information</label>
+            <br/>
+            <hr/>
+            <textarea form="form" id="home-page-information" th:field="*{homeContent}"></textarea>
+        </div>
+        <br/>
+        <input value="Save" type="submit">
+    </form>
+
+</div>
+
+<script th:src="@{/js/simplemde-1.11.2.min.js}"></script>
+<script th:src="@{/js/katex-0.11.1.min.js}"></script>
+<script th:src="@{/js/markdown-it-9.1.0.min.js}"></script>
+<script th:src="@{/js/render-md-latex.js}"></script>
+
+<script>
+    let editor = new SimpleMDE({
+        element: document.getElementById("home-page-information"),
+        forceSync: true,
+        spellChecker: false,
+        previewRender: text => renderMdLatex(text),
+    });
+</script>
+
+</body>
+</html>

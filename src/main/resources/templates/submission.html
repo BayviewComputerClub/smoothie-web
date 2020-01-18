@@ -7,21 +7,11 @@
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/top-flex-bar.css}"/>
+    <link rel="stylesheet" th:href="@{/css/title.css}"/>
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
-        h1 {
-            font-size: 48px;
-            font-family: Metropolis-bold, sans-serif;
-            line-height: 96px;
-        }
-
-        h3 {
-            font-size: 24px;
-            font-family: Metropolis-bold, sans-serif;
-            line-height: 48px;
-        }
 
         p {
             font-size: 18px;
@@ -98,7 +88,7 @@
             Batch #[[${iter.index}+1]]:
             <ul>
                 <li th:each="case, iter2 : ${batch}" th:id="'batch-' + ${iter.index} + '-case-' + ${iter2.index}">
-                    Case #[[${iter2.index}+1]]: [[${case.resultCode}]] ([[${case.time}]]s) ([[${case.memUsage}]]MB)
+                    Case #[[${iter2.index}+1]]: [[${case.resultCode}]] (<span class="case-time">[[${case.time}]]</span>s) ([[${case.memUsage}]]MB)
                 </li>
             </ul>
         </li>
@@ -123,7 +113,7 @@
             stompClient.subscribe('/live-submission/' + id, c => {
                 console.log(c);
                 JSON.parse(c.body).forEach(sub => {
-                    $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber+1) + ": " + sub.resultCode + " (" + sub.time + "s) (" + sub.memUsage + "MB)");
+                    $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber+1) + ": " + sub.resultCode + " (" + (Math.round(sub.time*100)/100).toFixed(3) + "s) (" + sub.memUsage + "MB)");
                 });
             });
         });
@@ -137,6 +127,10 @@
 
         // connect to websocket
         connect();
+
+        $(".case-time").each((i, obj) => {
+            obj.innerText = (Math.round(obj.innerText*100)/100).toFixed(3);
+        })
     })
 
 </script>

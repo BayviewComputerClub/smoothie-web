@@ -7,4 +7,8 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface PostRepository extends ReactiveMongoRepository<Post, String> {
 
+    Flux<Post> findByGlobalScopeOrderByCreatedDesc(boolean globalScope);
+
+    Flux<Post> findByUserGroupIdOrderByCreatedDesc(String userGroupId);
+
 }

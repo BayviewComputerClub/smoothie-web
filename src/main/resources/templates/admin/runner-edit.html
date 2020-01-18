@@ -8,6 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
     <link rel="stylesheet" th:href="@{/css/form.css}"/>
+    <link rel="stylesheet" th:href="@{/css/title.css}"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
@@ -18,12 +19,6 @@
             crossorigin="anonymous"></script>
 
     <style>
-
-        h1 {
-            font-size: 64px;
-            font-family: Metropolis-bold, sans-serif;
-            line-height: 128px;
-        }
 
         body {
             font-size: 20px;
@@ -97,29 +92,30 @@
         <div class="input-container">
             <label for="runner-name">Runner Name</label>
             <br/>
-            <input type="text" id="runner-name" th:field="*{name}" placeholder="ex. basement-server" th:value="${runner.name}"
+            <input type="text" id="runner-name" th:field="*{name}" placeholder="ex. basement-server"
                    required>
         </div>
 
         <div class="input-container">
             <label for="runner-description">Description</label>
             <br/>
-            <input type="text" id="runner-description" th:field="*{description}" placeholder="ex. Server in the basement"
-                   th:value="${runner.description}" required>
+            <input type="text" id="runner-description" th:field="*{description}"
+                   placeholder="ex. Server in the basement"
+                   required>
         </div>
 
         <div class="input-container">
             <label for="runner-host">Host</label>
             <br/>
             <input type="text" id="runner-host" th:field="*{host}" placeholder="ex. 127.0.0.1"
-                   th:value="${runner.host}" required>
+                   required>
         </div>
 
         <div class="input-container">
             <label for="runner-port">Port</label>
             <br/>
             <input type="number" min="0" max="65535" id="runner-port" th:field="*{port}" placeholder="6821"
-                   th:value="${runner.port}" required>
+                   required>
         </div>
 
         <div class="input-container"><input type="submit" value="Save"></div>

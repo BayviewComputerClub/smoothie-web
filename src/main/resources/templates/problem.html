@@ -7,19 +7,15 @@
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/top-flex-bar.css}"/>
+    <link rel="stylesheet" th:href="@{/css/title.css}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css"
           integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
-        h1 {
-            font-size: 48px;
-            font-family: Metropolis-bold, sans-serif;
-            line-height: 96px;
-        }
         p {
             font-size: 18px;
-            line-height: 1.5;
+            /*line-height: 1.5;*/
             font-family: Metropolis, sans-serif;
         }
 
@@ -95,15 +91,19 @@
 
     <p id="problem-statement" th:text="${problem.problemStatement}" style="white-space: pre;">
     </p>
-
 </div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/katex-0.11.1.min.js}"></script>
+<script th:src="@{/js/markdown-it-9.1.0.min.js}"></script>
+<script th:src="@{/js/render-md-latex.js}"></script>
 
 <script th:inline="javascript">
     // load header
     let limits = /*[[${problem.limits}]]*/ [];
     if (limits.length === 1) {
-        document.getElementById("time-limit").innerText = limits[0].timeLimit + "s";
-        document.getElementById("memory-limit").innerText = limits[0].memoryLimit + " MB";
+        $("#time-limit").text(limits[0].timeLimit + 's');
+        $("#memory-limit").text(limits[0].memoryLimit + ' MB');
     } else {
         let allTimeLim = "", allMemoryLim = "", timeLim = "", memoryLim = "";
 
@@ -116,51 +116,21 @@
                 memoryLim += ", " + lim.memoryLimit + " MB (" + lim.lang + ")";
             }
 
-            document.getElementById("time-limit").innerText = allTimeLim + timeLim;
-            document.getElementById("memory-limit").innerText = allMemoryLim + memoryLim;
+            $("#time-limit").text(allTimeLim + timeLim);
+            $("#memory-limit").text(allMemoryLim + memoryLim);
         });
     }
 
-    let timeCreated = document.getElementById("time-created");
-    let date = new Date(timeCreated.innerText*1000);
-    timeCreated.innerText = ("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear();
-</script>
+    let timeCreated = $("#time-created");
+    let date = new Date(timeCreated.text()*1000);
+    timeCreated.text(("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear());
 
-<script>
     // load problem statement
-    function mdToHTML(text) {
-        // render markdown with latex combining texme and katex
-        let md = texme.render(text);
-        let str = "", isLatex = false;
-        md.split("$$").forEach(lat => {
-            if (isLatex) {
-                str += katex.renderToString(lat, {
-                    fleqn: true,
-                    throwOnError: false,
-                });
-            } else {
-                str += lat;
-            }
-            isLatex = !isLatex;
-        });
-        return str;
-    }
-
-    window.onload = function () { // load statement when all scripts are loaded
-        let statement = document.getElementById("problem-statement");
-        statement.innerHTML = mdToHTML(statement.innerText);
-        statement.style.whiteSpace = "normal";
-    };
-
-    window.texme = { // set texme settings
-        renderOnLoad: false,
-        useMathJax: false,
-        style: "plain",
-    };
+    $('document').ready(() => {
+        let statement = $('#problem-statement');
+        statement.html(renderMdLatex(statement.text()));
+        statement.css('white-space', 'normal')
+    });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js"
-        integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/texme@0.7.0"></script>
 </body>
 </html>

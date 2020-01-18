@@ -50,7 +50,6 @@ public class PageController {
 
     private static String cmsHost = "http://localhost:3000";
 
-    @GetMapping("/")
     public String getRootRoute(Model model) throws Exception{
 
         PageResponse pageResponse;

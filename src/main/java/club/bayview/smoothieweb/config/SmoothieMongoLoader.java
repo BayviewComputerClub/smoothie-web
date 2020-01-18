@@ -1,8 +1,10 @@
 package club.bayview.smoothieweb.config;
 
+import club.bayview.smoothieweb.models.GeneralSettings;
 import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.security.SmoothieAuthenticationProvider;
+import club.bayview.smoothieweb.services.SmoothieSettingsService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
@@ -13,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.mapping.event.LoggingEventListener;
 import org.springframework.data.mongodb.gridfs.ReactiveGridFsTemplate;
@@ -68,6 +69,9 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
     @Autowired
     private SmoothieUserService userService;
 
+    @Autowired
+    private SmoothieSettingsService settingsService;
+
     // let mongo client automatically create indexes
     @Override
     public boolean autoIndexCreation() {
@@ -86,6 +90,25 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
                 admin.getRoles().add(Role.ROLE_ADMIN);
                 admin.getRoles().add(Role.ROLE_EDITOR);
                 userService.saveUser(admin).block();
+            }
+
+            if (settingsService.getGeneralSettings() == null) {
+                GeneralSettings settings = new GeneralSettings();
+                settings.setSiteName("Smoothie-Web");
+                settings.setHomeContent("Welcome to this smoothie-web instance.\n" +
+                        "\n" +
+                        "Sit down, have a smoothie, and enjoy hitting the keyboard furiously. (~˘▾˘)~\n" +
+                        "\n" +
+                        "\n" +
+                        "```\n" +
+                        "<?php\n" +
+                        "die(\"oh no?\");\n" +
+                        "?>\n" +
+                        "```\n" +
+                        "\n" +
+                        "\n" +
+                        " \\ (•◡•) /");
+                settingsService.saveGeneralSettings(settings).block();
             }
         } catch (Exception e) {
             e.printStackTrace();

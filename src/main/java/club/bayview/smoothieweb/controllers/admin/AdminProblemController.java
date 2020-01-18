@@ -90,13 +90,13 @@ public class AdminProblemController {
         defaultProblem.totalScoreWorth = 1;
         defaultProblem.limits = Arrays.asList(new ProblemFormLimit(JudgeLanguage.ALL.getPrettyName(), 1.0, 256));
         defaultProblem.problemStatement = "This is the problem statement.\n" +
-                "<br/>\n" +
+                "\n" +
                 "Please solve $$a + b = c$$.\n" +
                 "\n" +
                 "## Input Specification\n" +
                 "The first line of input contains the integers $$a$$ and $$b$$ which are the integers to add.\n" +
-                "<br/>\n" +
-                "<br/>\n" +
+                "\n" +
+                "\n" +
                 "$$1 \\le a, b \\le 10$$\n" +
                 "\n" +
                 "## Output Specification\n" +

@@ -26,6 +26,9 @@ public class Post {
     @Indexed
     private String slug, userGroupId;
 
+    @Indexed
+    private boolean isGlobalScope;
+
     private String name, content;
 
     private long created, lastEdited;

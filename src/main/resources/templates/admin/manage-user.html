@@ -8,6 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
     <link rel="stylesheet" th:href="@{/css/form.css}"/>
+    <link rel="stylesheet" th:href="@{/css/title.css}"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
@@ -19,12 +20,6 @@
 
         .checkbox-switch {
             margin-top: 10px;
-        }
-
-        h1 {
-            font-size: 48px;
-            font-family: Metropolis-bold, sans-serif;
-            line-height: 96px;
         }
 
         h3 {
@@ -80,26 +75,26 @@
         <div class="input-container">
             <label for="handle">Username</label>
             <br/>
-            <input type="text" id="handle" th:field="*{handle}" placeholder="" th:value="${form.handle}">
+            <input type="text" id="handle" th:field="*{handle}" placeholder="">
         </div>
 
         <div class="input-container">
             <label for="email">Email</label>
             <br/>
-            <input type="text" id="email" th:field="*{email}" placeholder="" th:value="${form.email}">
+            <input type="text" id="email" th:field="*{email}" placeholder="">
         </div>
 
         <div class="input-container">
             <label for="password">Password</label>
             <br/>
-            <input type="password" id="password" th:field="*{password}" placeholder="Leave blank to keep" th:value="${form.password}">
+            <input type="password" id="password" th:field="*{password}" placeholder="Leave blank to keep">
         </div>
 
         <div class="input-container">
             <label for="is-admin">Admin</label>
             <br/>
             <label class="checkbox-switch">
-                <input type="checkbox" id="is-admin" th:field="*{admin}" th:value="${form.admin}">
+                <input type="checkbox" id="is-admin" th:field="*{admin}">
                 <span class="checkbox-slider"></span>
             </label>
         </div>
@@ -108,7 +103,7 @@
             <label for="is-enabled">Account Enabled</label>
             <br/>
             <label class="checkbox-switch">
-                <input type="checkbox" id="is-enabled" th:field="*{enabled}" th:value="${enabled}">
+                <input type="checkbox" id="is-enabled" th:field="*{enabled}">
                 <span class="checkbox-slider"></span>
             </label>
         </div>

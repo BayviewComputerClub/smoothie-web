@@ -1,43 +1,118 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <head>
-        <meta charset="UTF-8">
-        <title>smoothie-web</title>
+<head>
+    <meta charset="UTF-8">
+    <title>smoothie-web</title>
 
-        <link rel="stylesheet" th:href="@{/css/global.css}"/>
-        <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
 
-        <style>
-            h1 {
-                font-size: 64px;
-                font-family: Metropolis-bold, sans-serif;
-                line-height: 128px;
+    <style>
+        h1 {
+            font-size: 64px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 128px;
+        }
+
+        h3 {
+            font-size: 24px;
+            font-family: Metropolis-bold, sans-serif;
+            margin-block-start: 0;
+            margin-block-end: 0;
+            line-height: 1.5;
+        }
+
+        @keyframes box-in {
+            0% {
+                box-shadow: 1px 1px 0 0 #9e9e9e;
             }
-            p {
-                font-size: 32px;
-                font-family: Metropolis, sans-serif;
-                line-height: 128px;
-
+            100% {
+                box-shadow: 1px 1px 15px 0 #9e9e9e;
             }
+        }
 
-            .container {
-                animation: header-fade-in 1s;
-            }
-        </style>
-    </head>
-    <body>
+        .box {
+            box-shadow: 1px 1px 15px 0 #9e9e9e;
+            border: 1px solid #9e9e9e;
+            border-radius: 15px;
+            animation: box-in 2s;
+            padding: 20px;
+        }
 
-        <div th:replace="fragments/header :: header"></div>
+        .main-box {
+            box-shadow: 1px 1px 15px 0 #9e9e9e;
+            border: 1px solid #9e9e9e;
+            border-radius: 15px;
+            padding: 20px;
+            animation: box-in 2s;
 
-        <div class="container">
-            <h1 th:text="${page.title}"></h1>
-            <div th:remove="tag" th:utext="${page.content}"></div>
-            <span sec:authorize="isAnonymous()">
-                You are not logged in.
-            </span>
-            <span sec:authorize="isAuthenticated()">
-                You are logged in as <span th:text="${#authentication.getPrincipal().getUsername()}"></span>.
-            </span>
-        </div>
-    </body>
+            font-size: 18px;
+            font-family: Metropolis, sans-serif;
+            line-height: 1.5;
+        }
+
+        p {
+            margin-block-start: 0;
+            margin-block-end: 0;
+            display: block;
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+            margin-right: 500px;
+        }
+
+        .sidebar {
+            top: 50px;
+            right: 0;
+            padding: 120px 20px 40px 20px;
+            position: fixed;
+            overflow-x: hidden;
+            z-index: 1;
+            width: 400px;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <h1 th:utext="${siteName}"></h1>
+
+    <div class="main-box">
+        <p id="information" style="white-space: pre;" th:text="${information}"></p>
+        <span sec:authorize="isAnonymous()">
+            You are not logged in.
+        </span>
+        <span sec:authorize="isAuthenticated()">
+            You are logged in as <span th:text="${#authentication.getPrincipal().getUsername()}"></span>.
+        </span>
+    </div>
+</div>
+
+<div class="sidebar">
+    <div class="box">
+        <h3>Contests</h3>
+        <p>
+            I like contests...
+        </p>
+    </div>
+</div>
+
+</body>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/katex-0.11.1.min.js}"></script>
+<script th:src="@{/js/markdown-it-9.1.0.min.js}"></script>
+<script th:src="@{/js/render-md-latex.js}"></script>
+
+<script>
+    $(() => {
+        let $info = $("#information");
+        $info.html(renderMdLatex($info.html()));
+    })
+</script>
+
 </html>
