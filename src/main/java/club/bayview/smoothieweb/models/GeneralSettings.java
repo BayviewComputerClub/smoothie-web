@@ -15,6 +15,8 @@ public class GeneralSettings {
 
     String siteName;
 
+    String tagLine;
+
     String homeContent;
 
 }

@@ -8,10 +8,31 @@
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
 
     <style>
+
+        .body {
+            color: #212529;
+        }
+
         h1 {
             font-size: 64px;
             font-family: Metropolis-bold, sans-serif;
             line-height: 128px;
+            margin-top: 32px;
+            margin-bottom: -12px;
+            letter-spacing: -1px;
+            background: -webkit-linear-gradient(45deg, #212529, #0A214D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagLine {
+            font-size: 24px;
+            font-family: Nunito, sans-serif;
+            line-height: 48px;
+            font-weight: bold;
+            margin-bottom: 36px;
+            letter-spacing: 1px;
+            color: #FF7139;
         }
 
         h3 {
@@ -32,19 +53,19 @@
         }
 
         .box {
-            box-shadow: 1px 1px 15px 0 #9e9e9e;
-            border: 1px solid #9e9e9e;
-            border-radius: 15px;
-            animation: box-in 2s;
-            padding: 20px;
+            /*box-shadow: 1px 1px 15px 0 #9e9e9e;*/
+            /*border: 1px solid #9e9e9e;*/
+            /*border-radius: 15px;*/
+            /*animation: box-in 2s;*/
+            /*padding: 20px;*/
         }
 
         .main-box {
-            box-shadow: 1px 1px 15px 0 #9e9e9e;
-            border: 1px solid #9e9e9e;
-            border-radius: 15px;
-            padding: 20px;
-            animation: box-in 2s;
+            /*box-shadow: 1px 1px 15px 0 #9e9e9e;*/
+            /*border: 1px solid #9e9e9e;*/
+            /*border-radius: 15px;*/
+            /*padding: 20px;*/
+            /*animation: box-in 2s;*/
 
             font-size: 18px;
             font-family: Metropolis, sans-serif;
@@ -63,6 +84,7 @@
         }
 
         .sidebar {
+            animation: header-fade-in 1s;
             top: 50px;
             right: 0;
             padding: 120px 20px 40px 20px;
@@ -80,9 +102,10 @@
 
 <div class="container">
     <h1 th:utext="${siteName}"></h1>
+    <div class="tagLine" th:utext="${information.tagLine}"></div>
 
     <div class="main-box">
-        <p id="information" style="white-space: pre;" th:text="${information}"></p>
+        <p id="information" style="white-space: pre;" th:text="${information.homeContent}"></p>
         <span sec:authorize="isAnonymous()">
             You are not logged in.
         </span>
@@ -98,6 +121,9 @@
         <p>
             I like contests...
         </p>
+    </div>
+    <div class="box" style="margin-top: 20px;">
+        <h3>Posts</h3>
     </div>
 </div>
 

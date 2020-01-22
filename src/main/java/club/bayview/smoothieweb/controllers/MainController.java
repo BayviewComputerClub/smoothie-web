@@ -32,7 +32,7 @@ public class MainController {
 
     @RequestMapping("/")
     public Mono<String> getHomeRoute(Model model) {
-        model.addAttribute("information", settingsService.getGeneralSettings().getHomeContent());
+        model.addAttribute("information", settingsService.getGeneralSettings());
         return Mono.just("index");
     }
 

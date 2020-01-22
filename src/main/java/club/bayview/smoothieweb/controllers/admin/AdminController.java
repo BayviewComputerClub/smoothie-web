@@ -42,15 +42,17 @@ public class AdminController {
     static class GeneralForm {
 
         @NotNull
-        private String siteName, homeContent;
+        private String siteName, tagLine, homeContent;
 
         GeneralForm(GeneralSettings settings) {
             this.siteName = settings.getSiteName();
+            this.tagLine = settings.getTagLine();
             this.homeContent = settings.getHomeContent();
         }
 
         GeneralSettings toGeneralSettings(GeneralSettings settings) {
             settings.setSiteName(siteName);
+            settings.setTagLine(tagLine);
             settings.setHomeContent(homeContent);
             return settings;
         }

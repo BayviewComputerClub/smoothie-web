@@ -94,18 +94,11 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
 
             if (settingsService.getGeneralSettings() == null) {
                 GeneralSettings settings = new GeneralSettings();
-                settings.setSiteName("Smoothie-Web");
+                settings.setSiteName("smoothie-web");
+                settings.setTagLine("i like potatoes.");
                 settings.setHomeContent("Welcome to this smoothie-web instance.\n" +
                         "\n" +
                         "Sit down, have a smoothie, and enjoy hitting the keyboard furiously. (~˘▾˘)~\n" +
-                        "\n" +
-                        "\n" +
-                        "```\n" +
-                        "<?php\n" +
-                        "die(\"oh no?\");\n" +
-                        "?>\n" +
-                        "```\n" +
-                        "\n" +
                         "\n" +
                         " \\ (•◡•) /");
                 settingsService.saveGeneralSettings(settings).block();
