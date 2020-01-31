@@ -17,7 +17,7 @@ import java.util.*;
  * Represents a programming problem on the site.
  */
 
-@Document(collation =  "{ 'locale' : 'en_US', 'strength': 2 }") // indexes case insensitive
+@Document(collation = "{ 'locale' : 'en_US', 'strength': 2 }") // indexes case insensitive
 @Getter
 @Setter
 @NoArgsConstructor
@@ -69,14 +69,14 @@ public class Problem {
             for (var cases : testData.getBatchList()) {
                 l.add(new ArrayList<>());
                 for (var c : cases.getCaseList()) {
-                    l.get(l.size()-1).add(new Submission.SubmissionBatchCase(c));
+                    l.get(l.size() - 1).add(new Submission.SubmissionBatchCase(c));
                 }
             }
             return Mono.just(l);
         });
     }
 
-    public Mono<List<SmoothieRunner.ProblemBatch>> getGRPCBatches(ProblemLimits limit) {
+    public Mono<List<SmoothieRunner.ProblemBatch>> getGRPCBatches() {
         // convert to grpc test cases
         List<SmoothieRunner.ProblemBatch> batches = new ArrayList<>();
 
@@ -87,8 +87,6 @@ public class Problem {
                     b.addCases(SmoothieRunner.ProblemBatchCase.newBuilder()
                             .setInput(c.getInput())
                             .setExpectedAnswer(c.getExpectedOutput())
-                            .setTimeLimit(limit.getTimeLimit())
-                            .setMemLimit(limit.getMemoryLimit())
                             .build());
                 }
                 batches.add(b.build());
@@ -111,15 +109,19 @@ public class Problem {
     }
 
     public Mono<SmoothieRunner.Problem> getGRPCObject(String language) {
+        ProblemLimits limit = getProblemLimitForLang(language);
+
         // get final grpc object
-        return getGRPCBatches(getProblemLimitForLang(language)).flatMap(batches -> Mono.just(SmoothieRunner.Problem.newBuilder()
-            .setProblemID(id)
-            .setTestCasesHashCode(0) // TODO
-            .addAllTestBatches(batches)
-            .setGrader(SmoothieRunner.ProblemGrader.newBuilder()
-                    .setType("strict") // TODO
-                    .build())
-            .build()));
+        return getGRPCBatches().flatMap(batches -> Mono.just(SmoothieRunner.Problem.newBuilder()
+                .setProblemID(id)
+                .setTestCasesHashCode(0) // TODO
+                .addAllTestBatches(batches)
+                .setGrader(SmoothieRunner.ProblemGrader.newBuilder()
+                        .setType("strict") // TODO
+                        .build())
+                .setTimeLimit(limit.getTimeLimit())
+                .setMemLimit(limit.getMemoryLimit())
+                .build()));
     }
 
 
