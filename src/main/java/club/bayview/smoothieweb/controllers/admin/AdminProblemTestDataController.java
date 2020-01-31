@@ -118,13 +118,14 @@ public class AdminProblemTestDataController {
             int batchNum = Integer.parseInt(spl[0]), caseNum = Integer.parseInt(spl[1].split("\\.")[0]);
             boolean isInput = entry.getName().split("\\.")[1].equals("in");
 
-            // get data
-            byte[] buffer = new byte[1024];
-            StringBuilder data = new StringBuilder();
-            while (zis.read(buffer, 0, 1024) >= 0) {
-                data.append(new String(buffer, 0, 1024).replace("\u0000", "").replace("\\u0000", ""));
+            // get data (may have to check if this can actually support gb of data)
+            byte[] buffer = new byte[(int)entry.getSize()];
+            long size = entry.getSize(), read = 0;
+            while (read < size) {
+                read += zis.read(buffer, (int)read, (int)(size - read));
             }
-            String dataString = data.toString();
+
+            String dataString = new String(buffer);
 
             // add to list
             boolean found = false;
@@ -165,7 +166,6 @@ public class AdminProblemTestDataController {
             for (var tdCase : cases) {
                 batch.addCase(tdCase.build());
             }
-
             testData.addBatch(batch.build());
         }
 
