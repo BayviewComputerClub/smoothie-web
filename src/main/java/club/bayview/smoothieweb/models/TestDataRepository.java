@@ -33,7 +33,8 @@ public class TestDataRepository {
         });
     }
 
-    public Mono<byte[]> getRawTestData(String dataId) throws Exception {
+    // may return error if not test data not found
+    public Flux<byte[]> getRawTestDataFlux(String dataId) throws Exception {
         return mongoLoader.reactiveGridFsTemplate().findOne(new Query(Criteria.where("_id").is(dataId))).flatMap(file -> {
             try {
                 return mongoLoader.reactiveGridFsTemplate().getResource(file);
@@ -41,24 +42,24 @@ public class TestDataRepository {
                 e.printStackTrace();
             }
             return Mono.error(new NotFoundException());
-        }).flatMap(file -> {
+        }).flatMapMany(file -> {
             try {
-                List<byte[]> bytes = new ArrayList<>();
-
-                return file.getDownloadStream()
-                        .doOnNext(buffer -> {
-                            byte[] b = new byte[buffer.readableByteCount()];
-                            buffer.read(b);
-                            bytes.add(b);
-                        }).collectList().flatMap(v -> {
-                            byte[] data = Bytes.concat(bytes.toArray(new byte[bytes.size()][]));
-                            return Mono.just(data);
-                        });
-
+                return file.getDownloadStream().map(buffer -> {
+                    byte[] b = new byte[buffer.readableByteCount()];
+                    buffer.read(b);
+                    return b;
+                });
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return Mono.error(new NotFoundException());
+            return Flux.error(new NotFoundException());
+        });
+    }
+
+    public Mono<byte[]> getRawTestData(String dataId) throws Exception {
+        return getRawTestDataFlux(dataId).collectList().flatMap(bytes -> {
+            byte[] data = Bytes.concat(bytes.toArray(new byte[bytes.size()][]));
+            return Mono.just(data);
         }).onErrorResume(e -> {
             if (!(e instanceof NotFoundException)) {
                 e.printStackTrace();
