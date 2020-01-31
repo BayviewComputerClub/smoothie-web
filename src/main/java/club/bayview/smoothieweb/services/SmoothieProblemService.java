@@ -41,8 +41,11 @@ public class SmoothieProblemService {
         return testDataRepository.getTestDataHash(id);
     }
 
+    public Mono<byte[]> findRawProblemTestData(String id) throws Exception {
+        return testDataRepository.getRawTestData(id);
+    }
+
     public Mono<StoredTestData.TestData> findProblemTestData(String id) throws Exception {
-        //System.out.println(testDataRepository.getTestData(id).block().toString()); debug
         return testDataRepository.getTestData(id);
     }
 

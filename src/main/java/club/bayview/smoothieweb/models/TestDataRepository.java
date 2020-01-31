@@ -2,6 +2,7 @@ package club.bayview.smoothieweb.models;
 
 import club.bayview.smoothieweb.config.SmoothieMongoLoader;
 import club.bayview.smoothieweb.models.testdata.StoredTestData;
+import club.bayview.smoothieweb.util.NotFoundException;
 import com.google.common.primitives.Bytes;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.mongodb.reactivestreams.client.gridfs.helpers.AsyncStreamHelper;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -31,41 +33,48 @@ public class TestDataRepository {
         });
     }
 
-    public Mono<StoredTestData.TestData> getTestData(String dataId) throws Exception {
+    public Mono<byte[]> getRawTestData(String dataId) throws Exception {
         return mongoLoader.reactiveGridFsTemplate().findOne(new Query(Criteria.where("_id").is(dataId))).flatMap(file -> {
             try {
                 return mongoLoader.reactiveGridFsTemplate().getResource(file);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return Mono.just(null);
+            return Mono.error(new NotFoundException());
         }).flatMap(file -> {
-            if (file == null) return Mono.just(StoredTestData.TestData.getDefaultInstance());
-
             try {
                 List<byte[]> bytes = new ArrayList<>();
-                AtomicLong length = new AtomicLong();
 
-                return file.getDownloadStream().collectList().flatMap(buffers -> {
-                    for (var buff : buffers) {
-                        try {
-                            bytes.add(buff.asInputStream().readAllBytes());
-                            length.addAndGet(bytes.get(bytes.size() - 1).length);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    byte[] data = Bytes.concat(bytes.toArray(new byte[bytes.size()][]));
-
-                    try {
-                        return Mono.just(StoredTestData.TestData.parseFrom(data));
-                    } catch (InvalidProtocolBufferException e) {
-                        e.printStackTrace();
-                        return Mono.error(e);
-                    }
-                });
+                return file.getDownloadStream()
+                        .doOnNext(buffer -> {
+                            byte[] b = new byte[buffer.readableByteCount()];
+                            buffer.read(b);
+                            bytes.add(b);
+                        }).collectList().flatMap(v -> {
+                            byte[] data = Bytes.concat(bytes.toArray(new byte[bytes.size()][]));
+                            return Mono.just(data);
+                        });
 
             } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return Mono.error(new NotFoundException());
+        }).onErrorResume(e -> {
+            if (!(e instanceof NotFoundException)) {
+                e.printStackTrace();
+            }
+            return Mono.just(new byte[0]);
+        });
+    }
+
+    public Mono<StoredTestData.TestData> getTestData(String dataId) throws Exception {
+        return getRawTestData(dataId).flatMap(bytes -> {
+            if (bytes.length == 0) {
+                return Mono.just(StoredTestData.TestData.getDefaultInstance());
+            }
+            try {
+                return Mono.just(StoredTestData.TestData.parseFrom(bytes));
+            } catch (InvalidProtocolBufferException e) {
                 e.printStackTrace();
             }
             return Mono.just(StoredTestData.TestData.getDefaultInstance());
