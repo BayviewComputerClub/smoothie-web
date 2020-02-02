@@ -62,6 +62,15 @@ public class Problem {
         }
     }
 
+    public Mono<String> getTestDataHash() {
+        try {
+            return SmoothieWebApplication.context.getBean(SmoothieProblemService.class).findProblemTestDataHash(getTestDataId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Mono.error(e);
+        }
+    }
+
     public Mono<List<List<Submission.SubmissionBatchCase>>> getSubmissionBatchCases() {
         List<List<Submission.SubmissionBatchCase>> l = new ArrayList<>();
 
@@ -73,25 +82,6 @@ public class Problem {
                 }
             }
             return Mono.just(l);
-        });
-    }
-
-    public Mono<List<SmoothieRunner.ProblemBatch>> getGRPCBatches() {
-        // convert to grpc test cases
-        List<SmoothieRunner.ProblemBatch> batches = new ArrayList<>();
-
-        return getTestData().flatMap(testData -> {
-            for (var batch : testData.getBatchList()) {
-                SmoothieRunner.ProblemBatch.Builder b = SmoothieRunner.ProblemBatch.newBuilder();
-                for (var c : batch.getCaseList()) {
-                    b.addCases(SmoothieRunner.ProblemBatchCase.newBuilder()
-                            .setInput(c.getInput())
-                            .setExpectedAnswer(c.getExpectedOutput())
-                            .build());
-                }
-                batches.add(b.build());
-            }
-            return Mono.just(batches);
         });
     }
 
@@ -112,10 +102,9 @@ public class Problem {
         ProblemLimits limit = getProblemLimitForLang(language);
 
         // get final grpc object
-        return getGRPCBatches().flatMap(batches -> Mono.just(SmoothieRunner.Problem.newBuilder()
-                .setProblemID(id)
-                .setTestCasesHashCode(0) // TODO
-                .addAllTestBatches(batches)
+        return getTestDataHash().flatMap(hash -> Mono.just(SmoothieRunner.Problem.newBuilder()
+                .setProblemId(id)
+                .setTestDataHash(hash)
                 .setGrader(SmoothieRunner.ProblemGrader.newBuilder()
                         .setType("strict") // TODO
                         .build())

@@ -8,7 +8,6 @@ import club.bayview.smoothieweb.util.Verdict;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestSolutionResponse> {
@@ -23,17 +22,31 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
 
     private Logger logger = LoggerFactory.getLogger(GraderStreamObserver.class);
 
-    public GraderStreamObserver(Submission submission) {
+    private club.bayview.smoothieweb.services.SmoothieRunner runner;
+    private SmoothieRunner.TestSolutionRequest req; // initial sending request
+
+    private boolean terminated = false;
+
+    public GraderStreamObserver(Submission submission, club.bayview.smoothieweb.services.SmoothieRunner runner, SmoothieRunner.TestSolutionRequest req) {
         this.liveSubmissionController = SmoothieWebApplication.context.getBean(LiveSubmissionController.class);
         this.submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
         this.userService = SmoothieWebApplication.context.getBean(SmoothieUserService.class);
         this.problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
         this.queuedSubmissionService = SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class);
         this.submission = submission;
+        this.runner = runner;
+        this.req = req;
     }
 
     @Override
     public void onNext(club.bayview.smoothieweb.SmoothieRunner.TestSolutionResponse value) {
+        // check if test data needs to be uploaded first
+        if (value.getTestDataNeedUpload()) {
+            terminated = true; // prevent onCompleted from going through
+            runner.uploadTestData(req, submission); // upload test data, and then grade again
+            return;
+        }
+
         if (!value.getCompileError().equals("")) { // compile error
             submission.setCompileError(value.getCompileError());
         } else if (value.getCompletedTesting()) { // testing has completed
@@ -66,6 +79,8 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
 
     @Override
     public void onCompleted() {
+        if (terminated) return;
+
         logger.info("Judging has completed for submission " + submission.getId() + ".");
 
         // get verdict

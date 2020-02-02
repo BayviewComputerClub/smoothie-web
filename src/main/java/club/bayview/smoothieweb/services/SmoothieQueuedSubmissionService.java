@@ -58,24 +58,26 @@ public class SmoothieQueuedSubmissionService {
 
         getQueuedSubmissions().subscribe(sub -> {
             var smoothieRunners = sortRunnersForSubmission(runners, sub);
-            var runner = smoothieRunners.get(0);
 
             logger.debug("Looking at submission " + sub.getSubmissionId() + " for runners..");
+            for (SmoothieRunner runner : smoothieRunners) {
+                // grade if there are no tasks in the queue
+                if (runner.getHealth().getNumOfTasksInQueue() == 0) {
 
-            // grade if there are no tasks in the queue
-            if (runner.getHealth().getNumOfTasksInQueue() == 0) {
+                    AtomicReference<Submission> s = new AtomicReference<>();
+                    deleteQueuedSubmissionById(sub.getId())
+                            .flatMap(t -> Mono.zip(problemService.findProblemById(sub.getProblemId()), submissionService.findSubmissionById(sub.getSubmissionId())))
+                            .flatMap(t -> {
+                                s.set(t.getT2());
+                                return toTestSolutionRequest(t.getT1(), t.getT2());
+                            })
+                            .flatMap(tsr -> {
+                                runner.grade(tsr, s.get());
+                                return submissionService.saveSubmission(s.get()); // the runner id was set
+                            }).subscribe();
 
-                AtomicReference<Submission> s = new AtomicReference<>();
-                deleteQueuedSubmissionById(sub.getId())
-                        .flatMap(t -> Mono.zip(problemService.findProblemById(sub.getProblemId()), submissionService.findSubmissionById(sub.getSubmissionId())))
-                        .flatMap(t -> {
-                            s.set(t.getT2());
-                            return toTestSolutionRequest(t.getT1(), t.getT2());
-                        })
-                        .flatMap(tsr -> {
-                            runner.grade(tsr, s.get());
-                            return submissionService.saveSubmission(s.get()); // the runner id was set
-                        }).subscribe();
+                    break; // leave when finished
+                }
             }
         });
     }

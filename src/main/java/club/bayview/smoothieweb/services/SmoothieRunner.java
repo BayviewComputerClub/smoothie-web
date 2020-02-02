@@ -2,15 +2,20 @@ package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.SmoothieRunnerAPIGrpc;
 import club.bayview.smoothieweb.SmoothieWebApplication;
+import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.Runner;
 import club.bayview.smoothieweb.models.Submission;
+import com.google.protobuf.ByteString;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.stub.StreamObserver;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SmoothieRunner implements Comparable<SmoothieRunner> {
 
@@ -92,11 +97,52 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
         submission.setRunnerId(getId());
         SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class).saveSubmission(submission).subscribe();
 
-        StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> observer = getAsyncStub().testSolution(new GraderStreamObserver(submission));
+        var observer = getAsyncStub().testSolution(new GraderStreamObserver(submission, this, req));
 
         // send request
         observer.onNext(req);
         observer.onCompleted();
+    }
+
+    public void uploadTestData(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req, Submission submission) {
+        logger.info(String.format("Uploading test data to runner %s for problem %s.", getName(), submission.getProblemId()));
+
+        var observer = asyncStub.uploadProblemTestData(new UploadTestDataStreamObserver(submission, this, req));
+        var problemBean = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
+
+        AtomicReference<String> hash = new AtomicReference<>();
+
+        problemBean.findProblemById(submission.getProblemId())
+                .flatMap(Problem::getTestDataHash)
+                .flatMapMany(h -> {
+                    hash.set(h);
+                    logger.info("HELPPPPPPPPPPPPPPPPPPP " + h); // TODO
+                    try {
+                        return problemBean.findRawProblemTestDataFlux(submission.getProblemId());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return Flux.error(e);
+                    }
+                })
+                .doOnNext(bytes -> {
+                    logger.info("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- SEND CHUNK"); // TODO
+                    observer.onNext(club.bayview.smoothieweb.SmoothieRunner.UploadTestDataRequest.newBuilder()
+                            .setDataChunk(ByteString.copyFrom(bytes))
+                            .setProblemId(submission.getProblemId())
+                            .setTestDataHash(hash.get())
+                            .setFinishedUploading(false)
+                            .build());
+                })
+                .doOnComplete(() -> {
+                    logger.info("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- FINISH SEND CHUNK"); // TODO
+                    observer.onNext(club.bayview.smoothieweb.SmoothieRunner.UploadTestDataRequest.newBuilder()
+                            .setDataChunk(ByteString.copyFrom(new byte[0]))
+                            .setProblemId(submission.getProblemId())
+                            .setTestDataHash(hash.get())
+                            .setFinishedUploading(true)
+                            .build());
+                })
+                .subscribe();
     }
 
     @Override
