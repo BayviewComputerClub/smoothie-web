@@ -41,6 +41,10 @@ public class SmoothieProblemService {
         return testDataRepository.getTestDataHash(id);
     }
 
+    public Mono<byte[]> findRawProblemTestData(String id) throws Exception {
+        return testDataRepository.getRawTestData(id);
+    }
+
     public Flux<byte[]> findRawProblemTestDataFlux(String id) throws Exception {
         return testDataRepository.getRawTestDataFlux(id);
     }

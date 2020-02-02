@@ -110,22 +110,23 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
         var observer = asyncStub.uploadProblemTestData(new UploadTestDataStreamObserver(submission, this, req));
         var problemBean = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
 
-        AtomicReference<String> hash = new AtomicReference<>();
+        AtomicReference<String> hash = new AtomicReference<>(), testDataId = new AtomicReference<>();
 
         problemBean.findProblemById(submission.getProblemId())
-                .flatMap(Problem::getTestDataHash)
+                .flatMap(p -> {
+                    testDataId.set(p.getTestDataId());
+                    return p.getTestDataHash();
+                })
                 .flatMapMany(h -> {
                     hash.set(h);
-                    logger.info("HELPPPPPPPPPPPPPPPPPPP " + h); // TODO
                     try {
-                        return problemBean.findRawProblemTestDataFlux(submission.getProblemId());
+                        return problemBean.findRawProblemTestDataFlux(testDataId.get());
                     } catch (Exception e) {
                         e.printStackTrace();
                         return Flux.error(e);
                     }
                 })
                 .doOnNext(bytes -> {
-                    logger.info("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- SEND CHUNK"); // TODO
                     observer.onNext(club.bayview.smoothieweb.SmoothieRunner.UploadTestDataRequest.newBuilder()
                             .setDataChunk(ByteString.copyFrom(bytes))
                             .setProblemId(submission.getProblemId())
@@ -134,7 +135,6 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
                             .build());
                 })
                 .doOnComplete(() -> {
-                    logger.info("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- FINISH SEND CHUNK"); // TODO
                     observer.onNext(club.bayview.smoothieweb.SmoothieRunner.UploadTestDataRequest.newBuilder()
                             .setDataChunk(ByteString.copyFrom(new byte[0]))
                             .setProblemId(submission.getProblemId())
