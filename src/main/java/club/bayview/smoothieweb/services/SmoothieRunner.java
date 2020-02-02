@@ -113,11 +113,11 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
         AtomicReference<String> hash = new AtomicReference<>(), testDataId = new AtomicReference<>();
 
         problemBean.findProblemById(submission.getProblemId())
-                .flatMap(p -> {
+                .flatMap(p -> { // get problem
                     testDataId.set(p.getTestDataId());
                     return p.getTestDataHash();
                 })
-                .flatMapMany(h -> {
+                .flatMapMany(h -> { // get test data hash
                     hash.set(h);
                     try {
                         return problemBean.findRawProblemTestDataFlux(testDataId.get());
@@ -126,22 +126,20 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
                         return Flux.error(e);
                     }
                 })
-                .doOnNext(bytes -> {
-                    observer.onNext(club.bayview.smoothieweb.SmoothieRunner.UploadTestDataRequest.newBuilder()
-                            .setDataChunk(ByteString.copyFrom(bytes))
-                            .setProblemId(submission.getProblemId())
-                            .setTestDataHash(hash.get())
-                            .setFinishedUploading(false)
-                            .build());
-                })
-                .doOnComplete(() -> {
-                    observer.onNext(club.bayview.smoothieweb.SmoothieRunner.UploadTestDataRequest.newBuilder()
-                            .setDataChunk(ByteString.copyFrom(new byte[0]))
-                            .setProblemId(submission.getProblemId())
-                            .setTestDataHash(hash.get())
-                            .setFinishedUploading(true)
-                            .build());
-                })
+                // send each data chunk
+                .doOnNext(bytes -> observer.onNext(club.bayview.smoothieweb.SmoothieRunner.UploadTestDataRequest.newBuilder()
+                        .setDataChunk(ByteString.copyFrom(bytes))
+                        .setProblemId(submission.getProblemId())
+                        .setTestDataHash(hash.get())
+                        .setFinishedUploading(false)
+                        .build()))
+                // data chunk sending complete
+                .doOnComplete(() -> observer.onNext(club.bayview.smoothieweb.SmoothieRunner.UploadTestDataRequest.newBuilder()
+                        .setDataChunk(ByteString.copyFrom(new byte[0]))
+                        .setProblemId(submission.getProblemId())
+                        .setTestDataHash(hash.get())
+                        .setFinishedUploading(true)
+                        .build()))
                 .subscribe();
     }
 
