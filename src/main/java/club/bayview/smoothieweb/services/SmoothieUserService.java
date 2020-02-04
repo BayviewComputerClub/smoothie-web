@@ -3,6 +3,8 @@ package club.bayview.smoothieweb.services;
 import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.models.UserRepository;
+import club.bayview.smoothieweb.security.UpdateAuthFilter;
+import club.bayview.smoothieweb.util.SmUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,6 +25,9 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UpdateAuthFilter authFilter;
 
     public Mono<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email).cache(Duration.ofMinutes(2));
@@ -50,7 +55,11 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
     }
 
     public Mono<User> saveUser(User user) {
-        return userRepository.save(user);
+        // update user authority
+        
+
+        return userRepository.save(user)
+                .doOnNext(u -> authFilter.sessionsToUpdate.put(user.getHandle(), SmUtil.getCurrentUnix()));
     }
 
     private List<GrantedAuthority> getUserAuthority(Set<Role> userRoles) {

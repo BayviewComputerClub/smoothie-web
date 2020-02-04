@@ -101,7 +101,7 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
 
                     // update points if the submission is higher
                     if (!user.getProblemsAttempted().containsKey(problem.getId()) || user.getProblemsAttempted().get(problem.getId()) < submission.getPoints()) {
-                        if (user.getProblemsAttempted().get(problem.getId()) < submission.getPoints()) {
+                        if (user.getProblemsAttempted().containsKey(problem.getId()) && user.getProblemsAttempted().get(problem.getId()) < submission.getPoints()) {
                             user.setPoints(user.getPoints() - user.getProblemsAttempted().get(problem.getId()));
                         }
 

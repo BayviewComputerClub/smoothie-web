@@ -11,7 +11,12 @@ public class ContestController {
 
     @GetMapping("/contest/{name}")
     public Mono<String> getContestRoute(@PathVariable String name, Model model) {
+        return Mono.just("contest");
+    }
 
+    @GetMapping("/contest/{name}/leaderboard")
+    public Mono<String> getContestLeaderboard(@PathVariable String name, Model model) {
+        return Mono.just("contest");
     }
 
 }

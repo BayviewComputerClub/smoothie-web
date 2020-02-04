@@ -1,10 +1,12 @@
 package club.bayview.smoothieweb.security;
 
+import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,13 +24,13 @@ public class SmoothieAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) {
         String username = authentication.getName(), password = authentication.getCredentials().toString();
 
-        UserDetails user = userService.findByUsername(username).block();
-
-        //System.out.println("-=-=-=-=-=-=- USER LOGIN ATTEMPT " + user + " " + (user == null ? null : passwordEncoder.matches(password, user.getPassword()))); // TODO
+        User user = userService.findUserByHandle(username).block();
 
         if (user == null) return null;
         if (!passwordEncoder.matches(password, user.getPassword())) return null;
-        return new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
+
+
+        return new UsernamePasswordAuthenticationToken(user, passwordEncoder.encode(password), user.getAuthorities());
     }
 
     @Override
