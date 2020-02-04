@@ -3,7 +3,10 @@ package club.bayview.smoothieweb.services;
 import club.bayview.smoothieweb.SmoothieRunner;
 import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.controllers.LiveSubmissionController;
+import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.Submission;
+import club.bayview.smoothieweb.models.User;
+import club.bayview.smoothieweb.util.NotFoundException;
 import club.bayview.smoothieweb.util.Verdict;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
@@ -12,11 +15,11 @@ import reactor.core.publisher.Mono;
 
 public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestSolutionResponse> {
 
-    LiveSubmissionController liveSubmissionController;
-    SmoothieSubmissionService submissionService;
-    SmoothieUserService userService;
-    SmoothieProblemService problemService;
-    SmoothieQueuedSubmissionService queuedSubmissionService;
+    LiveSubmissionController liveSubmissionController = SmoothieWebApplication.context.getBean(LiveSubmissionController.class);
+    SmoothieSubmissionService submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
+    SmoothieUserService userService = SmoothieWebApplication.context.getBean(SmoothieUserService.class);
+    SmoothieProblemService problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
+    SmoothieQueuedSubmissionService queuedSubmissionService = SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class);
 
     private Submission submission;
 
@@ -28,11 +31,6 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
     private boolean terminated = false;
 
     public GraderStreamObserver(Submission submission, club.bayview.smoothieweb.services.SmoothieRunner runner, SmoothieRunner.TestSolutionRequest req) {
-        this.liveSubmissionController = SmoothieWebApplication.context.getBean(LiveSubmissionController.class);
-        this.submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
-        this.userService = SmoothieWebApplication.context.getBean(SmoothieUserService.class);
-        this.problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
-        this.queuedSubmissionService = SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class);
         this.submission = submission;
         this.runner = runner;
         this.req = req;
@@ -83,26 +81,37 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
 
         logger.info("Judging has completed for submission " + submission.getId() + ".");
 
-        // get verdict
-        submission.determineVerdict();
-        submissionService.saveSubmission(submission).subscribe();
+        // store verdict and update points if necessary
+        Mono.zip(userService.findUserById(submission.getUserId()), problemService.findProblemById(submission.getProblemId()))
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(tuple -> {
+                    User user = tuple.getT1();
+                    Problem problem = tuple.getT2();
 
-        // do stuff with verdict
-        if (submission.getVerdict().equals(Verdict.AC.toString())) {
-            userService.findUserById(submission.getUserId()).flatMap(user -> {
-                if (user == null) return Mono.empty();
-                if (user.getSolved().contains(submission.getProblemId())) return Mono.empty();
+                    submission.determineVerdict();
+                    submission.determinePoints(problem);
 
-                user.getSolved().add(submission.getProblemId()); // first time solving
-                return userService.saveUser(user).then(problemService.findProblemById(submission.getProblemId())).flatMap(problem -> {
+                    // if first time solve
+                    if (submission.getVerdict().equals(Verdict.AC.toString())) {
+                        if (!user.getSolved().contains(problem.getId())) {
+                            user.getSolved().add(problem.getId());
+                            problem.setUsersSolved(problem.getUsersSolved() + 1);
+                        }
+                    }
 
-                    problem.setUsersSolved(problem.getUsersSolved() + 1);
-                    user.setPoints(user.getPoints()+problem.getTotalPointsWorth()); // TODO partial
+                    // update points if the submission is higher
+                    if (!user.getProblemsAttempted().containsKey(problem.getId()) || user.getProblemsAttempted().get(problem.getId()) < submission.getPoints()) {
+                        if (user.getProblemsAttempted().get(problem.getId()) < submission.getPoints()) {
+                            user.setPoints(user.getPoints() - user.getProblemsAttempted().get(problem.getId()));
+                        }
 
-                    return Mono.zip(userService.saveUser(user), problemService.saveProblem(problem));
-                });
-            }).subscribe();
-        }
+                        user.getProblemsAttempted().put(problem.getId(), submission.getPoints());
+                        user.setPoints(user.getPoints() + submission.getPoints());
+                    }
+
+                    return Mono.zip(userService.saveUser(user), problemService.saveProblem(problem), submissionService.saveSubmission(submission));
+                })
+                .subscribe();
 
         // find next task to do
         queuedSubmissionService.checkRunnersTask();

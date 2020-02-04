@@ -84,15 +84,16 @@ public class SmoothieQueuedSubmissionService {
 
     // create grpc object to send
     private Mono<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> toTestSolutionRequest(Problem p, Submission s) {
-        return p.getGRPCObject(s.getLang()).flatMap(grpcProblem -> Mono.just(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest.newBuilder()
-                .setTestBatchEvenIfFailed(false)
-                .setCancelTesting(false)
-                .setProblem(grpcProblem)
-                .setSolution(club.bayview.smoothieweb.SmoothieRunner.Solution.newBuilder()
-                        .setCode(s.getCode())
-                        .setLanguage(s.getLang())
-                        .build())
-                .build()));
+        return p.getGRPCObject(s.getLang())
+                .flatMap(grpcProblem -> Mono.just(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest.newBuilder()
+                        .setTestBatchEvenIfFailed(false)
+                        .setCancelTesting(false)
+                        .setProblem(grpcProblem)
+                        .setSolution(club.bayview.smoothieweb.SmoothieRunner.Solution.newBuilder()
+                                .setCode(s.getCode())
+                                .setLanguage(s.getLang())
+                                .build())
+                        .build()));
     }
 
     public ArrayList<SmoothieRunner> sortRunnersForSubmission(ArrayList<SmoothieRunner> runners, QueuedSubmission submission) {

@@ -1,15 +1,14 @@
 package club.bayview.smoothieweb.services;
 
-import club.bayview.smoothieweb.models.*;
+import club.bayview.smoothieweb.models.Problem;
+import club.bayview.smoothieweb.models.ProblemRepository;
+import club.bayview.smoothieweb.models.TestDataRepository;
 import club.bayview.smoothieweb.models.testdata.StoredTestData;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.List;
 
 @Service
@@ -53,9 +52,11 @@ public class SmoothieProblemService {
         return testDataRepository.getTestData(id);
     }
 
-    public Mono<Problem> saveTestDataForProblem(StoredTestData.TestData data, Problem problem) throws Exception {
+    public Mono<Problem> saveTestDataForProblem(Problem.TestDataWrapper data, Problem problem) throws Exception {
         String id = problem.getTestDataId();
-        return testDataRepository.addTestData(data, problem.getId()).flatMap(objectId -> {
+        problem.setProblemBatches(data.getBatches()); // set batch point information
+
+        return testDataRepository.addTestData(data.getTestData(), problem.getId()).flatMap(objectId -> {
             problem.setTestDataId(objectId.toString());
 
             try {

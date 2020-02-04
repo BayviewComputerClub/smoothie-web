@@ -8,8 +8,14 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface SubmissionRepository extends ReactiveMongoRepository<Submission, String> {
 
-    Flux<Submission> findByProblemIdIsOrderByTimeSubmittedDesc(String problemId);
+    Flux<Submission> findByProblemIdOrderByTimeSubmittedDesc(String problemId);
 
-    Flux<Submission> findByUserIdIsOrderByTimeSubmittedDesc(String userId);
+    Flux<Submission> findByUserIdOrderByTimeSubmittedDesc(String userId);
+
+    Flux<Submission> findByUserIdAndProblemIdOrderByTimeSubmittedDesc(String userId, String problemId);
+
+    Flux<Submission> findByUserIdAndContestIdOrderByTimeSubmittedDesc(String userId, String contestId);
+
+    Flux<Submission> findByUserIdAndContestIdAndProblemIdOrderByTimeSubmittedDesc(String userId, String contestId, String problemId);
 
 }

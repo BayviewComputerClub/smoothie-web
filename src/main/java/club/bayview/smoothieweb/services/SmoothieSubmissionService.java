@@ -18,11 +18,19 @@ public class SmoothieSubmissionService {
     }
 
     public Flux<Submission> findSubmissionsByProblem(String problemId) {
-        return submissionRepository.findByProblemIdIsOrderByTimeSubmittedDesc(problemId);
+        return submissionRepository.findByProblemIdOrderByTimeSubmittedDesc(problemId);
     }
 
     public Flux<Submission> findSubmissionsByUser(String userId) {
-        return submissionRepository.findByUserIdIsOrderByTimeSubmittedDesc(userId);
+        return submissionRepository.findByUserIdOrderByTimeSubmittedDesc(userId);
+    }
+
+    public Flux<Submission> findSubmissionsByUserAndProblem(String userId, String problemId) {
+        return submissionRepository.findByUserIdAndProblemIdOrderByTimeSubmittedDesc(userId, problemId);
+    }
+
+    public Flux<Submission> findSubmissionsByUserForContest(String userId, String contestId) {
+        return submissionRepository.findByUserIdAndContestIdOrderByTimeSubmittedDesc(userId, contestId);
     }
 
     public Mono<Submission> saveSubmission(Submission submission) {

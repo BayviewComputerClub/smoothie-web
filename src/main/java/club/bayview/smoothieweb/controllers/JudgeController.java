@@ -142,6 +142,8 @@ public class JudgeController {
         sub.setCode(form.code);
         sub.setTimeSubmitted(System.currentTimeMillis() / 1000L);
         sub.setJudgingCompleted(false);
+        sub.setPoints(0);
+        sub.setMaxPoints(problem.getTotalPointsWorth());
 
         return problem.getSubmissionBatchCases()
                 .flatMap(batches -> {

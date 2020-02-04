@@ -48,7 +48,8 @@ public class User implements UserDetails, Serializable {
 
     private Set<Role> roles;
 
-    private List<String> solved; // problems solved by id
+    private List<String> solved; // solved problems (problemId)
+    private HashMap<String, Double> problemsAttempted; // solved problems: <problemId, points gotten>
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -59,6 +60,7 @@ public class User implements UserDetails, Serializable {
         this.password = password;
         setPassword(password); // encoded to argon2
         this.solved = new ArrayList<>();
+        this.problemsAttempted = new HashMap<>();
         this.enabled = false;
         this.description = "(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ no description... ✧ﾟ･: *ヽ(◕ヮ◕ヽ)";
         roles = new HashSet<>(Arrays.asList(Role.ROLE_USER));

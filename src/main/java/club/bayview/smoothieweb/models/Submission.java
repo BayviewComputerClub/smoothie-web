@@ -71,8 +71,10 @@ public class Submission {
 
     private boolean judgingCompleted;
 
+    private double points, maxPoints;
+
     /**
-     * Determines the verdict based on the submission information.
+     * Determines the verdict given based on the submission information.
      */
 
     public void determineVerdict() {
@@ -95,4 +97,41 @@ public class Submission {
         verdict = Verdict.AC.toString();
     }
 
+    /**
+     * Calculate the amount of points that should be given for the submission.
+     * Should be run AFTER the verdict is determined.
+     * @param p the problem that the submission is for
+     */
+
+    public void determinePoints(Problem p) {
+        if (p.isAllowPartial()) {
+            if (batchCases.size() == p.getProblemBatches().size()) {
+                boolean perfect = true;
+
+                // loop over each batch
+                for (int i = 0; i < batchCases.size(); i++) {
+                    boolean isAC = true;
+                    for (var c : batchCases.get(i)) {
+                        if (!c.getResultCode().equals(Verdict.AC.toString())) {
+                            isAC = false;
+                            perfect = false;
+                            break;
+                        }
+                    }
+                    // determine if the batch has passed
+                    if (isAC) {
+                        points += (double)p.getProblemBatches().get(i).getPointsWorth() / 100 * p.getTotalPointsWorth(); // TODO round maybe
+                    }
+                }
+
+                // if all cases passed, just don't use rounding and give full points
+                if (perfect) {
+                    points = p.getTotalPointsWorth();
+                }
+            }
+            // if the test data has changed since original judging, just leave the points as is
+        } else {
+            points = verdict.equals(Verdict.AC.toString()) ? p.getTotalPointsWorth() : 0;
+        }
+    }
 }

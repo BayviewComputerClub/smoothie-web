@@ -33,6 +33,21 @@ public class Problem {
         private double timeLimit, memoryLimit; // time limit in seconds, memory limit in mb
     }
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class ProblemBatch {
+        private long batchNum, pointsWorth; // out of 100
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class TestDataWrapper {
+        List<ProblemBatch> batches;
+        StoredTestData.TestData testData;
+    }
+
     @Id
     private String id;
     @Indexed(unique = true)
@@ -42,6 +57,7 @@ public class Problem {
     private String prettyName;
 
     private List<ProblemLimits> limits;
+    private List<ProblemBatch> problemBatches;
 
     private String testDataId;
 

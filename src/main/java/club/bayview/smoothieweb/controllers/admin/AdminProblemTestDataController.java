@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.controllers.admin;
 
+import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.testdata.StoredTestData;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.util.NotFoundException;
@@ -91,7 +92,14 @@ public class AdminProblemTestDataController {
                     }
 
                     try {
-                        return problemService.saveTestDataForProblem(getTestCasesFromZip(form.getTestData()), p)
+                        StoredTestData.TestData testData = getTestCasesFromZip(form.getTestData());
+                        Problem.TestDataWrapper w = new Problem.TestDataWrapper(new ArrayList<>(), testData);
+
+                        for (var b : testData.getBatchList()) {
+                            w.getBatches().add(new Problem.ProblemBatch(b.getBatchNum(), 0)); // TODO partial
+                        }
+
+                        return problemService.saveTestDataForProblem(w, p)
                                 .then(Mono.just("redirect:/problem/" + name + "/manage"));
                     } catch (Exception e) {
                         return Mono.error(e);
