@@ -32,6 +32,10 @@ public class SmoothieProblemService {
         return problemRepository.findAll();
     }
 
+    public Flux<Problem> findProblemsAlphaDesc() {
+        return problemRepository.findAllByOrderByPrettyNameDesc();
+    }
+
     public Flux<Problem> findProblemsWithIds(List<String> ids) {
         return problemRepository.findAllByIdIn(ids);
     }

@@ -33,7 +33,7 @@ public class SubmissionController {
 
     @GetMapping("/submission/{submissionId}")
     // TODO make sure you have permission
-    public Mono<String> routeGetSubmission(@PathVariable String submissionId, Model model) {
+    public Mono<String> getSubmissionRoute(@PathVariable String submissionId, Model model) {
         return submissionService.findSubmissionById(submissionId)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(submission -> {
@@ -50,7 +50,7 @@ public class SubmissionController {
 
     @GetMapping("/submission/{submissionId}/code")
     // TODO make sure you have permission
-    public Mono<String> routeGetSubmissionCode(@PathVariable String submissionId, Model model) {
+    public Mono<String> getSubmissionCodeRoute(@PathVariable String submissionId, Model model) {
         return submissionService.findSubmissionById(submissionId)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(submission -> {
@@ -67,7 +67,7 @@ public class SubmissionController {
 
     @GetMapping("/user/{handle}/submissions")
     // TODO remove problems that don't exit
-    public Mono<String> getSubmissionsRoute(@PathVariable String handle, Model model) {
+    public Mono<String> getUserSubmissionsRoute(@PathVariable String handle, Model model) {
         return userService.findUserByHandle(handle)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(user -> {

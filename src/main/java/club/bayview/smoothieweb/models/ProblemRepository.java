@@ -12,6 +12,8 @@ public interface ProblemRepository extends ReactiveMongoRepository<Problem, Stri
 
     Mono<Problem> findByName(String name);
 
+    Flux<Problem> findAllByOrderByPrettyNameDesc();
+
     Flux<Problem> findAllByIdIn(List<String> ids);
     
     Flux<Problem> findAllByIdIn(Flux<String> ids);

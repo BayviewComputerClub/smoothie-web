@@ -3,6 +3,7 @@ package club.bayview.smoothieweb.models;
 import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.security.SmoothieAuthenticationProvider;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

@@ -50,7 +50,7 @@ public class JudgeController {
 
     @RequestMapping("/problems")
     public Mono<String> getProblemsRoute(Model model) {
-        return problemService.findProblems().collectList().flatMap(problems -> {
+        return problemService.findProblemsAlphaDesc().collectList().flatMap(problems -> {
             model.addAttribute("problems", problems);
 
             return Mono.just("problems");

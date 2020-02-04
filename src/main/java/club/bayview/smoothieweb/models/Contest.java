@@ -115,6 +115,7 @@ public class Contest {
     }
 
     // use insertion sort sorta to make leader board
+    // be sure to save contest object after
     public void updateLeaderBoard() {
         leaderBoard = new ArrayList<>();
         for (var user : participants.values()) {
@@ -150,6 +151,7 @@ public class Contest {
     }
 
     // refresh a participant's information
+    // be sure to save contest object
     public Mono<Void> updateParticipant(String userId) {
         List<String> checkedSubmissions = Arrays.asList(Verdict.AC.toString(), Verdict.WA.toString(), Verdict.MLE.toString(), Verdict.TLE.toString());
 
