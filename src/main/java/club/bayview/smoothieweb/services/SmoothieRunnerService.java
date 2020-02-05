@@ -1,7 +1,7 @@
 package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.models.Runner;
-import club.bayview.smoothieweb.models.RunnerRepository;
+import club.bayview.smoothieweb.repositories.RunnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;

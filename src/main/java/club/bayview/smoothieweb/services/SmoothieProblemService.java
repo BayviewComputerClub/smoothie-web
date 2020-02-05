@@ -1,8 +1,8 @@
 package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.models.Problem;
-import club.bayview.smoothieweb.models.ProblemRepository;
-import club.bayview.smoothieweb.models.TestDataRepository;
+import club.bayview.smoothieweb.repositories.ProblemRepository;
+import club.bayview.smoothieweb.repositories.TestDataRepository;
 import club.bayview.smoothieweb.models.testdata.StoredTestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

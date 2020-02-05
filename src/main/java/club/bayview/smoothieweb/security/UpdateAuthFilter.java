@@ -4,7 +4,6 @@ import club.bayview.smoothieweb.services.SmoothieUserService;
 import club.bayview.smoothieweb.util.NotFoundException;
 import club.bayview.smoothieweb.util.SmUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -30,7 +29,6 @@ public class UpdateAuthFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange serverWebExchange, WebFilterChain filterChain) {
         final SecurityContextImpl[] securityContext = new SecurityContextImpl[1];
 
-        System.out.println("INNNNNNNNNNNNNNNNNNNNNNNN FILTER -=--=-=-=--=--=-=-=--=--=-=-=--=--=-=-=--=--=-=-=--=--=-=-=--=--=-=-=--=--=-=-=--=--=-=-=--=--=-=-=--=--=-=-=-"); // TODO
 
         return Mono.empty()
                 .flatMap(b -> {

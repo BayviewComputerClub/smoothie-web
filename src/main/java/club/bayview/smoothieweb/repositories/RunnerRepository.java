@@ -1,5 +1,6 @@
-package club.bayview.smoothieweb.models;
+package club.bayview.smoothieweb.repositories;
 
+import club.bayview.smoothieweb.models.Runner;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Mono;
 

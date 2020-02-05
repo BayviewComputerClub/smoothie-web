@@ -1,7 +1,7 @@
 package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.models.GeneralSettings;
-import club.bayview.smoothieweb.models.GeneralSettingsRepository;
+import club.bayview.smoothieweb.repositories.GeneralSettingsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;

@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
 import org.springframework.web.context.request.RequestContextListener;
 
 @SpringBootApplication
