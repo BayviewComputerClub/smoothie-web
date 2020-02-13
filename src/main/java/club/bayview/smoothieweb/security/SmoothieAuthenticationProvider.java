@@ -40,7 +40,7 @@ public class SmoothieAuthenticationProvider implements AuthenticationProvider {
 
         // update session
         ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-                .getSession(false).setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, user.getHandle());
+                .getSession(true).setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, user.getHandle());
 
         return new UsernamePasswordAuthenticationToken(user, passwordEncoder.encode(password), user.getAuthorities());
     }

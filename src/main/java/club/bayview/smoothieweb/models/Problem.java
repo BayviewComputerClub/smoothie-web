@@ -69,6 +69,8 @@ public class Problem {
     private int rateOfAC, usersSolved;
     private long timeCreated;
 
+    private List<String> editorIds;
+
     public Mono<StoredTestData.TestData> getTestData() {
         try {
             return SmoothieWebApplication.context.getBean(SmoothieProblemService.class).findProblemTestData(getTestDataId());

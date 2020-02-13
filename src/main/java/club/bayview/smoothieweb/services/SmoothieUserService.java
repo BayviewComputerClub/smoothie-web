@@ -3,14 +3,11 @@ package club.bayview.smoothieweb.services;
 import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.repositories.UserRepository;
-import club.bayview.smoothieweb.security.UpdateAuthFilter;
-import club.bayview.smoothieweb.util.SmUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.session.FindByIndexNameSessionRepository;
@@ -30,9 +27,6 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private UpdateAuthFilter authFilter;
 
     @Autowired
     private FindByIndexNameSessionRepository<? extends Session> sessions;
@@ -65,7 +59,7 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
     public Mono<User> saveUser(User user) {
         return userRepository.save(user)
                 .doOnNext(u -> {
-                    // update user authority
+                    // update user object for all sessions
                     for (Session s : sessions.findByPrincipalName(user.getHandle()).values()) {
                         SecurityContext securityContext = s.getAttribute("SPRING_SECURITY_CONTEXT");
                         if (securityContext != null) {

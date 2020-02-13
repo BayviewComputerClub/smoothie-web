@@ -8,6 +8,8 @@ import club.bayview.smoothieweb.services.SmoothieSubmissionService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import club.bayview.smoothieweb.util.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +35,7 @@ public class SubmissionController {
 
     @GetMapping("/submission/{submissionId}")
     // TODO make sure you have permission
+    @Secured("SUBMISSION_DEFAULT")
     public Mono<String> getSubmissionRoute(@PathVariable String submissionId, Model model) {
         return submissionService.findSubmissionById(submissionId)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
@@ -49,6 +52,7 @@ public class SubmissionController {
     }
 
     @GetMapping("/submission/{submissionId}/code")
+
     // TODO make sure you have permission
     public Mono<String> getSubmissionCodeRoute(@PathVariable String submissionId, Model model) {
         return submissionService.findSubmissionById(submissionId)
