@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.redis.core.index.Indexed;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -72,6 +73,39 @@ public class Submission {
     private boolean judgingCompleted;
 
     private double points, maxPoints;
+
+    public boolean hasPermissionToView(Authentication auth, Problem problem) {
+        if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User)) {
+            return false;
+        }
+
+        // admins are automatically allowed to see
+        if (auth.getAuthorities().contains(Role.ROLE_ADMIN)) {
+            return true;
+        }
+
+        User user = (User) auth.getPrincipal();
+
+        // if it is the user that submitted
+        if (getUserId().equals(user.getId())) {
+            return true;
+        }
+        // if the user has solved the problem
+        if (user.getSolved().contains(getProblemId())) {
+            return true;
+        }
+
+        // if the problem does not exist
+        if (problem == null) {
+            return true;
+        }
+        // if the user is an editor
+        if (problem.getEditorIds().contains(user.getId())) {
+            return true;
+        }
+        // deny otherwise
+        return false;
+    }
 
     /**
      * Determines the verdict given based on the submission information.
