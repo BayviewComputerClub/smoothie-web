@@ -10,6 +10,8 @@
 
 Open source judging website. Works in tandem with, and provides a web interface to, [smoothie-runner](https://github.com/BayviewComputerClub/smoothie-runner).
 
+[Get those *beautiful* JARs :coffee:](https://github.com/BayviewComputerClub/smoothie-web/actions?query=workflow%3A%22Build+Smoothie-Web+Jar%22)
+
 ## application.properties
 ```
 # Mongo
