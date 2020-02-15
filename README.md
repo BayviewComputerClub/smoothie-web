@@ -1,6 +1,7 @@
 # smoothie-web
 ![License](https://img.shields.io/github/license/BayviewComputerClub/smoothie-web)
-![Smoothie-Web Jar Build Test](https://github.com/BayviewComputerClub/smoothie-web/workflows/Smoothie-Web%20Jar%20Build%20Test/badge.svg)![Site status](https://img.shields.io/website?label=site&url=https%3A%2F%2Fsmoothie.bayview.club)
+![Smoothie-Web Jar Build Test](https://github.com/BayviewComputerClub/smoothie-web/workflows/Smoothie-Web%20Jar%20Build%20Test/badge.svg)
+![Site status](https://img.shields.io/website?label=site&url=https%3A%2F%2Fsmoothie.bayview.club)
 ![Discord](https://img.shields.io/discord/642159962587529237?color=%23e91e63&label=Discord&logo=Discord)
 ![Commits](https://img.shields.io/github/commit-activity/w/BayviewComputerClub/smoothie-web?label=commits)
 ![Contributor count](https://img.shields.io/github/contributors/BayviewComputerClub/smoothie-web)
