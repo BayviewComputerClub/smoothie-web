@@ -1,6 +1,6 @@
 # smoothie-web
 ![License](https://img.shields.io/github/license/BayviewComputerClub/smoothie-web)
-![(Unnamed workflow)](https://github.com/BayviewComputerClub/smoothie-web/workflows/(Unnamed%20workflow)/badge.svg)
+![Gradle Test](https://github.com/BayviewComputerClub/smoothie-web/workflows/Gradle%20Test/badge.svg)
 ![Site status](https://img.shields.io/website?label=site&url=https%3A%2F%2Fsmoothie.bayview.club)
 ![Discord](https://img.shields.io/discord/642159962587529237?color=%23e91e63&label=Discord&logo=Discord)
 
