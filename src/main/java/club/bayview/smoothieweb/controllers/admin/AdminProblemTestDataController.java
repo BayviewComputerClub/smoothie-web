@@ -3,10 +3,13 @@ package club.bayview.smoothieweb.controllers.admin;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.testdata.StoredTestData;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
+import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -29,6 +32,8 @@ import java.util.zip.ZipInputStream;
 @Controller
 public class AdminProblemTestDataController {
 
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     SmoothieProblemService problemService;
 
@@ -47,7 +52,7 @@ public class AdminProblemTestDataController {
                 .flatMap(p -> {
                     model.addAttribute("problem", p);
                     return Mono.just("admin/edit-problem-testdata");
-                }).onErrorResume(e -> Mono.just("404"));
+                }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /problem/{name}/edit/testdata route exception: "));
     }
 
     @GetMapping("/problem/{name}/edit/testdata/table")
@@ -61,7 +66,7 @@ public class AdminProblemTestDataController {
                     model.addAttribute("testDataForm", new TestDataFileForm());
 
                     return Mono.just("admin/edit-problem-testdata-table");
-                }).onErrorResume(e -> Mono.just("404"));
+                }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /problem/{name}/edit/testdata/table route exception: "));
     }
 
     @GetMapping("/problem/{name}/edit/testdata/file")
@@ -75,7 +80,7 @@ public class AdminProblemTestDataController {
                     model.addAttribute("testDataForm", new TestDataFileForm());
 
                     return Mono.just("admin/edit-problem-testdata-file");
-                }).onErrorResume(e -> Mono.just("404"));
+                }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /problem/{name}/edit/testdata/file route exception: "));
     }
 
     @PostMapping("/problem/{name}/edit/testdata/file")
@@ -105,7 +110,7 @@ public class AdminProblemTestDataController {
                         return Mono.error(e);
                     }
 
-                }).onErrorResume(e -> e instanceof NotFoundException ? Mono.just("404") : Mono.just("500"));
+                }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /problem/{name}/edit/testdata/file route exception: "));
     }
 
     private StoredTestData.TestData getTestCasesFromZip(MultipartFile file) throws IOException {

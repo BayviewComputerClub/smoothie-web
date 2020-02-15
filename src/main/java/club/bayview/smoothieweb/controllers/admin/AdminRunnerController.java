@@ -2,11 +2,14 @@ package club.bayview.smoothieweb.controllers.admin;
 
 import club.bayview.smoothieweb.models.Runner;
 import club.bayview.smoothieweb.services.SmoothieRunnerService;
+import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -25,6 +28,8 @@ import javax.validation.constraints.Size;
 
 @Controller
 public class AdminRunnerController {
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     SmoothieRunnerService runnerService;
@@ -78,7 +83,7 @@ public class AdminRunnerController {
                 .flatMap(runner -> {
                     model.addAttribute("runner", runner);
                     return Mono.just("admin/runner");
-                }).onErrorResume(e -> Mono.just("404"));
+                }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /admin/runner/{name} route exception: "));
     }
 
     @GetMapping("/admin/new-runner")
@@ -102,7 +107,7 @@ public class AdminRunnerController {
                     model.addAttribute("newRunner", false);
                     model.addAttribute("runner", runnerToRunnerForm(runner));
                     return Mono.just("admin/runner-edit");
-                }).onErrorResume(e -> Mono.just("404"));
+                }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /admin/runner/{name}/edit route exception: "));
     }
 
     @PostMapping("/admin/new-runner")
@@ -135,14 +140,12 @@ public class AdminRunnerController {
         return runnerService.findRunnerByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(runner -> {
-                    if (runner == null) return Mono.just("404");
-
                     Runner r = runnerFormToRunner(runner, form);
                     runnerService.updateSmoothieRunner(r);
                     return runnerService.saveRunner(r);
                 })
-                .onErrorResume(e -> Mono.just("404"))
-                .then(Mono.just("redirect:/admin/runners"));
+                .flatMap(b -> Mono.just("redirect:/admin/runners"))
+                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /admin/runner/{name}/edit route exception: "));
     }
 
     private Runner runnerFormToRunner(Runner runner, RunnerForm form) {

@@ -3,11 +3,14 @@ package club.bayview.smoothieweb.controllers.admin;
 import club.bayview.smoothieweb.models.JudgeLanguage;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
+import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -26,6 +29,8 @@ import java.util.List;
 
 @Controller
 public class AdminProblemController {
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     SmoothieProblemService problemService;
@@ -135,7 +140,7 @@ public class AdminProblemController {
             model.addAttribute("problem", problemToProblemForm(p));
             model.addAttribute("languages", JudgeLanguage.values);
             return Mono.just("admin/edit-problem");
-        }).onErrorResume(e -> Mono.just("404"));
+        }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /problem/{name}/edit route exception: "));
     }
 
     @GetMapping("/problem/{name}/manage")
@@ -162,7 +167,7 @@ public class AdminProblemController {
                     model.addAttribute("problem", p);
                     return Mono.just("admin/delete-problem");
                 })
-                .onErrorResume(e -> Mono.just("404"));
+                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /problem/{name}/delete route exception: "));
     }
 
     @PostMapping("/problem/{name}/delete")
@@ -173,7 +178,7 @@ public class AdminProblemController {
         return problemService.findProblemByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(p -> problemService.deleteProblemById(p.getId()).then(Mono.just("redirect:/problems")))
-                .onErrorResume(e -> Mono.just("404"));
+                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /problem/{name}/delete route exception: "));
     }
 
     @PostMapping("/admin/new-problem")
@@ -204,9 +209,11 @@ public class AdminProblemController {
             return Mono.just("admin/edit-problem");
         } else {
             // save problem
-            return problemService.findProblemByName(name).switchIfEmpty(Mono.error(new NotFoundException()))
-                    .flatMap(originalProblem -> problemService.saveProblem(form.toProblem(originalProblem))
-                            .then(Mono.just("redirect:/problem/" + name))).onErrorResume(e -> Mono.just("404"));
+            return problemService.findProblemByName(name)
+                    .switchIfEmpty(Mono.error(new NotFoundException()))
+                    .flatMap(originalProblem -> problemService.saveProblem(form.toProblem(originalProblem)))
+                    .flatMap(b -> Mono.just("redirect:/problem/" + name))
+                    .onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /problem/{name}/edit route exception: "));
         }
     }
 

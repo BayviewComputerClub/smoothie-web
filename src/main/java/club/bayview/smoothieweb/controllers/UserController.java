@@ -3,12 +3,15 @@ package club.bayview.smoothieweb.controllers;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
+import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NotFoundException;
 import club.bayview.smoothieweb.util.SessionUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -26,6 +29,8 @@ import java.security.Principal;
 
 @Controller
 public class UserController {
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     SmoothieUserService userService;
@@ -54,7 +59,7 @@ public class UserController {
     }
 
     @GetMapping("/user/{handle}")
-    public Mono<String> getProfileRoute(@PathVariable String handle, Model model, Authentication auth, Principal principal) {
+    public Mono<String> getProfileRoute(@PathVariable String handle, Model model, Principal principal) {
         return userService.findUserByHandle(handle)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(user -> {
@@ -66,7 +71,7 @@ public class UserController {
                     model.addAttribute("user", user);
                     return Mono.just("user/profile");
                 })
-                .onErrorResume(e -> Mono.just("404"));
+                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /user/{handle} route exception: "));
     }
 
     @GetMapping("/user/{handle}/edit")
@@ -84,7 +89,7 @@ public class UserController {
                     model.addAttribute("user", user);
                     return Mono.just("user/edit-profile");
                 })
-                .onErrorResume(e -> Mono.just("404"));
+                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /user/{name}/edit route exception: "));
     }
 
     @PostMapping("/user/{handle}/edit")
@@ -106,7 +111,7 @@ public class UserController {
                     return userService.saveUser(form.toUser(user))
                             .flatMap(user1 -> Mono.just("redirect:/user/" + user.getHandle()));
                 })
-                .onErrorResume(e -> Mono.just("404"));
+                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /user/{handle}/edit route exception: "));
     }
 
     @Getter
@@ -135,7 +140,7 @@ public class UserController {
                     model.addAttribute("user", user);
                     return Mono.just("user/edit-user");
                 })
-                .onErrorResume(e -> Mono.just("404"));
+                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /account/settings route exception: "));
     }
 
     @GetMapping("/account/change-password")
@@ -148,7 +153,7 @@ public class UserController {
                     model.addAttribute("user", user);
                     return Mono.just("user/change-password");
                 })
-                .onErrorResume(e -> Mono.just("404"));
+                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /account/change-password route exception: "));
     }
 
     @PostMapping("/account/change-password")
@@ -170,6 +175,6 @@ public class UserController {
 
                     return userService.saveUser(form.toUser(user))
                             .flatMap(user1 -> Mono.just("redirect:/account/settings"));
-                }).onErrorResume(e -> Mono.just("404"));
+                }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /account/change-password route exception: "));
     }
 }

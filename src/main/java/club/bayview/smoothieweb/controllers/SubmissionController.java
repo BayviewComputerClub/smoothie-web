@@ -1,9 +1,7 @@
 package club.bayview.smoothieweb.controllers;
 
 import club.bayview.smoothieweb.models.Problem;
-import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
-import club.bayview.smoothieweb.services.SmoothieQueuedSubmissionService;
 import club.bayview.smoothieweb.services.SmoothieSubmissionService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import club.bayview.smoothieweb.util.NotFoundException;
@@ -26,7 +24,7 @@ import java.util.List;
 @Controller
 public class SubmissionController {
 
-    private Logger logger = LoggerFactory.getLogger(SubmissionController.class);
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private SmoothieSubmissionService submissionService;

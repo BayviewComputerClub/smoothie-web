@@ -3,10 +3,13 @@ package club.bayview.smoothieweb.controllers.admin;
 import club.bayview.smoothieweb.models.Role;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieUserService;
+import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -21,6 +24,8 @@ import javax.validation.Valid;
 
 @Controller
 public class AdminAccountController {
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     SmoothieUserService userService;
@@ -87,7 +92,7 @@ public class AdminAccountController {
                     model.addAttribute("form", new AdminAccountEditForm(user));
                     return Mono.just("admin/manage-user");
                 })
-                .onErrorResume(e -> Mono.just("404"));
+                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /user/{handle}/admin route exception: "));
     }
 
     @PostMapping("/user/{handle}/admin")
@@ -100,14 +105,7 @@ public class AdminAccountController {
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(user -> userService.saveUser(form.toUser(user)))
                 .flatMap(user -> Mono.just("redirect:/user/" + user.getHandle() + "/admin"))
-                .onErrorResume(e -> {
-                    if (e instanceof NotFoundException) {
-                        return Mono.just("404");
-                    } else {
-                        e.printStackTrace();
-                        return Mono.just("500");
-                    }
-                });
+                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /user/{handle}/admin route exception: "));
     }
 
 }

@@ -3,8 +3,11 @@ package club.bayview.smoothieweb.controllers.admin;
 import club.bayview.smoothieweb.controllers.PostController;
 import club.bayview.smoothieweb.models.Post;
 import club.bayview.smoothieweb.services.SmoothiePostService;
+import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NotFoundException;
 import club.bayview.smoothieweb.util.SmUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
@@ -15,6 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import reactor.core.publisher.Mono;
 
 public class AdminPostController {
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     SmoothiePostService postService;
@@ -35,7 +40,7 @@ public class AdminPostController {
                     model.addAttribute("form", new PostController.PostForm(post));
                     return Mono.just("admin/new-post");
                 })
-                .onErrorResume(e -> Mono.just("404"));
+                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /admin/{post}/{slug}/{id} route exception: "));
     }
 
     @PostMapping("/admin/new-post")
@@ -71,7 +76,7 @@ public class AdminPostController {
                     return postService.savePost(post);
                 })
                 .flatMap(post -> Mono.just("redirect:/post/global/" + post.getSlug() + "/" + post.getId()))
-                .onErrorResume(e -> Mono.just("404"));
+                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /admin/post/{slug}/{id} route exception: "));
     }
 
 
