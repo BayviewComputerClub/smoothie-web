@@ -24,11 +24,6 @@ import java.util.List;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Bean
-    public AccessDecisionManager accessDecisionManager() {
-        return new UnanimousBased(Arrays.asList(new SubmissionAccessVoter()));
-    }
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
