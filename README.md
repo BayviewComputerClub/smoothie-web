@@ -8,7 +8,7 @@
 ![Latest commit](https://img.shields.io/github/last-commit/BayviewComputerClub/smoothie-web)
 ![Maintenance](https://img.shields.io/maintenance/yes/2020)
 
-Open source judging website. Works in tandem with, and provides a web interface to, [smoothie-runner](https://github.com/BayviewComputerClub/smoothie-runner). 
+Open source judging website. Works in tandem with, and provides a web interface to, [smoothie-runner](https://github.com/BayviewComputerClub/smoothie-runner).
 
 ## application.properties
 ```
