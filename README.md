@@ -5,7 +5,7 @@
 ![Discord](https://img.shields.io/discord/642159962587529237?color=%23e91e63&label=Discord&logo=Discord)
 ![Commits](https://img.shields.io/github/commit-activity/w/BayviewComputerClub/smoothie-web?label=commits)
 ![Contributor count](https://img.shields.io/github/contributors/BayviewComputerClub/smoothie-web)
-![Smoothie-Web Jar Build Test](https://github.com/BayviewComputerClub/smoothie-web/workflows/Smoothie-Web%20Jar%20Build%20Test/badge.svg)
+![Latest commit](https://img.shields.io/github/last-commit/BayviewComputerClub/smoothie-web)
 ![Maintenance](https://img.shields.io/maintenance/yes/2020)
 
 Open source judging website. Works in tandem with, and provides a web interface to, [smoothie-runner](https://github.com/BayviewComputerClub/smoothie-runner).
