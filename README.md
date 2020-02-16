@@ -14,8 +14,8 @@ Open source judging website. Works in tandem with, and provides a web interface 
 Install gradle, and in a terminal, run:
 
 ```shell script
-$ gradle wrapper
-$ ./gradlew build
+gradle wrapper
+./gradlew build
  ```
 The compiled JAR file will be in build/libs/.
 
