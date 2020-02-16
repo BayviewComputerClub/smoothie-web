@@ -44,7 +44,7 @@ Open source judging website. Works in tandem with, and provides a web interface 
 2. If you want, make an `application.properties` file in the same folder as the JAR. See [application.properties](#applicationproperties) below.
 3. Run the JAR. You can use the command:
     ```shell script
-    java -jar $1 smoothie-web.jar
+    java -jar smoothie-web.jar # add --debug flag to debug
     ```
 
 ##### Go to http://localhost:8080/ to use smoothie-web.
