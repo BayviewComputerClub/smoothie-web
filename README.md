@@ -12,6 +12,7 @@ Open source judging website. Works in tandem with, and provides a web interface 
 
 ### Build from source
 Install gradle, and in a terminal, run:
+
     ```shell script
     $ gradle wrapper
     $ ./gradlew build
