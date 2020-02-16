@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
@@ -19,11 +21,16 @@ import org.springframework.web.context.request.RequestContextListener;
 @EnableReactiveMongoRepositories
 @EnableScheduling
 @EnableAsync
-public class SmoothieWebApplication {
+public class SmoothieWebApplication extends SpringBootServletInitializer {
 
     private Logger logger = LoggerFactory.getLogger(SmoothieWebApplication.class);
 
     public static ApplicationContext context;
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(SmoothieWebApplication.class);
+    }
 
     public static void main(String[] args) {
         context = SpringApplication.run(SmoothieWebApplication.class, args);
