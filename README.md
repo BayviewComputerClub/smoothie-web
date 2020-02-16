@@ -2,11 +2,16 @@
 ![License](https://img.shields.io/github/license/BayviewComputerClub/smoothie-web)
 ![Smoothie-Web JAR Build Test](https://github.com/BayviewComputerClub/smoothie-web/workflows/Smoothie-Web%20JAR%20Build/badge.svg)
 ![Site status](https://img.shields.io/website?label=site&url=https%3A%2F%2Fsmoothie.bayview.club)
-![Discord](https://img.shields.io/discord/642159962587529237?color=%23e91e63&label=Discord&logo=Discord)
-![Commits](https://img.shields.io/github/commit-activity/w/BayviewComputerClub/smoothie-web?label=commits)
+![Language count](https://img.shields.io/github/languages/count/BayviewComputerClub/smoothie-web)
+![Top language](https://img.shields.io/github/languages/top/BayviewComputerClub/smoothie-web)
+![Repo size](https://img.shields.io/github/repo-size/BayviewComputerClub/smoothie-web)
+![Open issues](https://img.shields.io/github/issues-raw/BayviewComputerClub/smoothie-web)
+![Closed issues](https://img.shields.io/github/issues-closed-raw/BayviewComputerClub/smoothie-web)
 ![Contributor count](https://img.shields.io/github/contributors/BayviewComputerClub/smoothie-web)
+![Commits](https://img.shields.io/github/commit-activity/w/BayviewComputerClub/smoothie-web?label=commits)
 ![Latest commit](https://img.shields.io/github/last-commit/BayviewComputerClub/smoothie-web)
 ![Maintenance](https://img.shields.io/maintenance/yes/2020)
+![Discord](https://img.shields.io/discord/642159962587529237?color=%23e91e63&label=Discord&logo=Discord)
 
 Open source judging website. Works in tandem with, and provides a web interface to, [smoothie-runner](https://github.com/BayviewComputerClub/smoothie-runner).
 
