@@ -11,6 +11,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
@@ -112,6 +113,11 @@ public class Contest {
         List<ContestProblem> list = new ArrayList<>(contestProblems.values());
         Collections.sort(list);
         return list;
+    }
+
+    // TODO
+    public boolean hasPermissionToView(Authentication authentication) {
+        return true;
     }
 
     // use insertion sort sorta to make leader board

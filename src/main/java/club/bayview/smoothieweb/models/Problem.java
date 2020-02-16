@@ -8,6 +8,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
@@ -131,5 +132,9 @@ public class Problem {
                 .build()));
     }
 
+    // TODO
+    public boolean hasPermissionToView(Authentication auth) {
+        return true;
+    }
 
 }

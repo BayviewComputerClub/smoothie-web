@@ -17,4 +17,12 @@ public class ErrorCommon {
             return Mono.just("500");
         }
     }
+
+    // handles 403 (no permission) and 404 not found
+    public static Mono<String> handleBasic(Throwable e, Logger logger, String errorMsg) {
+        if (e instanceof NoPermissionException) {
+            return Mono.just("no");
+        }
+        return handle404(e, logger, errorMsg);
+    }
 }
