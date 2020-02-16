@@ -1,5 +1,4 @@
-# YML Sucks
-name: Smoothie-Web Jar Build Test
+name: Smoothie-Web JAR Build
 
 on: [push]
 
