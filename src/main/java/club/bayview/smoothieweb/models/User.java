@@ -2,6 +2,8 @@ package club.bayview.smoothieweb.models;
 
 import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.security.SmoothieAuthenticationProvider;
+import club.bayview.smoothieweb.services.SmoothieProblemService;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
  * Represents a user on the site.
  */
 
-@Document(collation = "{ 'locale' : 'en_US', 'strength': 2 }") // indexes case insensitive
+@Document(collation =  "{ 'locale' : 'en_US', 'strength': 2 }") // indexes case insensitive
 @Getter
 @Setter
 @ToString
@@ -77,7 +79,7 @@ public class User implements UserDetails, Serializable {
 
     public void encodePassword() {
         //this.password = SmoothieWebApplication.context.getBean(SmoothieAuthenticationProvider.class).passwordEncoder.encode(this.password);
-        this.password = new Argon2PasswordEncoder().encode(this.password); // TODO
+        this.password =  new Argon2PasswordEncoder().encode(this.password); // TODO
     }
 
     public boolean isAdmin() {

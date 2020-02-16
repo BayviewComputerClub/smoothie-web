@@ -2,6 +2,7 @@ package club.bayview.smoothieweb.models;
 
 import club.bayview.smoothieweb.models.testdata.StoredTestData;
 import club.bayview.smoothieweb.util.Verdict;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -133,7 +134,6 @@ public class Submission {
     /**
      * Calculate the amount of points that should be given for the submission.
      * Should be run AFTER the verdict is determined.
-     *
      * @param p the problem that the submission is for
      */
 
@@ -154,7 +154,7 @@ public class Submission {
                     }
                     // determine if the batch has passed
                     if (isAC) {
-                        points += (double) p.getProblemBatches().get(i).getPointsWorth() / 100 * p.getTotalPointsWorth(); // TODO round maybe
+                        points += (double)p.getProblemBatches().get(i).getPointsWorth() / 100 * p.getTotalPointsWorth(); // TODO round maybe
                     }
                 }
 

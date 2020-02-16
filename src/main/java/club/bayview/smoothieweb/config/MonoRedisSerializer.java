@@ -12,7 +12,7 @@ import java.io.ByteArrayOutputStream;
 public class MonoRedisSerializer implements RedisSerializer<Object> {
     Kryo kryo = new Kryo();
 
-    MonoRedisSerializer() {
+    MonoRedisSerializer () {
         kryo.register(Mono.class);
         kryo.setRegistrationRequired(false);
     }

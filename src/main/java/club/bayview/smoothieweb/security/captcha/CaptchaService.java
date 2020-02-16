@@ -37,7 +37,6 @@ public class CaptchaService {
 
     public static final class ReCaptchaUnavailableException extends RuntimeException {
         private static final long serialVersionUID = 5861310537366287163L;
-
         public ReCaptchaUnavailableException(final String message, final Throwable cause) {
             super(message, cause);
         }
@@ -45,7 +44,6 @@ public class CaptchaService {
 
     public static final class ReCaptchaInvalidException extends RuntimeException {
         private static final long serialVersionUID = 5861310537366287163L;
-
         public ReCaptchaInvalidException(final String message) {
             super(message);
         }

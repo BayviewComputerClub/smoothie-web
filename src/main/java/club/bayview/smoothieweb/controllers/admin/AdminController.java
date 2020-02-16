@@ -2,6 +2,7 @@ package club.bayview.smoothieweb.controllers.admin;
 
 import club.bayview.smoothieweb.models.GeneralSettings;
 import club.bayview.smoothieweb.services.SmoothieSettingsService;
+import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

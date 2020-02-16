@@ -91,9 +91,8 @@
 
 <div th:replace="fragments/header :: header"></div>
 
-<div class="container">
-    <h1>Code for <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a> submission in
-        [[${submission.lang}]] by [[${user.handle}]]</h1>
+<div class="container" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <h1>Code for <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a> submission in [[${submission.lang}]] by [[${user.handle}]]</h1>
 
     <div class="topbar">
         <div class="topbar-item">
@@ -112,8 +111,8 @@
 
 <script>
     let timeSubmitted = document.getElementById("time-submitted");
-    let date = new Date(timeSubmitted.innerText * 1000);
-    timeSubmitted.innerText = ("0" + (date.getMonth() + 1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear() + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+    let date = new Date(timeSubmitted.innerText*1000);
+    timeSubmitted.innerText = ("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear() + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.6/ace.js"></script>

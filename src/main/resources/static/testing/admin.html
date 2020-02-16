@@ -82,7 +82,6 @@
         .header-title {
             margin-right: 10px;
         }
-
         .header-right {
             float: right;
         }
@@ -92,7 +91,6 @@
             font-family: Metropolis-bold, sans-serif;
             line-height: 128px;
         }
-
         p {
             font-size: 32px;
             font-family: Metropolis, sans-serif;
@@ -144,16 +142,16 @@
 <header xmlns:th="http://www.thymeleaf.org">
     <a href="/" class="header-admin-title"><b>Smoothie-Web</b></a>
     <a href="/general"></a>
-    <a href="/problems">Problems</a>
-    <a href="/contests" th:href="@{/contests}">Contests</a>
-    <a href="/ranking" th:href="@{/ranking}">Users</a>
+    <a href="/problems" >Problems</a>
+    <a href="/contests" th:href="@{/contests}" >Contests</a>
+    <a href="/ranking" th:href="@{/ranking}" >Users</a>
 </header>
 
 <div class="header-admin" xmlns:th="http://www.thymeleaf.org">
     <a href="/" th:href="@{/admin}" class="header-admin-title"><b>Admin Panel</b></a>
-    <a href="/admin/problems" th:href="@{/admin/problems}">Problems</a>
-    <a href="/admin/contests" th:href="@{/admin/contests}">Contests</a>
-    <a href="/admin/pages" th:href="@{/admin/pages}">Pages</a>
+    <a href="/admin/problems" th:href="@{/admin/problems}" >Problems</a>
+    <a href="/admin/contests" th:href="@{/admin/contests}" >Contests</a>
+    <a href="/admin/pages" th:href="@{/admin/pages}" >Pages</a>
     <a href="/admin/users" th:href="@{/admin/users}">Users</a>
     <a href="/admin/runners" th:href="@{/admin/runners}">Runners</a>
     <a href="/admin/general" th:href="@{/admin/general}">General</a>
