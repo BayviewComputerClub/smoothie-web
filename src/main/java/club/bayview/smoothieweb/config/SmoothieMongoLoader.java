@@ -78,6 +78,7 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
         return true;
     }
 
+    // Default mongo objects
     @PostConstruct
     public void init() {
 

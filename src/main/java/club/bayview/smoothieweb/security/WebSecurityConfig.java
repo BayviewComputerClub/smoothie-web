@@ -38,7 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .and()
-                .csrf()
+                .csrf() // todo
                 .disable()
                 .logout()
                 .logoutSuccessUrl("/")
