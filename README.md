@@ -47,7 +47,7 @@ Open source judging website. Works in tandem with, and provides a web interface 
     java -jar smoothie-web.jar # add --debug flag to debug
     ```
 
-##### Go to http://localhost:8080/ to use smoothie-web.
+#### Go to http://localhost:8080/ to use smoothie-web.
 
 ## Configuration
 You'll want to setup [smoothie-runner](https://github.com/BayviewComputerClub/smoothie-runner).
@@ -68,7 +68,7 @@ You'll want to setup [smoothie-runner](https://github.com/BayviewComputerClub/sm
 
 You may also want to configure recaptcha.
 
-## application.properties
+### application.properties
 ```
 # These are useful to change
 # Mongo
