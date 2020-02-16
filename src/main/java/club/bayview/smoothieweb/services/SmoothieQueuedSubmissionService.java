@@ -2,8 +2,8 @@ package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.QueuedSubmission;
-import club.bayview.smoothieweb.repositories.QueuedSubmissionRepository;
 import club.bayview.smoothieweb.models.Submission;
+import club.bayview.smoothieweb.repositories.QueuedSubmissionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

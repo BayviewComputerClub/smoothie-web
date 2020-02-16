@@ -82,6 +82,7 @@
         .header-title {
             margin-right: 10px;
         }
+
         .header-right {
             float: right;
         }
@@ -91,6 +92,7 @@
             font-family: Metropolis-bold, sans-serif;
             line-height: 128px;
         }
+
         p {
             font-size: 32px;
             font-family: Metropolis, sans-serif;
@@ -143,11 +145,13 @@
             height: 14px;
             top: 8px;
         }
+
         .checkbox-switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
+
         .checkbox-slider {
             position: absolute;
             cursor: pointer;
@@ -160,35 +164,41 @@
             transition: .4s;
             border-radius: 34px;
         }
+
         .checkbox-slider:before {
             position: absolute;
             content: "";
             height: 26px;
             width: 26px;
             bottom: -6px;
-            background-color: rgba(255,255,255,0.5);
+            background-color: rgba(255, 255, 255, 0.5);
             -webkit-transition: .4s;
             transition: .4s;
             border-radius: 50%;
         }
+
         input:checked + .checkbox-slider {
             background-color: rgba(66, 66, 66, 0.8);
         }
+
         input:focus + .checkbox-slider {
             box-shadow: 0 0 1px rgba(66, 66, 66, 0.8);
         }
+
         .checkbox-slider {
             transition: box-shadow 0.5s;
         }
+
         .checkbox-slider:active {
             box-shadow: 1px 1px 15px 0 #FFFFFF;
             transition: box-shadow 0.1s;
         }
+
         input:checked + .checkbox-slider:before {
             -webkit-transform: translateX(26px);
             -ms-transform: translateX(26px);
             transform: translateX(26px);
-            background-color: rgba(255,255,255,1);
+            background-color: rgba(255, 255, 255, 1);
             box-shadow: 1px 1px 10px 0 #FFFFFF;
             transition: .4s;
         }
@@ -196,6 +206,7 @@
         input[type="file"] {
             display: none;
         }
+
         input[type="submit"] {
             cursor: pointer;
             margin-top: 40px;
@@ -213,16 +224,19 @@
             color: white;
             transition: box-shadow 0.5s;
         }
+
         input[type="submit"]:hover {
             box-shadow: 1px 1px 15px 0 #FFFFFF;
             transition: box-shadow 0.5s;
         }
+
         label {
             font-size: 20px;
             font-family: Nunito, sans-serif;
             line-height: 1.5;
             color: #424242;
         }
+
         .file-upload-box {
             display: inline-block;
             -webkit-user-select: none;
@@ -241,6 +255,7 @@
             line-height: 1;
             transition: box-shadow 0.5s;
         }
+
         .file-upload-box:hover {
             box-shadow: 1px 1px 15px 0 #FFFFFF;
             transition: box-shadow 0.5s;
@@ -258,16 +273,16 @@
 <header xmlns:th="http://www.thymeleaf.org">
     <a href="/" class="header-admin-title"><b>Smoothie-Web</b></a>
     <a href="/general"></a>
-    <a href="/problems" >Problems</a>
-    <a href="/contests" th:href="@{/contests}" >Contests</a>
-    <a href="/ranking" th:href="@{/ranking}" >Users</a>
+    <a href="/problems">Problems</a>
+    <a href="/contests" th:href="@{/contests}">Contests</a>
+    <a href="/ranking" th:href="@{/ranking}">Users</a>
 </header>
 
 <div class="header-admin" xmlns:th="http://www.thymeleaf.org">
     <a href="/" th:href="@{/admin}" class="header-admin-title"><b>Admin Panel</b></a>
-    <a href="/admin/problems" th:href="@{/admin/problems}" >Problems</a>
-    <a href="/admin/contests" th:href="@{/admin/contests}" >Contests</a>
-    <a href="/admin/pages" th:href="@{/admin/pages}" >Pages</a>
+    <a href="/admin/problems" th:href="@{/admin/problems}">Problems</a>
+    <a href="/admin/contests" th:href="@{/admin/contests}">Contests</a>
+    <a href="/admin/pages" th:href="@{/admin/pages}">Pages</a>
     <a href="/admin/users" th:href="@{/admin/users}">Users</a>
     <a href="/admin/runners" th:href="@{/admin/runners}">Runners</a>
     <a href="/admin/general" th:href="@{/admin/general}">General</a>
@@ -276,26 +291,26 @@
 <div class="container">
     <h1>Edit Problem</h1>
     <p>
-        <form method="POST">
+    <form method="POST">
 
-            <div class="inputContainer">
-                <label for="problem_id">
-                    Problem ID
-                </label>
-                <br/>
-                <input type="text" id="problem_id" name="problem_id" placeholder="problem id">
-            </div>
+        <div class="inputContainer">
+            <label for="problem_id">
+                Problem ID
+            </label>
+            <br/>
+            <input type="text" id="problem_id" name="problem_id" placeholder="problem id">
+        </div>
 
-            <div class="inputContainer">
-                <label for="problem_name">
-                    Problem Name
-                </label>
-                <br/>
-                <input type="text" id="problem_name" name="problem_name" placeholder="name">
-            </div>
+        <div class="inputContainer">
+            <label for="problem_name">
+                Problem Name
+            </label>
+            <br/>
+            <input type="text" id="problem_name" name="problem_name" placeholder="name">
+        </div>
 
 
-        </form>
+    </form>
     </p>
 </div>
 </body>

@@ -2,17 +2,15 @@ package club.bayview.smoothieweb.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.http.HttpMethod;
-
-// Reactive Web Client
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+// Reactive Web Client
 
 @Controller
 public class PageController {
@@ -50,7 +48,7 @@ public class PageController {
 
     private static String cmsHost = "http://localhost:3000";
 
-    public String getRootRoute(Model model) throws Exception{
+    public String getRootRoute(Model model) throws Exception {
 
         PageResponse pageResponse;
         try {
@@ -74,7 +72,7 @@ public class PageController {
 
         PageResponse pageResponse = getPageResponseBySlug(slug);
 
-        if(pageResponse.pages.length == 0) {
+        if (pageResponse.pages.length == 0) {
             return "404";
         }
 
