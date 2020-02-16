@@ -4,14 +4,17 @@ import club.bayview.smoothieweb.SmoothieRunner;
 import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.models.testdata.StoredTestData;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import reactor.core.publisher.Mono;
 
-import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a programming problem on the site.

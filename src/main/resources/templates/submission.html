@@ -61,7 +61,8 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>Submission for <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a> in [[${submission.lang}]] by [[${user.handle}]]</h1>
+    <h1>Submission for <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a> in
+        [[${submission.lang}]] by [[${user.handle}]]</h1>
 
     <div class="topbar">
         <div class="topbar-item">
@@ -74,7 +75,9 @@
         </div>
         <div class="topbar-item">
             <a class="button-link" th:href="@{'/submission/' + ${submission.id} + '/code'}">Code</a>
-            <a class="button-link" th:href="@{'/submission/' + ${submission.id} + '/resubmit'}" sec:authorize="isAuthenticated()" th:if="${user.handle} == ${#authentication.getPrincipal().getUsername()}">Resubmit</a>
+            <a class="button-link" th:href="@{'/submission/' + ${submission.id} + '/resubmit'}"
+               sec:authorize="isAuthenticated()"
+               th:if="${user.handle} == ${#authentication.getPrincipal().getUsername()}">Resubmit</a>
         </div>
     </div>
 
@@ -88,7 +91,8 @@
             Batch #[[${iter.index}+1]]:
             <ul>
                 <li th:each="case, iter2 : ${batch}" th:id="'batch-' + ${iter.index} + '-case-' + ${iter2.index}">
-                    Case #[[${iter2.index}+1]]: [[${case.resultCode}]] (<span class="case-time">[[${case.time}]]</span>s) ([[${case.memUsage}]]MB)
+                    Case #[[${iter2.index}+1]]: [[${case.resultCode}]] (<span class="case-time">[[${case.time}]]</span>s)
+                    ([[${case.memUsage}]]MB)
                 </li>
             </ul>
         </li>
@@ -113,7 +117,7 @@
             stompClient.subscribe('/live-submission/' + id, c => {
                 console.log(c);
                 JSON.parse(c.body).forEach(sub => {
-                    $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber+1) + ": " + sub.resultCode + " (" + (Math.round(sub.time*100)/100).toFixed(3) + "s) (" + sub.memUsage + "MB)");
+                    $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber + 1) + ": " + sub.resultCode + " (" + (Math.round(sub.time * 100) / 100).toFixed(3) + "s) (" + sub.memUsage + "MB)");
                 });
             });
         });
@@ -122,14 +126,14 @@
     $(() => {
         // properly format time
         let timeSubmitted = $("#time-submitted");
-        let date = new Date(timeSubmitted.text()*1000);
-        timeSubmitted.text(("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear() + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2));
+        let date = new Date(timeSubmitted.text() * 1000);
+        timeSubmitted.text(("0" + (date.getMonth() + 1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear() + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2));
 
         // connect to websocket
         connect();
 
         $(".case-time").each((i, obj) => {
-            obj.innerText = (Math.round(obj.innerText*100)/100).toFixed(3);
+            obj.innerText = (Math.round(obj.innerText * 100) / 100).toFixed(3);
         })
     })
 

@@ -2,7 +2,6 @@ package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.SmoothieRunnerAPIGrpc;
 import club.bayview.smoothieweb.SmoothieWebApplication;
-import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.Runner;
 import club.bayview.smoothieweb.models.Submission;
 import com.google.protobuf.ByteString;
@@ -13,7 +12,6 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.concurrent.atomic.AtomicReference;
 

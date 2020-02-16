@@ -12,7 +12,7 @@ import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "success", "challenge_ts", "hostname", "error-codes" })
+@JsonPropertyOrder({"success", "challenge_ts", "hostname", "error-codes"})
 @Getter
 @Setter
 public class GoogleResponse {

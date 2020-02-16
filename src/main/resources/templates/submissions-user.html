@@ -24,12 +24,17 @@
             <th>Language</th>
             <th>Date</th>
         </tr>
-        <tr><th colspan="5"><hr/></th></tr>
+        <tr>
+            <th colspan="5">
+                <hr/>
+            </th>
+        </tr>
         </thead>
         <tbody>
 
         <tr th:each="submission: ${submissions}">
-            <td><a th:href="@{'/problem/' + ${problems.get(submission.problemId)?.name}}" th:text="${problems.get(submission.problemId)?.prettyName}"></a></td>
+            <td><a th:href="@{'/problem/' + ${problems.get(submission.problemId)?.name}}"
+                   th:text="${problems.get(submission.problemId)?.prettyName}"></a></td>
             <td><a th:href="@{'/submission/' + ${submission.id}}" th:text="${submission.id}"></a></td>
             <td th:text="${submission.verdict}"></td>
             <td th:text="${submission.lang}"></td>
@@ -45,8 +50,8 @@
     $(() => {
         $(".timeSubmitted").each((i, obj) => {
             // properly format time
-            let date = new Date(obj.innerText*1000);
-            obj.innerText = ("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear() + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+            let date = new Date(obj.innerText * 1000);
+            obj.innerText = ("0" + (date.getMonth() + 1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear() + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
         });
     })
 </script>
