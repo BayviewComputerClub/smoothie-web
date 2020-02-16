@@ -1,12 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-
+<head th:include="fragments/global-head :: global-head (pageName='Login')">
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
-
-    <title>smoothie-web</title>
 
     <style>
         .material-icons {

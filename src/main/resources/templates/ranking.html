@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>smoothie-web</title>
+<head th:include="fragments/global-head :: global-head (pageName='Rankings')">
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
@@ -33,7 +31,7 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>Ranking</h1>
+    <h1>Rankings</h1>
     <table style="width: 80%">
         <tr>
             <th>Name</th>
