@@ -19,8 +19,8 @@ $ ./gradlew build
  ```
 The compiled JAR file will be in build/libs/.
 
-### Precompiled JAR
-[Download the JAR :coffee:](https://github.com/BayviewComputerClub/smoothie-web/actions?query=workflow%3A%22Smoothie-Web+JAR+Build%22)
+### Precompiled JAR/WAR
+[Download the JAR/WAR :coffee:](https://github.com/BayviewComputerClub/smoothie-web/actions?query=workflow%3A%22Smoothie-Web+Build%22)
 
 ## Installation
 [Wiki](https://github.com/BayviewComputerClub/smoothie-web/wiki/Installation)
