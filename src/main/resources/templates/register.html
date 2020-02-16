@@ -33,7 +33,6 @@
             font-size: 24px;
             animation: 2s words-in;
         }
-
         .inputbox {
             padding: 10px;
             font-family: 'Nunito', sans-serif;
@@ -46,7 +45,6 @@
             animation-duration: 1.5s;
             width: 270px;
         }
-
         .inputbox:focus {
             outline: 0;
         }
@@ -74,44 +72,36 @@
             box-sizing: content-box;
             outline: none;
         }
-
         #register:hover {
             box-shadow: 1px 1px 15px 0 #424242;
             transition: box-shadow 0.5s;
         }
-
         .boxes {
             box-shadow: 1px 1px 7px 0 #424242;
             border-radius: 7px;
             transition: box-shadow 0.5s;
         }
-
         .boxes:hover {
             box-shadow: 1px 1px 20px 0 #424242;
             transition: box-shadow 0.5s;
         }
-
         #usernameBox {
             border-top-left-radius: 10px;
             border-top-right-radius: 10px;
         }
-
         #passwordBox {
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
         }
-
         #register:focus {
             outline: 0;
         }
-
         body {
             -webkit-background-size: cover;
             -moz-background-size: cover;
             -o-background-size: cover;
             background-size: cover;
         }
-
         @keyframes words-in {
             0% {
                 transform: translateY(40px);
@@ -147,8 +137,7 @@
             <br/>
             <input type="password" id="confirmPassword" placeholder="password" required class="inputbox">
             <br/>
-            <input type="password" id="passwordBox" name="password" placeholder="confirm password" required
-                   class="inputbox">
+            <input type="password" id="passwordBox" name="password" placeholder="confirm password" required class="inputbox">
         </div>
         <br/>
         <div class="g-recaptcha col-sm-5"
@@ -167,8 +156,8 @@
 
     let password = document.getElementById("confirmPassword"), confirmPassword = document.getElementById("passwordBox");
 
-    function validatePassword() {
-        if (password.value != confirmPassword.value) {
+    function validatePassword(){
+        if(password.value != confirmPassword.value) {
             confirmPassword.setCustomValidity("Passwords Don't Match");
         } else {
             confirmPassword.setCustomValidity('');

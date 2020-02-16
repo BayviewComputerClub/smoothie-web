@@ -39,7 +39,6 @@
             font-size: 24px;
             animation: 2s words-in;
         }
-
         .inputbox {
             padding: 10px;
             font-family: 'Nunito', sans-serif;
@@ -52,7 +51,6 @@
             animation-duration: 1.5s;
             width: 270px;
         }
-
         .inputbox:focus {
             outline: 0;
         }
@@ -79,44 +77,36 @@
             transition: box-shadow 0.5s;
             box-sizing: content-box;
         }
-
         #login:hover {
             box-shadow: 1px 1px 15px 0 #424242;
             transition: box-shadow 0.5s;
         }
-
         .boxes {
             box-shadow: 1px 1px 7px 0 #424242;
             border-radius: 7px;
             transition: box-shadow 0.5s;
         }
-
         .boxes:hover {
             box-shadow: 1px 1px 20px 0 #424242;
             transition: box-shadow 0.5s;
         }
-
         #usernameBox {
             border-top-left-radius: 10px;
             border-top-right-radius: 10px;
         }
-
         #passwordBox {
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
         }
-
         #login:focus {
             outline: 0;
         }
-
         body {
             -webkit-background-size: cover;
             -moz-background-size: cover;
             -o-background-size: cover;
             background-size: cover;
         }
-
         @keyframes words-in {
             0% {
                 transform: translateY(40px);
@@ -157,7 +147,6 @@
         .header-title {
             margin-right: 10px;
         }
-
         .header-right {
             float: right;
         }
@@ -166,33 +155,33 @@
 </head>
 <body>
 
-<header>
-    <a href="/" class="header-title"><b>Smoothie-Web</b></a>
-    <a href="/problems">Problems</a>
-    <a href="/contests">Contests</a>
-    <a href="/ranking">Ranking</a>
-    <a href="/help">Help</a>
+    <header xmlns:th="http://www.thymeleaf.org">
+        <a href="/" class="header-title"><b>Smoothie-Web</b></a>
+        <a href="/problems">Problems</a>
+        <a href="/contests">Contests</a>
+        <a href="/ranking">Ranking</a>
+        <a href="/help">Help</a>
 
-    <div class="header-right">
-        <a>
-            <a class="header-hello">Hello, dude!</a>
-            <a href="/logout">Logout</a>
-    </div>
-    </div>
-</header>
-
-<div class="container">
-    <form method="POST">
-        <h1>login <i class="material-icons">sync</i></h1>
-        <div class="boxes">
-            <input type="text" id="usernameBox" name="username" placeholder="username" required class="inputbox">
-            <br/>
-            <input type="password" id="passwordBox" name="password" placeholder="password" required class="inputbox">
+        <div class="header-right">
+            <a>
+                <a class="header-hello">Hello, dude!</a>
+                <a href="/logout">Logout</a>
+            </div>
         </div>
-        <br/>
-        <br/>
-        <input type="submit" id="login" value="login">
-    </form>
-</div>
+    </header>
+
+    <div class="container">
+        <form method="POST">
+            <h1>login <i class="material-icons">sync</i></h1>
+            <div class="boxes">
+                <input type="text" id="usernameBox" name="username" placeholder="username" required class="inputbox">
+                <br/>
+                <input type="password" id="passwordBox" name="password" placeholder="password" required class="inputbox">
+            </div>
+            <br/>
+            <br/>
+            <input type="submit" id="login" value="login">
+        </form>
+    </div>
 </body>
 </html>

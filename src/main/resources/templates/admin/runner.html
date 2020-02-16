@@ -16,7 +16,6 @@
             font-family: Nunito, sans-serif;
             line-height: 1.5;
         }
-
         .metropolis {
             font-family: Metropolis, sans-serif;
         }
@@ -28,7 +27,6 @@
         th {
             text-align: left;
         }
-
         tr {
             line-height: 50px;
         }
@@ -38,7 +36,6 @@
             color: #009688;
             transition: text-shadow 0.3s;
         }
-
         a:hover {
             text-shadow: 0 0 2px #00bcd4;
             transition: text-shadow 0.3s;
@@ -78,8 +75,7 @@
 
 <div class="container">
     <h1>Runner [[${runner.name}]]</h1>
-    <a style="margin-bottom: 20px;" class="button-link" th:href="@{'/admin/runner/' + ${runner.name} + '/edit'}">Edit
-        Runner</a>
+    <a style="margin-bottom: 20px;" class="button-link" th:href="@{'/admin/runner/' + ${runner.name} + '/edit'}">Edit Runner</a>
 
     <br/>
     <br/>

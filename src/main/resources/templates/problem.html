@@ -85,8 +85,7 @@
         <div style="margin-left: auto;">
             <a class="button-link" th:href="@{'/problem/' + ${problem.name} + '/submissions'}">Submissions</a>
             <a class="button-link" th:href="@{'/problem/' + ${problem.name} + '/submit'}">Submit</a>
-            <a class="button-link" sec:authorize="hasRole('ROLE_ADMIN')"
-               th:href="@{'/problem/' + ${problem.name} + '/manage'}">Manage</a>
+            <a class="button-link" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{'/problem/' + ${problem.name} + '/manage'}">Manage</a>
         </div>
     </div>
 
@@ -123,8 +122,8 @@
     }
 
     let timeCreated = $("#time-created");
-    let date = new Date(timeCreated.text() * 1000);
-    timeCreated.text(("0" + (date.getMonth() + 1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear());
+    let date = new Date(timeCreated.text()*1000);
+    timeCreated.text(("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear());
 
     // load problem statement
     $('document').ready(() => {

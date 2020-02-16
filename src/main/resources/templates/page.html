@@ -1,38 +1,37 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title th:text="${page.nav_title}">smoothie-web</title>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <meta charset="UTF-8">
+        <title th:text="${page.nav_title}">smoothie-web</title>
 
-    <link rel="stylesheet" th:href="@{/css/global.css}"/>
-    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+        <link rel="stylesheet" th:href="@{/css/global.css}"/>
+        <link rel="stylesheet" th:href="@{/css/header.css}"/>
 
-    <style>
-        h1 {
-            font-size: 64px;
-            font-family: Metropolis-bold, sans-serif;
-            line-height: 128px;
-        }
+        <style>
+            h1 {
+                font-size: 64px;
+                font-family: Metropolis-bold, sans-serif;
+                line-height: 128px;
+            }
+            p {
+                font-size: 32px;
+                font-family: Metropolis, sans-serif;
+                line-height: 128px;
 
-        p {
-            font-size: 32px;
-            font-family: Metropolis, sans-serif;
-            line-height: 128px;
+            }
 
-        }
+            .container {
+                animation: header-fade-in 1s;
+            }
+        </style>
+    </head>
+    <body>
 
-        .container {
-            animation: header-fade-in 1s;
-        }
-    </style>
-</head>
-<body>
+        <div th:replace="fragments/header :: header"></div>
 
-<div th:replace="fragments/header :: header"></div>
-
-<div class="container">
-    <h1 th:text="${page.title}"></h1>
-    <div th:remove="tag" th:utext="${page.content}"></div>
-</div>
-</body>
+        <div class="container">
+            <h1 th:text="${page.title}"></h1>
+            <div th:remove="tag" th:utext="${page.content}"></div>
+        </div>
+    </body>
 </html>

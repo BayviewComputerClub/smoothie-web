@@ -182,7 +182,7 @@ public class Contest {
                             var cus = new ContestUserSubmission();
 
                             cus.setMaxPoints(cp.getTotalPointsWorth());
-                            cus.setPoints(sub.getPoints() / sub.getMaxPoints() * cp.getTotalPointsWorth()); // convert from problem points to contest points
+                            cus.setPoints(sub.getPoints()/sub.getMaxPoints()*cp.getTotalPointsWorth()); // convert from problem points to contest points
                             cus.setProblemId(sub.getProblemId());
                             cus.setTimeSubmitted(sub.getTimeSubmitted());
 

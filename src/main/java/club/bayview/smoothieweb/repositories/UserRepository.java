@@ -1,6 +1,7 @@
 package club.bayview.smoothieweb.repositories;
 
 import club.bayview.smoothieweb.models.User;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
