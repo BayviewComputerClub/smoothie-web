@@ -29,7 +29,7 @@ The compiled JAR file will be in build/libs/.
 [Wiki](https://github.com/BayviewComputerClub/smoothie-web/wiki/Configuration)
 
 ### application.properties
-This optional file should to be in the directory where you run the jar from.
+This optional file should to be in the directory where you run the JAR/WAR from.
 
 ```
 # These are useful to change
