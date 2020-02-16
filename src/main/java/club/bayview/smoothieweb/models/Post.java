@@ -12,7 +12,7 @@ import java.util.List;
  * Represents a blog post
  */
 
-@Document(collation =  "{ 'locale' : 'en_US', 'strength': 2 }") // indexes case insensitive
+@Document(collation = "{ 'locale' : 'en_US', 'strength': 2 }") // indexes case insensitive
 @Getter
 @Setter
 public class Post {

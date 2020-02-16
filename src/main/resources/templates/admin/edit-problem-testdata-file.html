@@ -7,7 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
-<!--    <link rel="stylesheet" th:href="@{/css/form.css}"/>-->
+    <!--    <link rel="stylesheet" th:href="@{/css/form.css}"/>-->
     <link rel="stylesheet" th:href="@{/css/title.css}"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -173,7 +173,7 @@
             label.text(files.length > 1 ? (input.attr('data-multiple-caption') || '').replace('{count}', files.length) : files[0].name);
         };
 
-    $('.upload-box-file').on('change', function(e) {
+    $('.upload-box-file').on('change', function (e) {
         showFiles(e.target.files);
     });
 
@@ -186,7 +186,7 @@
         form.removeClass('is-dragover');
     }).on('drop', function (e) {
         droppedFiles = e.originalEvent.dataTransfer.files;
-        showFiles( droppedFiles );
+        showFiles(droppedFiles);
     });
 
 </script>

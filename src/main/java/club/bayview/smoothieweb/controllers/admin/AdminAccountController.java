@@ -48,7 +48,7 @@ public class AdminAccountController {
 
         String handle, email, password, description;
 
-        AdminAccountEditForm (User user) {
+        AdminAccountEditForm(User user) {
             admin = user.isAdmin();
             enabled = user.isEnabled();
             handle = user.getHandle();

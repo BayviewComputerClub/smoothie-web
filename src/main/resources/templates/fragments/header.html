@@ -1,20 +1,21 @@
-
 <header xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <a href="/" th:href="@{/}" class="header-title"><b th:text="${siteName}"></b></a>
-    <a href="/problems" th:href="@{/problems}" >Problems</a>
-    <a href="/contests" th:href="@{/contests}" >Contests</a>
-    <a href="/ranking" th:href="@{/ranking}" >Ranking</a>
-    <a th:each="page: ${T(club.bayview.smoothieweb.controllers.PageController).getNavs(0)}" th:text="${page.nav_title}" th:href="${'/page/' + page.slug}"></a>
+    <a href="/problems" th:href="@{/problems}">Problems</a>
+    <a href="/contests" th:href="@{/contests}">Contests</a>
+    <a href="/ranking" th:href="@{/ranking}">Ranking</a>
+    <a th:each="page: ${T(club.bayview.smoothieweb.controllers.PageController).getNavs(0)}" th:text="${page.nav_title}"
+       th:href="${'/page/' + page.slug}"></a>
     <a sec:authorize="hasRole('ROLE_ADMIN')" href="/admin" th:href="@{/admin}">Admin</a>
 
     <div class="header-right">
         <div sec:authorize="isAnonymous()">
-            <a href="/login" th:href="@{/login}" >Login</a>
-            <a href="/register" th:href="@{/register}" >Register</a>
+            <a href="/login" th:href="@{/login}">Login</a>
+            <a href="/register" th:href="@{/register}">Register</a>
         </div>
         <div sec:authorize="isAuthenticated()">
-            <a href="/logout" th:href="@{/logout}" >Logout</a>
-            <a class="header-hello" th:href="@{'/user/' + ${#authentication.getPrincipal().getUsername()}}">Hello, <span th:text="${#authentication.getPrincipal().getUsername()}"></span>!</a>
+            <a href="/logout" th:href="@{/logout}">Logout</a>
+            <a class="header-hello" th:href="@{'/user/' + ${#authentication.getPrincipal().getUsername()}}">Hello, <span
+                    th:text="${#authentication.getPrincipal().getUsername()}"></span>!</a>
         </div>
     </div>
 </header>
