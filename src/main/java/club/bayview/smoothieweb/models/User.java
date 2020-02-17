@@ -52,7 +52,7 @@ public class User implements UserDetails, Serializable {
     private List<String> solved; // solved problems (problemId)
     private HashMap<String, Double> problemsAttempted; // solved problems: <problemId, points gotten>
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     public User(String handle, String email, String password) {
         super();
