@@ -3,6 +3,7 @@ package club.bayview.smoothieweb.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.Data;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,14 +18,18 @@ import reactor.core.publisher.Mono;
 @Controller
 public class PageController {
 
+    public static String cmsHost = "http://localhost:3000";
+
     // JSON Objects
-    static class PageResponse {
+    public static class PageResponse {
         public boolean status;
         public Page[] pages;
         public String error;
     }
 
-    static class Page {
+    // Lombok very fancy
+    @Data
+    public static class Page {
         public int id;
         public String slug;
         public String date;
@@ -36,7 +41,12 @@ public class PageController {
         public String content;
     }
 
-    static PageResponse getPageResponseBySlug(String slug) throws Exception {
+    public static class PageUpdateRequest {
+        public Page page;
+        public String slug;
+    }
+
+    public static PageResponse getPageResponseBySlug(String slug) throws Exception {
         WebClient client = WebClient.create(cmsHost);
         WebClient.RequestBodySpec request = client
                 .method(HttpMethod.GET)
@@ -47,8 +57,28 @@ public class PageController {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(pageJSON, PageResponse.class);
     }
+    public static PageResponse getPageResponseBySlugRaw(String slug) throws Exception {
+        WebClient client = WebClient.create(cmsHost);
+        WebClient.RequestBodySpec request = client
+                .method(HttpMethod.GET)
+                .uri("/pages/" + slug);
 
-    private static String cmsHost = "http://localhost:3000";
+        String pageJSON = request.exchange().block().bodyToMono(String.class).block();
+
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(pageJSON, PageResponse.class);
+    }
+    public static PageResponse getPageResponse() throws Exception {
+        WebClient client = WebClient.create(cmsHost);
+        WebClient.RequestBodySpec request = client
+                .method(HttpMethod.GET)
+                .uri("/pages");
+
+        String pageJSON = request.exchange().block().bodyToMono(String.class).block();
+
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(pageJSON, PageResponse.class);
+    }
 
     public String getRootRoute(Model model) throws Exception{
 
