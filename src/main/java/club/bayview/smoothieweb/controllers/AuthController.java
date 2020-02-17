@@ -73,7 +73,7 @@ public class AuthController {
             String captchaRes = req.getParameter("g-recaptcha-response");
             captchaService.processResponse(captchaRes);
         } catch (Exception e) {
-            result.reject("captcha", "Incorrect captcha!");
+            result.reject("captcha", "Captcha failed! Try again and prove you're not a robot.");
         }
 
         if (userDetailsService.findUserByHandle(form.username).block() != null) {
@@ -89,7 +89,7 @@ public class AuthController {
             user.encodePassword();
             userDetailsService.saveUser(user).block();
             page.setViewName("redirect:/login");
-            // TODO success registering message
+            // TODO "Conf email sent" message
         }
         return page;
     }
