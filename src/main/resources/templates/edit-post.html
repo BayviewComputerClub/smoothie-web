@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:include="fragments/global-head :: global-head (pageName='Edit Post')">
-
+<head>
+    <!-- ignore tag name "script", it will be replaced by favicon fragment -->
+    <script th:replace="fragments/favicon"></script>
+    <title>Edit Post | [[${siteName}]]</title>
 
 </head>
 <body>

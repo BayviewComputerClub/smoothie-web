@@ -1,35 +1,39 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <head th:include="fragments/global-head :: global-head (pageName='${page.nav_title}')">
+<head>
+    <!-- ignore tag name "script", it will be replaced by favicon fragment -->
+    <script th:replace="fragments/favicon"></script>
+    <title>[[${page.title}]] | [[${siteName}]]</title>
 
-        <link rel="stylesheet" th:href="@{/css/global.css}"/>
-        <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
 
-        <style>
-            h1 {
-                font-size: 64px;
-                font-family: Metropolis-bold, sans-serif;
-                line-height: 128px;
-            }
-            p {
-                font-size: 32px;
-                font-family: Metropolis, sans-serif;
-                line-height: 128px;
+    <style>
+        h1 {
+            font-size: 64px;
+            font-family: Metropolis-bold, sans-serif;
+            line-height: 128px;
+        }
 
-            }
+        p {
+            font-size: 32px;
+            font-family: Metropolis, sans-serif;
+            line-height: 128px;
 
-            .container {
-                animation: header-fade-in 1s;
-            }
-        </style>
-    </head>
-    <body>
+        }
 
-        <div th:replace="fragments/header :: header"></div>
+        .container {
+            animation: header-fade-in 1s;
+        }
+    </style>
+</head>
+<body>
 
-        <div class="container">
-            <h1 th:text="${page.title}"></h1>
-            <div th:remove="tag" th:utext="${page.content}"></div>
-        </div>
-    </body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <h1 th:text="${page.title}"></h1>
+    <div th:remove="tag" th:utext="${page.content}"></div>
+</div>
+</body>
 </html>
