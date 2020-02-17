@@ -35,6 +35,7 @@
             font-size: 24px;
             animation: 2s words-in;
         }
+
         .inputbox {
             padding: 10px;
             font-family: 'Nunito', sans-serif;
@@ -47,6 +48,7 @@
             animation-duration: 1.5s;
             width: 270px;
         }
+
         .inputbox:focus {
             outline: 0;
         }
@@ -74,36 +76,44 @@
             box-sizing: content-box;
             outline: none;
         }
+
         #register:hover {
             box-shadow: 1px 1px 15px 0 #424242;
             transition: box-shadow 0.5s;
         }
+
         .boxes {
             box-shadow: 1px 1px 7px 0 #424242;
             border-radius: 7px;
             transition: box-shadow 0.5s;
         }
+
         .boxes:hover {
             box-shadow: 1px 1px 20px 0 #424242;
             transition: box-shadow 0.5s;
         }
+
         #usernameBox {
             border-top-left-radius: 10px;
             border-top-right-radius: 10px;
         }
+
         #passwordBox {
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
         }
+
         #register:focus {
             outline: 0;
         }
+
         body {
             -webkit-background-size: cover;
             -moz-background-size: cover;
             -o-background-size: cover;
             background-size: cover;
         }
+
         @keyframes words-in {
             0% {
                 transform: translateY(40px);
@@ -123,7 +133,7 @@
 <div class="container">
 
     <div th:if="${param.error}">
-        Invalid email and password.
+        Invalid email and/or password.
     </div>
     <div th:if="${param.logout}">
         You have been logged out.
@@ -131,7 +141,7 @@
 
     <form method="POST">
 
-        <h1>register <i class="material-icons">sync</i></h1>
+        <h1>Register <i class="material-icons">sync</i></h1>
         <div class="boxes">
             <input type="text" id="usernameBox" name="username" placeholder="username" required class="inputbox">
             <br/>
@@ -139,7 +149,8 @@
             <br/>
             <input type="password" id="confirmPassword" placeholder="password" required class="inputbox">
             <br/>
-            <input type="password" id="passwordBox" name="password" placeholder="confirm password" required class="inputbox">
+            <input type="password" id="passwordBox" name="password" placeholder="confirm password" required
+                   class="inputbox">
         </div>
         <br/>
         <div class="g-recaptcha col-sm-5"
@@ -156,16 +167,27 @@
 
 <script>
 
-    let password = document.getElementById("confirmPassword"), confirmPassword = document.getElementById("passwordBox");
+    let email = document.getElementById("emailBox"), password = document.getElementById("confirmPassword"),
+        confirmPassword = document.getElementById("passwordBox");
 
-    function validatePassword(){
-        if(password.value != confirmPassword.value) {
-            confirmPassword.setCustomValidity("Passwords Don't Match");
+    function validateEmail() {
+        const emailRegexValidator = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+        if (emailRegexValidator.test(String(email.value).toLowerCase())) {
+            email.setCustomValidity('');
+        } else {
+            email.setCustomValidity("Valid email required");
+        }
+    }
+
+    function validatePassword() {
+        if (password.value != confirmPassword.value) {
+            confirmPassword.setCustomValidity("Passwords must match");
         } else {
             confirmPassword.setCustomValidity('');
         }
     }
 
+    email.onchange = validateEmail;
     password.onchange = validatePassword;
     confirmPassword.onkeyup = validatePassword;
 
