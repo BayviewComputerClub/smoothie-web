@@ -1,6 +1,12 @@
 name: Smoothie-Web Build
 
-on: [push]
+on:
+  push:
+    paths:
+    - '!**.md'
+    - '!LICENSE'
+    - '!**.md'
+    - '!.gitignore'
 
 jobs:
   build:
