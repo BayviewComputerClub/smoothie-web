@@ -120,7 +120,7 @@ public class Contest {
         return true;
     }
 
-    // use insertion sort sorta to make leader board
+    // generate sorted leaderboard
     // be sure to save contest object after
     public void updateLeaderBoard() {
         leaderBoard = new ArrayList<>();
@@ -166,6 +166,9 @@ public class Contest {
         return submissionService.findSubmissionsByUserForContest(userId, this.getId())
                 .collectList() // can't use flux directly because the order of the comparisons may become messed up
                 .doOnNext(submissions -> {
+
+                    // TODO do this separately, and individually per user when a submission is done for the user
+                    // TODO prevent data race, use cache
                     for (var s : submissions) {
                         // ignore AR (awaiting) submissions
                         if (!checkedSubmissions.contains(s.getVerdict())) {
@@ -173,7 +176,7 @@ public class Contest {
                         }
                         // add submissions to map with best points and submitted time
                         Submission compare = m.get(s.getProblemId());
-                        if (compare == null || compare.getPoints() < s.getPoints() || compare.getTimeSubmitted() > s.getTimeSubmitted()) {
+                        if (compare == null || compare.getPoints() < s.getPoints() || compare.getTimeSubmitted() > s.getTimeSubmitted() || (!compare.getVerdict().equals("AC") && s.getVerdict().equals("AC"))) {
                             m.put(s.getProblemId(), s);
                         }
                     }

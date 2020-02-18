@@ -74,6 +74,13 @@ public class Submission {
 
     private double points, maxPoints;
 
+    /**
+     * Check if a given authentication has permission to view the contents of the submission.
+     * @param auth the Authentication object
+     * @param problem the problem that the submission belongs to
+     * @return whether or not the authentication has permission to view
+     */
+
     public boolean hasPermissionToView(Authentication auth, Problem problem) {
         if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User)) {
             return false;
