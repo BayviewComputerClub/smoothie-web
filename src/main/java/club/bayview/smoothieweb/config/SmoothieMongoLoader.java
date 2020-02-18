@@ -28,6 +28,9 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
 
     private Logger logger = LoggerFactory.getLogger(SmoothieMongoLoader.class);
 
+    @Value("${spring.data.mongodb.host:localhost}")
+    private String host;
+
     @Value("${spring.data.mongodb.port:27017}")
     private int port;
 
@@ -53,7 +56,7 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
     @Override
     @Bean
     public MongoClient reactiveMongoClient() {
-        return MongoClients.create(String.format("mongodb://localhost:%d", port));
+        return MongoClients.create("mongodb://" + host + ":" + port);
     }
 
     @Bean

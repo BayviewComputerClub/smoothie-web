@@ -40,6 +40,7 @@ This optional file should to be in the directory where you run the JAR/WAR from.
 # These are useful to change
 # Mongo
 spring.data.mongodb.port=27017
+spring.data.mongodb.host=localhost
 spring.data.mongodb.database=main
 
 # Redis
