@@ -31,3 +31,6 @@ hs_err_pid*
 test/
 
 .DS_Store
+
+# Pushing WAR builds into production requires a custom applications.properties integrated into the WAR
+application.properties
