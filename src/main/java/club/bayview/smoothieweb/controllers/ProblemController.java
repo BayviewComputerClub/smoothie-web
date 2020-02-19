@@ -51,7 +51,7 @@ public class ProblemController {
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "/problem/{name} route exception: "));
     }
 
-    @GetMapping("/contest/{contestName}/{problemName}")
+    @GetMapping("/contest/{contestName}/problem/{problemName}")
     public Mono<String> getContestProblemRoute(@PathVariable String contestName, @PathVariable String problemName, Model model, Authentication auth) {
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))

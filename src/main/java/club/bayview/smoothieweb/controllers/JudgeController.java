@@ -3,6 +3,7 @@ package club.bayview.smoothieweb.controllers;
 import club.bayview.smoothieweb.models.*;
 import club.bayview.smoothieweb.services.*;
 import club.bayview.smoothieweb.util.ErrorCommon;
+import club.bayview.smoothieweb.util.NoPermissionException;
 import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,6 +43,9 @@ public class JudgeController {
     @Autowired
     private SmoothieQueuedSubmissionService queuedSubmissionService;
 
+    @Autowired
+    private SmoothieContestService contestService;
+
     @Getter
     @Setter
     @AllArgsConstructor
@@ -56,10 +60,13 @@ public class JudgeController {
 
     @GetMapping("/problem/{name}/submit")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public Mono<String> getProblemSubmitRoute(@PathVariable String name, Model model) {
+    public Mono<String> getProblemSubmitRoute(@PathVariable String name, Model model, Authentication auth) {
         return problemService.findProblemByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(p -> {
+                    if (!p.hasPermissionToView(auth))
+                        return Mono.error(new NoPermissionException());
+
                     model.addAttribute("problem", p);
                     model.addAttribute("submitRequest", new SubmitRequest());
                     model.addAttribute("languages", JudgeLanguage.getLanguages());
@@ -67,6 +74,34 @@ public class JudgeController {
                     return Mono.just("submit");
                 })
                 .onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /problem/{name}/submit route exception: "));
+    }
+
+    @GetMapping("/contest/{contestName}/problem/{problemName}/submit")
+    public Mono<String> getContestProblemSubmitRoute(@PathVariable String contestName, @PathVariable String problemName, Model model, Authentication auth) {
+        return contestService.findContestByName(contestName)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(contest -> {
+                    if (!contest.hasPermissionToView(auth))
+                        return Mono.error(new NoPermissionException());
+
+                    Contest.ContestProblem cp = contest.getContestProblems().get(problemName);
+                    if (cp == null)
+                        return Mono.error(new NotFoundException());
+
+                    model.addAttribute("contestProblem", cp);
+
+                    return problemService.findProblemById(cp.getProblemId());
+                })
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(problem -> {
+                    model.addAttribute("problem", problem);
+                    model.addAttribute("submitRequest", new SubmitRequest());
+                    model.addAttribute("languages", JudgeLanguage.getLanguages());
+                    model.addAttribute("postUrl", "/contest/" + contestName + "/problem/" + problemName + "/submit");
+
+                    return Mono.just("submit");
+                })
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /problem/{contestName}/problem/{problemName}/submit route exception:"));
     }
 
     @GetMapping("/submission/{submissionId}/resubmit")
