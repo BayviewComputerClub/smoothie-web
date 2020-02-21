@@ -19,8 +19,13 @@ public class ContestForm {
 
     @Getter
     @Setter
-    public class ContestProblemForm {
+    public static class ContestProblemForm {
+        private int contestProblemNumber,
+                totalPointsWorth;
 
+        private String problemId,
+                customName,
+                colourHex;
     }
 
     SmoothieUserService userService = SmoothieWebApplication.context.getBean(SmoothieUserService.class);
@@ -30,6 +35,9 @@ public class ContestForm {
     @Size(min = 2)
     private String name,
             prettyName;
+
+    @NotNull
+    private List<ContestProblemForm> problems;
 
     @NotNull
     private List<String> testerUserHandles = new ArrayList<>(),

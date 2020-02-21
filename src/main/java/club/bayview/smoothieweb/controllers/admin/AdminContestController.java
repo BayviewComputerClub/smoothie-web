@@ -1,14 +1,12 @@
 package club.bayview.smoothieweb.controllers.admin;
 
-import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.models.Contest;
+import club.bayview.smoothieweb.models.ContestForm;
 import club.bayview.smoothieweb.services.SmoothieContestService;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NotFoundException;
-import lombok.Getter;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 public class AdminContestController {
@@ -59,8 +51,14 @@ public class AdminContestController {
 
     @PostMapping("/admin/new-contest")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
-    public Mono<String> postNewContestRoute(@Valid Contest.ContestProblem contest, BindingResult result, Model model) {
+    public Mono<String> postNewContestRoute(@Valid ContestForm contestForm, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            return Mono.just("admin/edit-contest");
+        }
 
+        return contestForm.toContest(null)
+                .flatMap(c -> contestService.saveContest(c))
+                .flatMap(c -> Mono.just("redirect:/contest/" + c.getName() + "/admin"));
     }
 
     @GetMapping("/contest/{name}/edit")
