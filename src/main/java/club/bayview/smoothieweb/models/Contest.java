@@ -86,7 +86,8 @@ public class Contest {
     @Indexed(unique = true)
     private String prettyName;
 
-    private HashMap<String, ContestProblem> contestProblems; // <problemId, contestproblem>
+    // <problemId, contestproblem>
+    private HashMap<String, ContestProblem> contestProblems = new HashMap<>();
 
     // in unix time
     private long timeStart, // when the contest allows people to join and submit
@@ -100,9 +101,12 @@ public class Contest {
     private List<String> testerUserIds;
     private List<String> editorUserIds;
 
-    private HashMap<String, ContestUser> participants; // <userId, contest information>
+    // <userId, contest information>
+    private HashMap<String, ContestUser> participants = new HashMap<>();
 
-    private List<List<ContestUser>> leaderBoard; // [ranking][users in that rank]
+    // TODO use user id instead of full contestuser
+    // [ranking][users in that rank]
+    private List<List<ContestUser>> leaderBoard = new ArrayList<>();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

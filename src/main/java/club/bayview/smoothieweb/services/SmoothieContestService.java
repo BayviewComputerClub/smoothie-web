@@ -24,8 +24,8 @@ public class SmoothieContestService {
         return contestRepository.save(contest);
     }
 
-    public Mono<Void> deleteContest(Contest contest) {
-        return contestRepository.delete(contest);
+    public Mono<Void> deleteContestById(String id) {
+        return contestRepository.deleteById(id);
     }
 
 }

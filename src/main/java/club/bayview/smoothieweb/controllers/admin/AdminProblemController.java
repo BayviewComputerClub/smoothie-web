@@ -67,7 +67,21 @@ public class AdminProblemController {
         @NotNull
         private List<ProblemFormLimit> limits;
 
-        private Problem toProblem(Problem original) {
+        public static ProblemForm fromProblem(Problem p) {
+            ProblemForm pf = new ProblemForm();
+            pf.setName(p.getName());
+            pf.setPrettyName(p.getPrettyName());
+            pf.setProblemStatement(p.getProblemStatement());
+            pf.setAllowPartial(p.isAllowPartial());
+            pf.setTotalScoreWorth(p.getTotalPointsWorth());
+            pf.setLimits(new ArrayList<>());
+            for (Problem.ProblemLimits l : p.getLimits()) {
+                pf.getLimits().add(new ProblemFormLimit(JudgeLanguage.nameToPretty(l.getLang()), l.getTimeLimit(), l.getMemoryLimit()));
+            }
+            return pf;
+        }
+
+        public Problem toProblem(Problem original) {
             Problem problem = original == null ? new Problem() : original;
 
             problem.setName(this.getName());
@@ -177,7 +191,8 @@ public class AdminProblemController {
 
         return problemService.findProblemByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(p -> problemService.deleteProblemById(p.getId()).then(Mono.just("redirect:/problems")))
+                .flatMap(p -> problemService.deleteProblemById(p.getId()))
+                .flatMap(b -> Mono.just("redirect:/problems"))
                 .onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /problem/{name}/delete route exception: "));
     }
 
@@ -215,20 +230,6 @@ public class AdminProblemController {
                     .flatMap(b -> Mono.just("redirect:/problem/" + name))
                     .onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /problem/{name}/edit route exception: "));
         }
-    }
-
-    private ProblemForm problemToProblemForm(Problem p) {
-        ProblemForm pf = new ProblemForm();
-        pf.setName(p.getName());
-        pf.setPrettyName(p.getPrettyName());
-        pf.setProblemStatement(p.getProblemStatement());
-        pf.setAllowPartial(p.isAllowPartial());
-        pf.setTotalScoreWorth(p.getTotalPointsWorth());
-        pf.setLimits(new ArrayList<>());
-        for (Problem.ProblemLimits l : p.getLimits()) {
-            pf.getLimits().add(new ProblemFormLimit(JudgeLanguage.nameToPretty(l.getLang()), l.getTimeLimit(), l.getMemoryLimit()));
-        }
-        return pf;
     }
 
 }

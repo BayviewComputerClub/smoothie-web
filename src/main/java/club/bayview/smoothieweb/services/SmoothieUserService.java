@@ -32,19 +32,33 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
     private FindByIndexNameSessionRepository<? extends Session> sessions;
 
     public Mono<User> findUserByEmail(String email) {
-        return userRepository.findByEmail(email).cache(Duration.ofMinutes(2));
+        return userRepository.findByEmail(email);
     }
 
     public Mono<User> findUserByHandle(String handle) {
-        return userRepository.findByHandle(handle).cache(Duration.ofMinutes(2));
+        return userRepository.findByHandle(handle);
     }
 
     public Mono<User> findUserById(String id) {
-        return userRepository.findById(id).cache(Duration.ofMinutes(2));
+        return userRepository.findById(id);
     }
 
+    // sets
+
     public Flux<User> findUsersWithIds(List<String> ids) {
-        return userRepository.findAllByIdIn(ids).cache(Duration.ofMinutes(2));
+        return userRepository.findAllByIdIn(ids);
+    }
+
+    public Flux<User> findUsersWithHandles(List<String> handles) {
+        return userRepository.findAllByHandleIn(handles);
+    }
+
+    public Flux<String> resolveHandlesToIds(List<String> handles) {
+        return findUsersWithHandles(handles).map(User::getId);
+    }
+
+    public Flux<String> resolveIdsToHandles(List<String> ids) {
+        return findUsersWithIds(ids).map(User::getHandle);
     }
 
     @Override

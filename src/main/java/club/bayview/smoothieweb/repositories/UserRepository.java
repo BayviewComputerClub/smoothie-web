@@ -19,4 +19,6 @@ public interface UserRepository extends ReactiveMongoRepository<User, String> {
     Flux<User> findAllByIdIn(List<String> ids);
 
     Flux<User> findAllByIdIn(Flux<String> ids);
+
+    Flux<User> findAllByHandleIn(List<String> handles);
 }
