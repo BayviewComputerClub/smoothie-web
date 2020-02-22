@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- ignore tag name "script", it will be replaced by favicon fragment -->
+    <script th:replace="fragments/favicon"></script>
+    <title>Manage Contests | [[${siteName}]]</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
+    <link rel="stylesheet" th:href="@{/css/title.css}"/>
+
+    <style>
+
+        .container {
+            animation: header-fade-in 1s;
+        }
+
+        th {
+            text-align: left;
+        }
+        tr {
+            line-height: 50px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #009688;
+            transition: text-shadow 0.3s;
+        }
+        a:hover {
+            text-shadow: 0 0 2px #00bcd4;
+            transition: text-shadow 0.3s;
+        }
+
+        .button-link {
+            border-radius: 10px;
+            box-shadow: 1px 1px 5px 0 #607d8b;
+            cursor: pointer;
+            transition: box-shadow 0.3s;
+            font-family: Nunito, sans-serif;
+            font-size: 18px;
+            padding: 10px 20px 10px 20px;
+            background-color: #FFFFFF;
+            border-style: solid;
+            border-color: #FFFFFF;
+            border-width: 2px;
+            color: #424242;
+            text-decoration: none;
+        }
+
+        .button-link:focus {
+            outline: 0;
+        }
+
+        .button-link:hover {
+            box-shadow: 1px 1px 15px 0 #607d8b;
+            transition: box-shadow 0.3s;
+        }
+
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header-admin"></div>
+
+<div class="container">
+    <h1>Manage Contests</h1>
+    <a class="button-link" th:href="@{'/admin/new-contest'}">New Contest</a>
+    <table style="width: 80%; margin-top:40px;">
+        <thead>
+
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Enabled</th>
+            <th>Visible To Public</th>
+            <th>Time Start</th>
+            <th>Time End</th>
+        </tr>
+        <tr>
+            <th colspan="6"><hr/></th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr th:each="contest: ${contests}">
+            <td><a th:href="@{'/contest/' + ${contest.name} + '/edit'}" th:text="${contest.name}"></a></td>
+            <td th:text="${contest.prettyName}"></td>
+            <td th:text="${contest.enabled}"></td>
+            <td th:text="${contest.visibleToPublic}"></td>
+            <td th:text="${contest.timeStart}"></td>
+            <td th:text="${contest.timeEnd}"></td>
+        </tr>
+
+        </tbody>
+    </table>
+
+</div>
+</body>
+</html>

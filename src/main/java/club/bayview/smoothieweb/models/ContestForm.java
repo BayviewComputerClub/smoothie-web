@@ -4,6 +4,7 @@ import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import reactor.core.publisher.Mono;
 
 import javax.validation.constraints.Min;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString
 public class ContestForm {
 
     public static ContestForm defaultContest = new ContestForm();
@@ -22,6 +24,7 @@ public class ContestForm {
     static {
         defaultContest.setName("");
         defaultContest.setPrettyName("");
+        defaultContest.setDescription("");
         defaultContest.setTimeStart(0);
         defaultContest.setTimeEnd(0);
         defaultContest.setSubmissionPeriod(0);
@@ -67,6 +70,8 @@ public class ContestForm {
     private String name,
             prettyName;
 
+    private String description;
+
     @NotNull
     private List<ContestProblemForm> problems = new ArrayList<>();
 
@@ -74,7 +79,6 @@ public class ContestForm {
     private List<String> testerUserHandles = new ArrayList<>(),
             editorUserHandles = new ArrayList<>();
 
-    @NotBlank
     @Min(0)
     private long timeStart,
             timeEnd,
@@ -89,6 +93,7 @@ public class ContestForm {
         ContestForm cf = new ContestForm();
         cf.setName(c.getName());
         cf.setPrettyName(c.getPrettyName());
+        cf.setDescription(c.getDescription());
 
         cf.setTimeStart(c.getTimeStart());
         cf.setTimeEnd(c.getTimeEnd());
@@ -117,6 +122,7 @@ public class ContestForm {
 
         c.setName(name);
         c.setPrettyName(prettyName);
+        c.setDescription(description);
 
         if (c.getTimeStart() != timeStart || c.getTimeEnd() != timeEnd || c.getSubmissionPeriod() != submissionPeriod) {
             // TODO update everyone's timers

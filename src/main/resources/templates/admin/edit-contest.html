@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <!-- ignore tag name "script", it will be replaced by favicon fragment -->
+    <script th:replace="fragments/favicon"></script>
+    <title>Manage Contests | [[${siteName}]]</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
+    <link rel="stylesheet" th:href="@{/css/form.css}"/>
+    <link rel="stylesheet" th:href="@{/css/title.css}"/>
+    <link rel="stylesheet" th:href="@{/css/simplemde-1.11.2.min.css}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        label {
+            font-size: 20px;
+            font-family: Nunito, sans-serif;
+            /*margin-bottom: 10px;*/
+            line-height: 1.5;
+            color: #424242;
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+            line-height: 1.5;
+        }
+
+        .input-container {
+            margin-top: 40px;
+        }
+
+        button {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            box-shadow: 1px 1px 5px 0 #9e9e9e;
+            cursor: pointer;
+            border-style: none;
+            background-color: white;
+            transition: box-shadow 0.3s;
+        }
+
+        button:focus {
+            outline: 0;
+        }
+
+        button:hover {
+            box-shadow: 1px 1px 15px 0 #9e9e9e;
+            transition: box-shadow 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header-admin"></div>
+
+<div class="container">
+    <h1>Edit Contest </h1>
+
+    <form method="POST" id="form" th:object="${form}" autocomplete="off" onsubmit="prepareSubmitForm()">
+
+        <div class="input-container">
+            <label for="contest-id">Contest ID (no spaces)</label>
+            <br/>
+            <input type="text" id="contest-id" th:field="*{name}" placeholder="ex. ioi2020" required>
+        </div>
+
+        <div class="input-container">
+            <label for="contest-name">Contest Name</label>
+            <br/>
+            <input type="text" id="contest-name" th:field="*{prettyName}" placeholder="ex. IOI 2020" required>
+        </div>
+
+        <div class="input-container">
+            <label>Problems</label>
+            <table style="width: 100%" id="problems-table">
+                <thead>
+                <tr>
+                    <th style="width: 50px"></th> <!-- button -->
+                    <th><b>Original Problem ID</b></th>
+                    <th><b>Problem Name</b></th>
+                    <th><b>Colour</b></th>
+                    <th><b>Points</b></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr><td colspan="4"><hr/></td></tr>
+
+                <tr th:each="problem : ${problems}" class="problem">
+                    <td style="width: 50px; text-align: left;">
+                        <button type="button" onclick="removeProblemRow(this)"><i class="material-icons">close</i></button>
+                        <button type="button" onclick="moveProblemRowUp(this)"><i class="material-icons">arrow_upward</i></button>
+                        <button type="button" onclick="moveProblemRowUp(this)"><i class="material-icons">arrow_downward</i></button>
+                    </td>
+                    <td><input type="text" th:value="${problem.problemId}"></td>
+                    <td><input type="text" th:value="${problem.customName}"></td>
+                    <td><input type="color" th:value="${problem.colourHex}"></td>
+                    <td><input type="number" th:value="${problem.totalPointsWorth}"></td>
+                </tr>
+
+                </tbody>
+            </table>
+            <button type="button" onclick="addProblemRow()" style="margin-left: 3px; margin-top: 10px;"><i
+                    class="material-icons">add</i></button>
+        </div>
+
+        <div class="input-container">
+            <label for="contest-description">Description</label>
+            <br/>
+            <hr/>
+            <textarea form="form" id="contest-description" th:field="*{description}"></textarea>
+        </div>
+
+        <div class="input-container">
+            <label>Contest Start Time</label>
+            <br/>
+            <input type="date" id="contest-time-start-date" min="1970-01-01" max="2100-01-01">
+            <input type="time" id="contest-time-start-time">
+        </div>
+
+        <div class="input-container">
+            <label>Contest End Time</label>
+            <br/>
+            <input type="date" id="contest-time-end-date" min="1970-01-01" max="2100-01-01">
+            <input type="time" id="contest-time-end-time">
+        </div>
+
+        <div class="input-container">
+            <label for="contest-submission-period">Submission Period (Minutes)</label>
+            <br/>
+            <input type="number" id="contest-submission-period" min=0 th:field="*{submissionPeriod}" required>
+        </div>
+
+        <div class="input-container">
+            <label for="contest-enabled">Is Enabled</label>
+            <br/>
+            <label class="checkbox-switch">
+                <input type="checkbox" id="contest-enabled" th:field="*{enabled}">
+                <span class="checkbox-slider"></span>
+            </label>
+        </div>
+
+        <div class="input-container">
+            <label for="contest-visible-to-public">Is Visible to All Users</label>
+            <br/>
+            <label class="checkbox-switch">
+                <input type="checkbox" id="contest-visible-to-public" th:field="*{visibleToPublic}">
+                <span class="checkbox-slider"></span>
+            </label>
+        </div>
+
+        <div class="input-container">
+            <label for="contest-time-matters">Use Time to Break Ties</label>
+            <br/>
+            <label class="checkbox-switch">
+                <input type="checkbox" id="contest-time-matters" th:field="*{timeMatters}">
+                <span class="checkbox-slider"></span>
+            </label>
+        </div>
+
+        <br/>
+        <input value="Save" type="submit">
+    </form>
+
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/simplemde-1.11.2.min.js}"></script>
+<script th:src="@{/js/katex-0.11.1.min.js}"></script>
+<script th:src="@{/js/markdown-it-9.1.0.min.js}"></script>
+<script th:src="@{/js/render-md-latex.js}"></script>
+
+<script th:inline="javascript">
+    let editor = new SimpleMDE({
+        element: document.getElementById("contest-description"),
+        forceSync: true,
+        spellChecker: false,
+        previewRender: text => renderMdLatex(text),
+    });
+
+    let form = /*[[${form}]]*/ null;
+    let startDate = document.getElementById('contest-time-start-date');
+    let startTime = document.getElementById('contest-time-start-time');
+    let endDate = document.getElementById('contest-time-end-date');
+    let endTime = document.getElementById('contest-time-end-time');
+
+    $(() => {
+        // initialize date time pickers
+        let timeStart = new Date(form.timeStart); // converted to local time
+        let timeEnd = new Date(form.timeEnd);
+
+        startDate.value = ('000' + timeStart.getFullYear()).slice(-4) + '-' + ('0' + (timeStart.getMonth()+1)).slice(-2) + '-' + ('0' + timeStart.getDate()).slice(-2);
+        endDate.value = ('000' + timeEnd.getFullYear()).slice(-4) + '-' + ('0' + (timeEnd.getMonth()+1)).slice(-2) + '-' + ('0' + timeEnd.getDate()).slice(-2);
+
+        startTime.value = ('0' + timeStart.getHours()).slice(-2) + ':' + ('0' + timeStart.getMinutes()).slice(-2);
+        endTime.value = ('0' + timeEnd.getHours()).slice(-2) + ':' + ('0' + timeEnd.getMinutes()).slice(-2);
+    });
+
+    // called when form is about to be submitted
+    function prepareSubmitForm() {
+        let form = $('form');
+
+        // prepare time fields
+        let timeStart = startDate.valueAsNumber + 3600000 * startTime.value.split(":")[0] + 60000 * startTime.value.split(":")[1];
+        let timeEnd = endDate.valueAsNumber + 3600000 * endTime.value.split(":")[0] + 60000 * endTime.value.split(":")[1];
+
+        // offset from local time to utc
+        timeStart += new Date().getTimezoneOffset() * 60 * 1000;
+        timeEnd += new Date().getTimezoneOffset() * 60 * 1000;
+
+        form.append('<input style="display:none" type="number" name="timeStart" value=' + timeStart + '>');
+        form.append('<input style="display:none" type="number" name="timeEnd" value=' + timeEnd + '>');
+    }
+
+    function moveProblemRowUp(r) {
+
+    }
+
+    function moveProblemRowDown(r) {
+
+    }
+
+    function addProblemRow() {
+        $('#problem-table tr:last').after(`
+            <tr class="problem">
+                <td style="width: 50px; text-align: left;">
+                    <button type="button" onclick="removeProblemRow(this)"><i class="material-icons">close</i></button>
+                    <button type="button" onclick="moveProblemRowUp(this)"><i class="material-icons">arrow_upward</i></button>
+                     <button type="button" onclick="moveProblemRowUp(this)"><i class="material-icons">arrow_downward</i></button>
+                 </td>
+                 <td><input type="text" value="" placeholder="ex. ioi2020p1" required></td>
+                 <td><input type="text" value="" placeholder="ex. IOI 2020 P1 - Jungle" required></td>
+                 <td><input type="color" value="#e91e63" required></td>
+                 <td><input type="number" value=100 required></td>
+            </tr>
+        `);
+    }
+
+    function removeProblemRow(r) {
+        $(r.parentNode.parentNode).remove();
+    }
+
+</script>
+
+</body>
+</html>

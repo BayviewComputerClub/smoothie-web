@@ -86,6 +86,8 @@ public class Contest {
     @Indexed(unique = true)
     private String prettyName;
 
+    private String description;
+
     // <problemId, contestproblem>
     private HashMap<String, ContestProblem> contestProblems = new HashMap<>();
 
@@ -98,8 +100,8 @@ public class Contest {
             visibleToPublic,
             timeMatters; // time adds points (breaks ties)
 
-    private List<String> testerUserIds;
-    private List<String> editorUserIds;
+    private List<String> testerUserIds = new ArrayList<>();
+    private List<String> editorUserIds = new ArrayList<>();
 
     // <userId, contest information>
     private HashMap<String, ContestUser> participants = new HashMap<>();

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import reactor.core.publisher.Mono;
@@ -77,8 +78,9 @@ public class AdminContestController {
     public Mono<String> getContestEditRoute(@PathVariable String name, Model model) {
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(c -> {
-                    model.addAttribute("form", ContestForm.fromContest(c));
+                .flatMap(ContestForm::fromContest)
+                .flatMap(cf -> {
+                    model.addAttribute("form", cf);
                     return Mono.just("admin/edit-contest");
                 })
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{name}/edit route exception: "));
@@ -95,7 +97,8 @@ public class AdminContestController {
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(contestForm::toContest)
                 .flatMap(c -> contestService.saveContest(c))
-                .flatMap(c -> Mono.just("redirect:/contest/" + c.getName() + "/admin"))
+                //.flatMap(c -> Mono.just("redirect:/contest/" + c.getName() + "/admin"))
+                .flatMap(c -> Mono.just("redirect:/admin/contests")) // TODO
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{name}/edit"));
     }
 
