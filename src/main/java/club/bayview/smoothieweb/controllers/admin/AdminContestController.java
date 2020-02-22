@@ -1,6 +1,5 @@
 package club.bayview.smoothieweb.controllers.admin;
 
-import club.bayview.smoothieweb.models.Contest;
 import club.bayview.smoothieweb.models.ContestForm;
 import club.bayview.smoothieweb.services.SmoothieContestService;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
@@ -43,10 +42,21 @@ public class AdminContestController {
         return Mono.just("contest");
     }
 
+    @GetMapping("/admin/contests")
+    @PreAuthorize("hasRole('ROLE_EDITOR')")
+    public Mono<String> getAdminContestsRoute(Model model) {
+        return contestService.findAllContests().collectList()
+                .flatMap(contests -> {
+                    model.addAttribute("contests", contests);
+                    return Mono.just("admin/contests");
+                });
+    }
+
     @GetMapping("/admin/new-contest")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> getNewContestRoute(Model model) {
-
+        model.addAttribute("form", ContestForm.defaultContest);
+        return Mono.just("admin/edit-contest");
     }
 
     @PostMapping("/admin/new-contest")
@@ -58,19 +68,35 @@ public class AdminContestController {
 
         return contestForm.toContest(null)
                 .flatMap(c -> contestService.saveContest(c))
-                .flatMap(c -> Mono.just("redirect:/contest/" + c.getName() + "/admin"));
+                .flatMap(c -> Mono.just("redirect:/contest/" + c.getName() + "/admin"))
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /admin/new-contest route exception: "));
     }
 
     @GetMapping("/contest/{name}/edit")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> getContestEditRoute(@PathVariable String name, Model model) {
-
+        return contestService.findContestByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(c -> {
+                    model.addAttribute("form", ContestForm.fromContest(c));
+                    return Mono.just("admin/edit-contest");
+                })
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{name}/edit route exception: "));
     }
 
     @PostMapping("/contest/{name}/edit")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
-    public Mono<String> postContestEditRoute(@PathVariable String name, @Valid Contest.ContestProblem contest, BindingResult result, Model model) {
+    public Mono<String> postContestEditRoute(@PathVariable String name, @Valid ContestForm contestForm, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            return Mono.just("admin/edit-contest");
+        }
 
+        return contestService.findContestByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(contestForm::toContest)
+                .flatMap(c -> contestService.saveContest(c))
+                .flatMap(c -> Mono.just("redirect:/contest/" + c.getName() + "/admin"))
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{name}/edit"));
     }
 
     @GetMapping("/contest/{name}/delete")

@@ -87,7 +87,7 @@ public class Submission {
         }
 
         // admins are automatically allowed to see
-        if (auth.getAuthorities().contains(Role.ROLE_ADMIN)) {
+        if (auth.getAuthorities().contains(Role.ROLE_ADMIN)) { // TODO may not work
             return true;
         }
 

@@ -17,6 +17,19 @@ import java.util.List;
 @Setter
 public class ContestForm {
 
+    public static ContestForm defaultContest = new ContestForm();
+
+    static {
+        defaultContest.setName("");
+        defaultContest.setPrettyName("");
+        defaultContest.setTimeStart(0);
+        defaultContest.setTimeEnd(0);
+        defaultContest.setSubmissionPeriod(0);
+        defaultContest.setEnabled(false);
+        defaultContest.setVisibleToPublic(false);
+        defaultContest.setTimeMatters(false);
+    }
+
     @Getter
     @Setter
     public static class ContestProblemForm {
@@ -26,6 +39,24 @@ public class ContestForm {
         private String problemId,
                 customName,
                 colourHex;
+
+        public ContestProblemForm(Contest.ContestProblem cp) {
+            this.contestProblemNumber = cp.getContestProblemNumber();
+            this.totalPointsWorth = cp.getTotalPointsWorth();
+            this.problemId = cp.getProblemId();
+            this.customName = cp.getCustomName();
+            this.colourHex = cp.getColourHex();
+        }
+
+        public Contest.ContestProblem getContestProblem() {
+            Contest.ContestProblem cp = new Contest.ContestProblem();
+            cp.setContestProblemNumber(contestProblemNumber);
+            cp.setTotalPointsWorth(totalPointsWorth);
+            cp.setProblemId(problemId);
+            cp.setCustomName(customName);
+            cp.setColourHex(colourHex);
+            return cp;
+        }
     }
 
     SmoothieUserService userService = SmoothieWebApplication.context.getBean(SmoothieUserService.class);
@@ -37,7 +68,7 @@ public class ContestForm {
             prettyName;
 
     @NotNull
-    private List<ContestProblemForm> problems;
+    private List<ContestProblemForm> problems = new ArrayList<>();
 
     @NotNull
     private List<String> testerUserHandles = new ArrayList<>(),
@@ -67,6 +98,8 @@ public class ContestForm {
         cf.setVisibleToPublic(c.isVisibleToPublic());
         cf.setTimeMatters(c.isTimeMatters());
 
+        c.getContestProblemsInOrder().forEach(p -> cf.problems.add(new ContestProblemForm(p)));
+
         SmoothieUserService userService = SmoothieWebApplication.context.getBean(SmoothieUserService.class);
 
         return userService
@@ -94,15 +127,18 @@ public class ContestForm {
 
         c.setEnabled(enabled);
         c.setVisibleToPublic(visibleToPublic);
-        if (c.isTimeMatters() != timeMatters) {
-            // redo scoreboard
-            c.setTimeMatters(timeMatters);
-            c.updateLeaderBoard();
+        c.setTimeMatters(timeMatters);
+
+        for (var p : problems) {
+            c.getContestProblems().put(p.getProblemId(), p.getContestProblem());
         }
 
         // resolve handle -> id for testers and editors list
         c.getTesterUserIds().clear();
         c.getEditorUserIds().clear();
+
+        // redo scoreboard
+        c.updateLeaderBoard();
 
         return userService.resolveHandlesToIds(testerUserHandles)
                 .doOnNext(c.getTesterUserIds()::add)

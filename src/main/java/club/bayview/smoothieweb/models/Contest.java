@@ -120,8 +120,24 @@ public class Contest {
     }
 
     // TODO
-    public boolean hasPermissionToView(Authentication authentication) {
-        return true;
+    public boolean hasPermissionToView(Authentication auth) {
+        if (isVisibleToPublic()) return true; // TODO user has to be in contest mode as well
+
+        // not logged in
+        if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User))
+            return false;
+
+        // is admin
+        if (auth.getAuthorities().contains(Role.ROLE_ADMIN)) // TODO may not work
+            return true;
+
+        User u = (User) auth.getPrincipal();
+
+        // is a tester or an editor
+        if (testerUserIds.contains(u.getId()) || editorUserIds.contains(u.getId()))
+            return true;
+
+        return false;
     }
 
     // generate sorted leaderboard
@@ -173,6 +189,7 @@ public class Contest {
 
                     // TODO do this separately, and individually per user when a submission is done for the user
                     // TODO prevent data race, use cache
+                    // TODO submissions could be for problems not in contest (contest was edited)
                     for (var s : submissions) {
                         // ignore AR (awaiting) submissions
                         if (!checkedSubmissions.contains(s.getVerdict())) {
