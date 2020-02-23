@@ -17,7 +17,6 @@
         label {
             font-size: 20px;
             font-family: Nunito, sans-serif;
-            /*margin-bottom: 10px;*/
             line-height: 1.5;
             color: #424242;
         }
@@ -40,6 +39,7 @@
             border-style: none;
             background-color: white;
             transition: box-shadow 0.3s;
+            outline: none;
         }
 
         button:focus {
@@ -50,6 +50,84 @@
             box-shadow: 1px 1px 15px 0 #9e9e9e;
             transition: box-shadow 0.3s;
         }
+
+        @keyframes table-row-in {
+            0% {
+                transform: translateX(-100px) scale(0.95);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        td {
+            text-align: center;
+        }
+
+        tr {
+            animation: table-row-in 0.5s;
+        }
+
+        .checkbox-switch {
+            margin-top: 10px;
+        }
+
+        .chips {
+            margin: 3px 3px 3px 0;
+            width: 400px;
+            padding: 10px;
+            outline: none;
+            border-style: none none solid none;
+            border-color: #9E9E9E;
+            color: #424242;
+            transition: box-shadow 0.3s, background 0.5s;
+            cursor: text;
+        }
+
+        .chips:hover {
+            box-shadow: 1px 4px 2px -2px #9E9E9E;
+            border-color: #757575;
+            transition: border-color 0.5s, box-shadow 0.3s, background 0.5s;
+        }
+
+        .chips:focus {
+            border-color: #424242;
+            box-shadow: 1px 4px 2px -2px #9E9E9E;
+        }
+
+        .chips input {
+            border-style: none;
+            padding: -10px;
+            font-family: 'Nunito', sans-serif;
+            width: 120px;
+            font-size: 20px;
+            outline: none;
+            display: inline-block;
+        }
+
+        .chip {
+            display: inline-block;
+            font-family: 'Nunito', sans-serif;
+            font-size: 20px;
+            padding: 0 12px;
+            border-radius: 13px;
+            background-color: #eeeeee;
+            box-shadow: 0 2px 6px 3px #bdbdbd;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .chip .close {
+            cursor: pointer;
+            float: right;
+            padding-left: 8px;
+            line-height: 32px;
+            font-size: 16px;
+        }
+
     </style>
 </head>
 <body>
@@ -76,10 +154,11 @@
 
         <div class="input-container">
             <label>Problems</label>
-            <table style="width: 100%" id="problems-table">
+            <table style="width: 100%" id="problem-table">
                 <thead>
                 <tr>
-                    <th style="width: 50px"></th> <!-- button -->
+                    <th style="width: 200px"></th> <!-- button -->
+                    <th style="width: 60px"><b>Order</b></th>
                     <th><b>Original Problem ID</b></th>
                     <th><b>Problem Name</b></th>
                     <th><b>Colour</b></th>
@@ -87,18 +166,19 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr><td colspan="4"><hr/></td></tr>
+                <tr><td colspan="6"><hr/></td></tr>
 
-                <tr th:each="problem : ${problems}" class="problem">
-                    <td style="width: 50px; text-align: left;">
+                <tr th:each="problem : ${form.problems}" class="problem">
+                    <td style="text-align: left;">
                         <button type="button" onclick="removeProblemRow(this)"><i class="material-icons">close</i></button>
                         <button type="button" onclick="moveProblemRowUp(this)"><i class="material-icons">arrow_upward</i></button>
-                        <button type="button" onclick="moveProblemRowUp(this)"><i class="material-icons">arrow_downward</i></button>
+                        <button type="button" onclick="moveProblemRowDown(this)"><i class="material-icons">arrow_downward</i></button>
                     </td>
-                    <td><input type="text" th:value="${problem.problemId}"></td>
-                    <td><input type="text" th:value="${problem.customName}"></td>
-                    <td><input type="color" th:value="${problem.colourHex}"></td>
-                    <td><input type="number" th:value="${problem.totalPointsWorth}"></td>
+                    <td class="problem-order" th:text="${problem.contestProblemNumber}+1"></td>
+                    <td><input type="text" placeholder="ex. ioi2020p1" th:value="${problem.problemId}"></td>
+                    <td><input type="text" placeholder="ex. IOI 2020 P1 - Jungle" th:value="${problem.customName}"></td>
+                    <td><input type="color" value="#e91e63" th:value="${problem.colourHex}"></td>
+                    <td><input type="number" style="width: 80px;"  th:value="${problem.totalPointsWorth}"></td>
                 </tr>
 
                 </tbody>
@@ -115,14 +195,14 @@
         </div>
 
         <div class="input-container">
-            <label>Contest Start Time</label>
+            <label>Contest Start Time (dd/mm/yyyy hh:mm)</label>
             <br/>
             <input type="date" id="contest-time-start-date" min="1970-01-01" max="2100-01-01">
             <input type="time" id="contest-time-start-time">
         </div>
 
         <div class="input-container">
-            <label>Contest End Time</label>
+            <label>Contest End Time (dd/mm/yyyy hh:mm)</label>
             <br/>
             <input type="date" id="contest-time-end-date" min="1970-01-01" max="2100-01-01">
             <input type="time" id="contest-time-end-time">
@@ -132,6 +212,33 @@
             <label for="contest-submission-period">Submission Period (Minutes)</label>
             <br/>
             <input type="number" id="contest-submission-period" min=0 th:field="*{submissionPeriod}" required>
+        </div>
+
+        <div class="input-container">
+            <label for="contest-testers-input">Contest Testers</label>
+            <br/>
+            <div class="chips" id="contest-testers">
+                <div class="chip" th:each="handle : ${form.testerUserHandles}"><span class="chip-text" th:text="${handle}"></span><i class="material-icons close">close</i></div>
+                <input class="input" id="contest-testers-input">
+            </div>
+        </div>
+
+        <div class="input-container">
+            <label for="contest-editors-input">Editors</label>
+            <br/>
+            <div class="chips" id="contest-editors">
+                <div class="chip" th:each="handle : ${form.editorUserHandles}"><span class="chip-text" th:text="${handle}"></span><i class="material-icons close">close</i></div>
+                <input class="input" id="contest-editors-input">
+            </div>
+        </div>
+
+        <div class="input-container">
+            <label for="contest-jury-input">Jury</label>
+            <br/>
+            <div class="chips" id="contest-jury">
+                <div class="chip" th:each="handle : ${form.juryUserHandles}"><span class="chip-text" th:text="${handle}"></span><i class="material-icons close">close</i></div>
+                <input class="input" id="contest-jury-input">
+            </div>
         </div>
 
         <div class="input-container">
@@ -188,6 +295,14 @@
     let endTime = document.getElementById('contest-time-end-time');
 
     $(() => {
+        // prevent pressing enter from submitting form
+        $(window).keydown(e => {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
         // initialize date time pickers
         let timeStart = new Date(form.timeStart); // converted to local time
         let timeEnd = new Date(form.timeEnd);
@@ -197,7 +312,28 @@
 
         startTime.value = ('0' + timeStart.getHours()).slice(-2) + ':' + ('0' + timeStart.getMinutes()).slice(-2);
         endTime.value = ('0' + timeEnd.getHours()).slice(-2) + ':' + ('0' + timeEnd.getMinutes()).slice(-2);
+
+        // initialize chips
+        $('.chips input').keyup(e => {
+            if (e.keyCode == 13 && e.target.value.trim() != "") {
+                $('<div class="chip"><span class="chip-text">' + e.target.value.trim() + '</span><i class="material-icons close">close</i></div>').insertBefore(e.target);
+                e.target.value = "";
+                $('.close').on("click", e => {
+                    $(e.target).parents(".chip").remove()
+                });
+            }
+        });
+        $('.chips').on("click", e => {
+            $(e.target).children("input").focus();
+        });
+        $('.close').on("click", e => {
+            $(e.target).parents(".chip").remove()
+        });
     });
+
+    function getHiddenInput(name, value) {
+        return '<input type="hidden" name="' + name + '" value="' + value + '">'
+    }
 
     // called when form is about to be submitted
     function prepareSubmitForm() {
@@ -211,30 +347,66 @@
         timeStart += new Date().getTimezoneOffset() * 60 * 1000;
         timeEnd += new Date().getTimezoneOffset() * 60 * 1000;
 
-        form.append('<input style="display:none" type="number" name="timeStart" value=' + timeStart + '>');
-        form.append('<input style="display:none" type="number" name="timeEnd" value=' + timeEnd + '>');
+        form.append(getHiddenInput('timeStart', timeStart));
+        form.append(getHiddenInput('timeEnd', timeEnd));
+
+        // prepare problem table with names for post form
+        let rowNum = 0, table = document.getElementById("problem-table");
+        for (let i = 0; i < table.rows.length; i++) {
+            let row = table.rows[i];
+            if (row.classList.contains("problem")) {
+                row.cells[2].children[0].setAttribute("name", "problems[" + rowNum + "].problemId");
+                row.cells[3].children[0].setAttribute("name", "problems[" + rowNum + "].customName");
+                row.cells[4].children[0].setAttribute("name", "problems[" + rowNum + "].colourHex");
+                row.cells[5].children[0].setAttribute("name", "problems[" + rowNum + "].totalPointsWorth");
+                form.append(getHiddenInput('problems[' + rowNum + '].contestProblemNumber', rowNum)); // add problem number as well to form
+                rowNum++;
+            }
+        }
+
+        // prepare user lists with chips
+        $('#contest-testers > .chip > .chip-text').each((i, v) => {
+            form.append(getHiddenInput('testerUserHandles[' + i + ']', v.innerText));
+        });
+        $('#contest-editors > .chip > .chip-text').each((i, v) => {
+            form.append(getHiddenInput('editorUserHandles[' + i + ']', v.innerText));
+        });
+        $('#contest-jury > .chip > .chip-text').each((i, v) => {
+            form.append(getHiddenInput('juryUserHandles[' + i + ']', v.innerText));
+        });
     }
 
     function moveProblemRowUp(r) {
-
+        let row = $(r).parents("tr:first");
+        let rowNumElement = row.children(".problem-order"), rowPrevNumElement = row.prev().children(".problem-order");
+        let num = rowNumElement.text();
+        rowNumElement.text(rowPrevNumElement.text());
+        rowPrevNumElement.text(num);
+        row.insertBefore(row.prev());
     }
 
     function moveProblemRowDown(r) {
-
+        let row = $(r).parents("tr:first");
+        let rowNumElement = row.children(".problem-order"), rowNextNumElement = row.next().children(".problem-order");
+        let num = rowNumElement.text();
+        rowNumElement.text(rowNextNumElement.text());
+        rowNextNumElement.text(num);
+        row.insertAfter(row.next());
     }
 
     function addProblemRow() {
         $('#problem-table tr:last').after(`
             <tr class="problem">
-                <td style="width: 50px; text-align: left;">
-                    <button type="button" onclick="removeProblemRow(this)"><i class="material-icons">close</i></button>
-                    <button type="button" onclick="moveProblemRowUp(this)"><i class="material-icons">arrow_upward</i></button>
-                     <button type="button" onclick="moveProblemRowUp(this)"><i class="material-icons">arrow_downward</i></button>
+                <td style="text-align: left;">
+                    <button type="button" onclick="removeProblemRow(this)" style="display: inline;"><i class="material-icons">close</i></button>
+                    <button type="button" onclick="moveProblemRowUp(this)" style="display: inline;"><i class="material-icons">arrow_upward</i></button>
+                    <button type="button" onclick="moveProblemRowDown(this)" style="display: inline;"><i class="material-icons">arrow_downward</i></button>
                  </td>
+                 <td class="problem-order">` + ($('#problem-table tr').length-1) + `</td>
                  <td><input type="text" value="" placeholder="ex. ioi2020p1" required></td>
                  <td><input type="text" value="" placeholder="ex. IOI 2020 P1 - Jungle" required></td>
                  <td><input type="color" value="#e91e63" required></td>
-                 <td><input type="number" value=100 required></td>
+                 <td><input type="number" value=100 style="width: 80px;" required></td>
             </tr>
         `);
     }

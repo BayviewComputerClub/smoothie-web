@@ -3,6 +3,7 @@ package club.bayview.smoothieweb.models;
 import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import reactor.core.publisher.Mono;
@@ -35,6 +36,7 @@ public class ContestForm {
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class ContestProblemForm {
         private int contestProblemNumber,
                 totalPointsWorth;
@@ -77,7 +79,8 @@ public class ContestForm {
 
     @NotNull
     private List<String> testerUserHandles = new ArrayList<>(),
-            editorUserHandles = new ArrayList<>();
+            editorUserHandles = new ArrayList<>(),
+            juryUserHandles = new ArrayList<>();
 
     @Min(0)
     private long timeStart,
@@ -110,8 +113,10 @@ public class ContestForm {
         return userService
                 .resolveIdsToHandles(c.getTesterUserIds())
                 .doOnNext(cf.getTesterUserHandles()::add)
-                .thenMany(SmoothieWebApplication.context.getBean(SmoothieUserService.class).resolveHandlesToIds(c.getEditorUserIds()))
+                .thenMany(userService.resolveIdsToHandles(c.getEditorUserIds()))
                 .doOnNext(cf.getEditorUserHandles()::add)
+                .thenMany(userService.resolveIdsToHandles(c.getJuryUserIds()))
+                .doOnNext(cf.getJuryUserHandles()::add)
                 .then(Mono.just(cf));
     }
 
@@ -135,6 +140,7 @@ public class ContestForm {
         c.setVisibleToPublic(visibleToPublic);
         c.setTimeMatters(timeMatters);
 
+        c.getContestProblems().clear();
         for (var p : problems) {
             c.getContestProblems().put(p.getProblemId(), p.getContestProblem());
         }
@@ -142,6 +148,7 @@ public class ContestForm {
         // resolve handle -> id for testers and editors list
         c.getTesterUserIds().clear();
         c.getEditorUserIds().clear();
+        c.getJuryUserIds().clear();
 
         // redo scoreboard
         c.updateLeaderBoard();
@@ -150,6 +157,8 @@ public class ContestForm {
                 .doOnNext(c.getTesterUserIds()::add)
                 .thenMany(userService.resolveHandlesToIds(editorUserHandles))
                 .doOnNext(c.getEditorUserIds()::add)
+                .thenMany(userService.resolveHandlesToIds(juryUserHandles))
+                .doOnNext(c.getJuryUserIds()::add)
                 .then(Mono.just(c));
     }
 

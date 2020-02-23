@@ -101,6 +101,7 @@ public class Contest {
             timeMatters; // time adds points (breaks ties)
 
     private List<String> testerUserIds = new ArrayList<>();
+    private List<String> juryUserIds = new ArrayList<>();
     private List<String> editorUserIds = new ArrayList<>();
 
     // <userId, contest information>
@@ -135,8 +136,8 @@ public class Contest {
 
         User u = (User) auth.getPrincipal();
 
-        // is a tester or an editor
-        if (testerUserIds.contains(u.getId()) || editorUserIds.contains(u.getId()))
+        // is a tester or an editor or jury
+        if (testerUserIds.contains(u.getId()) || editorUserIds.contains(u.getId()) || juryUserIds.contains(u.getId()))
             return true;
 
         return false;

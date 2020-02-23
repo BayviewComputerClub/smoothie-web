@@ -81,6 +81,7 @@ public class AdminContestController {
                 .flatMap(ContestForm::fromContest)
                 .flatMap(cf -> {
                     model.addAttribute("form", cf);
+                    System.out.println(cf.getProblems().toString()); // TODO
                     return Mono.just("admin/edit-contest");
                 })
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{name}/edit route exception: "));
