@@ -42,7 +42,7 @@ public class AdminContestController {
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .doOnNext(c -> model.addAttribute("contest", c))
-                .flatMap(c -> Mono.just("manage-contest"))
+                .flatMap(c -> Mono.just("admin/manage-contest"))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{name}/admin route exception: "));
     }
 
@@ -126,7 +126,7 @@ public class AdminContestController {
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(c -> contestService.deleteContestById(c.getId()))
-                .flatMap(b -> Mono.just("redirect:/contests"))
+                .flatMap(b -> Mono.just("redirect:/admin/contests"))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{name}/delete route exception: "));
     }
 }

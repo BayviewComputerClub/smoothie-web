@@ -86,7 +86,7 @@
         <tbody>
 
         <tr th:each="contest: ${contests}">
-            <td><a th:href="@{'/contest/' + ${contest.name} + '/edit'}" th:text="${contest.name}"></a></td>
+            <td><a th:href="@{'/contest/' + ${contest.name} + '/admin'}" th:text="${contest.name}"></a></td>
             <td th:text="${contest.prettyName}"></td>
             <td th:text="${contest.enabled}"></td>
             <td th:text="${contest.visibleToPublic}"></td>

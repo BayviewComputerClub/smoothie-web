@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <!-- ignore tag name "script", it will be replaced by favicon fragment -->
+    <script th:replace="fragments/favicon"></script>
+    <title>[[${contest.prettyName}]] | [[${siteName}]]</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/top-flex-bar.css}"/>
+    <link rel="stylesheet" th:href="@{/css/title.css}"/>
+    <link rel="stylesheet" th:href="@{/css/katex-0.11.1.min.css}"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        p {
+            font-size: 18px;
+            /*line-height: 1.5;*/
+            font-family: Metropolis, sans-serif;
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+            line-height: 1.5;
+        }
+
+        button, .button-link {
+            border-radius: 10px;
+            box-shadow: 1px 1px 5px 0 #607d8b;
+            cursor: pointer;
+            transition: box-shadow 0.3s;
+            font-family: Nunito, sans-serif;
+            font-size: 18px;
+            padding: 10px 20px 10px 20px;
+            background-color: #FFFFFF;
+            border-style: solid;
+            border-color: #FFFFFF;
+            border-width: 2px;
+            color: #424242;
+            text-decoration: none;
+        }
+
+        button:focus, .button-link:focus {
+            outline: 0;
+        }
+
+        button:hover, .button-link:hover {
+            box-shadow: 1px 1px 15px 0 #607d8b;
+            transition: box-shadow 0.3s;
+        }
+
+        hr {
+            color: #9e9e9e;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <h1 th:text="${contest.prettyName}"></h1>
+
+    <div class="topbar">
+        <div class="topbar-item">
+            <span class="material-icons" style="vertical-align: middle;">access_time</span> Start Time
+            <br/><span th:text="${contest.timeStart}" id="start-time" class="topbar-bottom-text"></span>
+        </div>
+        <div class="topbar-item">
+            <span class="material-icons" style="vertical-align: middle;">access_time</span> End Time
+            <br/><span th:text="${contest.timeEnd}" id="end-time" class="topbar-bottom-text"></span>
+        </div>
+        <div class="topbar-item">
+            <span class="material-icons" style="vertical-align: middle;">timer</span> Submission Window
+            <br/><span th:text="${contest.submissionPeriod}" id="submission-window" class="topbar-bottom-text"></span>
+        </div>
+        <div class="topbar-item">
+            <span class="material-icons" style="vertical-align: middle;">grade</span> Status
+            <br/> <span class="topbar-bottom-text">ongoing</span>
+        </div>
+
+        <div style="margin-left: auto;">
+            <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/leaderboard'}">Leaderboard</a>
+            <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/join'}">Join</a>
+            <a class="button-link" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{'/contest/' + ${contest.name} + '/admin'}">Manage</a>
+        </div>
+    </div>
+
+    <p id="contest-description" th:text="${contest.description}" style="white-space: pre;">
+    </p>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/katex-0.11.1.min.js}"></script>
+<script th:src="@{/js/markdown-it-9.1.0.min.js}"></script>
+<script th:src="@{/js/render-md-latex.js}"></script>
+<script th:src="@{/js/moment.min.js}"></script>
+
+<script th:inline="javascript">
+    // load header
+    let $start = $("#start-time"), $end = $("#end-time"), $subPeriod = $("#submission-window");
+    $start.text(moment(parseInt($start.text(), 10)).format('LLL'));
+    $end.text(moment(parseInt($end.text(), 10)).format('LLL'));
+    $subPeriod.text($subPeriod.text() + " minutes");
+
+    // load problem statement
+    $('document').ready(() => {
+        let statement = $('#contest-description');
+        statement.html(renderMdLatex(statement.text()));
+        statement.css('white-space', 'normal')
+    });
+</script>
+</body>
+</html>

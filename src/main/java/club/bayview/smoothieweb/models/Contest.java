@@ -92,9 +92,9 @@ public class Contest {
     private HashMap<String, ContestProblem> contestProblems = new HashMap<>();
 
     // in unix time
-    private long timeStart, // when the contest allows people to join and submit
-            timeEnd, // when the contest closes submissions
-            submissionPeriod; // contest length for when people can submit from when they first "join" the contest; set to 0 to allow submissions throughout the contest length
+    private long timeStart, // when the contest allows people to join and submit (millisecond epoch)
+            timeEnd, // when the contest closes submissions (millisecond epoch)
+            submissionPeriod; // contest length (minutes) for when people can submit from when they first "join" the contest; set to 0 to allow submissions throughout the contest length
 
     private boolean enabled,
             visibleToPublic,
