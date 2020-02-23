@@ -130,11 +130,11 @@ public class Contest {
         if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User))
             return false;
 
-        // is admin
-        if (auth.getAuthorities().contains(Role.ROLE_ADMIN)) // TODO may not work
-            return true;
-
         User u = (User) auth.getPrincipal();
+
+        // is admin
+        if (u.getRoles().contains(Role.ROLE_ADMIN))
+            return true;
 
         // is a tester or an editor or jury
         if (testerUserIds.contains(u.getId()) || editorUserIds.contains(u.getId()) || juryUserIds.contains(u.getId()))

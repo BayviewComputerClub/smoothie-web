@@ -86,12 +86,12 @@ public class Submission {
             return false;
         }
 
+        User user = (User) auth.getPrincipal();
+
         // admins are automatically allowed to see
-        if (auth.getAuthorities().contains(Role.ROLE_ADMIN)) { // TODO may not work
+        if (user.getRoles().contains(Role.ROLE_ADMIN)) {
             return true;
         }
-
-        User user = (User) auth.getPrincipal();
 
         // if it is the user that submitted
         if (getUserId().equals(user.getId())) {

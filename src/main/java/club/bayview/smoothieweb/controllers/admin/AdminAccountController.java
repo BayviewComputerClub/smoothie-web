@@ -60,8 +60,10 @@ public class AdminAccountController {
         User toUser(User original) {
             if (isAdmin()) {
                 original.getRoles().add(Role.ROLE_ADMIN);
+                original.getRoles().add(Role.ROLE_EDITOR);
             } else {
                 original.getRoles().remove(Role.ROLE_ADMIN);
+                original.getRoles().remove(Role.ROLE_EDITOR);
             }
 
             if (getPassword() != null && !getPassword().trim().isEmpty()) {
