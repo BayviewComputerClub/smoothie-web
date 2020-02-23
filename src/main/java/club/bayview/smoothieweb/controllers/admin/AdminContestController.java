@@ -14,7 +14,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import reactor.core.publisher.Mono;
@@ -40,22 +39,26 @@ public class AdminContestController {
     @GetMapping("/contest/{name}/admin")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> getContestDashboard(@PathVariable String name, Model model) {
-        return Mono.just("contest");
+        return contestService.findContestByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .doOnNext(c -> model.addAttribute("contest", c))
+                .flatMap(c -> Mono.just("manage-contest"))
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{name}/admin route exception: "));
     }
 
     @GetMapping("/admin/contests")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> getAdminContestsRoute(Model model) {
-        return contestService.findAllContests().collectList()
-                .flatMap(contests -> {
-                    model.addAttribute("contests", contests);
-                    return Mono.just("admin/contests");
-                });
+        return contestService.findAllContests()
+                .collectList()
+                .doOnNext(cs -> model.addAttribute("contests", cs))
+                .flatMap(cs -> Mono.just("admin/contests"));
     }
 
     @GetMapping("/admin/new-contest")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> getNewContestRoute(Model model) {
+        model.addAttribute("newContest", true);
         model.addAttribute("form", ContestForm.defaultContest);
         return Mono.just("admin/edit-contest");
     }
@@ -64,9 +67,11 @@ public class AdminContestController {
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> postNewContestRoute(@Valid ContestForm contestForm, BindingResult result, Model model) {
         if (result.hasErrors()) {
+            model.addAttribute("newContest", true);
             return Mono.just("admin/edit-contest");
         }
 
+        // TODO check if contest exists
         return contestForm.toContest(null)
                 .flatMap(c -> contestService.saveContest(c))
                 .flatMap(c -> Mono.just("redirect:/contest/" + c.getName() + "/admin"))
@@ -76,14 +81,12 @@ public class AdminContestController {
     @GetMapping("/contest/{name}/edit")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> getContestEditRoute(@PathVariable String name, Model model) {
+
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(ContestForm::fromContest)
-                .flatMap(cf -> {
-                    model.addAttribute("form", cf);
-                    System.out.println(cf.getProblems().toString()); // TODO
-                    return Mono.just("admin/edit-contest");
-                })
+                .doOnNext(cf -> model.addAttribute("form", cf))
+                .flatMap(cf -> Mono.just("admin/edit-contest"))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{name}/edit route exception: "));
     }
 
@@ -94,12 +97,12 @@ public class AdminContestController {
             return Mono.just("admin/edit-contest");
         }
 
+        // TODO check if contest name exists
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(contestForm::toContest)
                 .flatMap(c -> contestService.saveContest(c))
-                //.flatMap(c -> Mono.just("redirect:/contest/" + c.getName() + "/admin"))
-                .flatMap(c -> Mono.just("redirect:/admin/contests")) // TODO
+                .flatMap(c -> Mono.just("redirect:/contest/" + c.getName() + "/admin"))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{name}/edit"));
     }
 
@@ -110,10 +113,8 @@ public class AdminContestController {
 
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(c -> {
-                    model.addAttribute("contest", c);
-                    return Mono.just("admin/delete-contest");
-                })
+                .doOnNext(c -> model.addAttribute("contest", c))
+                .flatMap(c -> Mono.just("admin/delete-contest"))
                 .onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /contest/{name}/delete route exception: "));
     }
 

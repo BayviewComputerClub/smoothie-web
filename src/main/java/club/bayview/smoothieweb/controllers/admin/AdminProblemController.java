@@ -52,13 +52,14 @@ public class AdminProblemController {
     public Mono<String> getEditProblemRoute(@PathVariable String name, Model model) {
         if (name == null) return Mono.just("404");
 
-        return problemService.findProblemByName(name).switchIfEmpty(Mono.error(new NotFoundException())).flatMap(p -> {
-
-            model.addAttribute("newProblem", false);
-            model.addAttribute("problem", ProblemForm.fromProblem(p));
-            model.addAttribute("languages", JudgeLanguage.values);
-            return Mono.just("admin/edit-problem");
-        }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /problem/{name}/edit route exception: "));
+        return problemService.findProblemByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(p -> {
+                    model.addAttribute("newProblem", false);
+                    model.addAttribute("problem", ProblemForm.fromProblem(p));
+                    model.addAttribute("languages", JudgeLanguage.values);
+                    return Mono.just("admin/edit-problem");
+                }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /problem/{name}/edit route exception: "));
     }
 
     @GetMapping("/problem/{name}/manage")
@@ -66,12 +67,12 @@ public class AdminProblemController {
     public Mono<String> getManageProblemRoute(@PathVariable String name, Model model) {
         if (name == null) return Mono.just("404");
 
-        return problemService.findProblemByName(name).switchIfEmpty(Mono.error(new NotFoundException())).flatMap(p -> {
-
-            model.addAttribute("problem", p);
-            return Mono.just("admin/manage-problem");
-
-        }).onErrorResume(e -> Mono.just("404"));
+        return problemService.findProblemByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(p -> {
+                    model.addAttribute("problem", p);
+                    return Mono.just("admin/manage-problem");
+                }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /problem/{name}/manage route exception: "));
     }
 
     @GetMapping("/problem/{name}/delete")
@@ -113,6 +114,8 @@ public class AdminProblemController {
             Problem p = form.toProblem(null);
             p.setTimeCreated(System.currentTimeMillis() / 1000L);
 
+            // TODO check if problem already exists
+
             return problemService.saveProblem(p)
                     .then(Mono.just("redirect:/problem/" + p.getName() + "/manage"));
         }
@@ -128,6 +131,8 @@ public class AdminProblemController {
             return Mono.just("admin/edit-problem");
         } else {
             // save problem
+
+            // TODO check if problem handle already is used
             return problemService.findProblemByName(name)
                     .switchIfEmpty(Mono.error(new NotFoundException()))
                     .flatMap(originalProblem -> problemService.saveProblem(form.toProblem(originalProblem)))
