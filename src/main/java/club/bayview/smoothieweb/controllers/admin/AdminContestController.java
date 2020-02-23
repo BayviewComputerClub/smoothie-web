@@ -86,7 +86,7 @@ public class AdminContestController {
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(ContestForm::fromContest)
                 .doOnNext(cf -> model.addAttribute("form", cf))
-                .flatMap(cf -> Mono.just("admin/edit-contest"))
+                .then(Mono.just("admin/edit-contest"))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{name}/edit route exception: "));
     }
 
@@ -109,8 +109,6 @@ public class AdminContestController {
     @GetMapping("/contest/{name}/delete")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> getContestDeleteRoute(@PathVariable String name, Model model) {
-        if (name == null) return Mono.just("404");
-
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .doOnNext(c -> model.addAttribute("contest", c))
@@ -121,12 +119,12 @@ public class AdminContestController {
     @PostMapping("/contest/{name}/delete")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> postContestDeleteRoute(@PathVariable String name, Model model) {
-        if (name == null) return Mono.just("404");
 
+        // TODO fix
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(c -> contestService.deleteContestById(c.getId()))
-                .flatMap(b -> Mono.just("redirect:/admin/contests"))
+                .then(Mono.just("redirect:/admin/contests"))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{name}/delete route exception: "));
     }
 }

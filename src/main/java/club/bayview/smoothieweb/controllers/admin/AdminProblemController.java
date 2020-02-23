@@ -92,13 +92,12 @@ public class AdminProblemController {
     @PostMapping("/problem/{name}/delete")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> postDeleteProblemRoute(@PathVariable String name, Model model) {
-        if (name == null) return Mono.just("404");
 
         return problemService.findProblemByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(p -> problemService.deleteProblemById(p.getId()))
-                .flatMap(b -> Mono.just("redirect:/problems"))
-                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /problem/{name}/delete route exception: "));
+                .then(Mono.just("redirect:/problems")) // void mono MUST use then
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /problem/{name}/delete route exception: "));
     }
 
     @PostMapping("/admin/new-problem")
@@ -136,7 +135,7 @@ public class AdminProblemController {
             return problemService.findProblemByName(name)
                     .switchIfEmpty(Mono.error(new NotFoundException()))
                     .flatMap(originalProblem -> problemService.saveProblem(form.toProblem(originalProblem)))
-                    .flatMap(b -> Mono.just("redirect:/problem/" + name))
+                    .then(Mono.just("redirect:/problem/" + name))
                     .onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /problem/{name}/edit route exception: "));
         }
     }

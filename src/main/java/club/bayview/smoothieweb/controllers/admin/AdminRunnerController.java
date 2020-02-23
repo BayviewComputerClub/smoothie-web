@@ -144,7 +144,7 @@ public class AdminRunnerController {
                     runnerService.updateSmoothieRunner(r);
                     return runnerService.saveRunner(r);
                 })
-                .flatMap(b -> Mono.just("redirect:/admin/runners"))
+                .then(Mono.just("redirect:/admin/runners"))
                 .onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /admin/runner/{name}/edit route exception: "));
     }
 
