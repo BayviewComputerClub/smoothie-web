@@ -43,15 +43,15 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>Problems</h1>
+    <h1>Contests</h1>
     <table style="width: 80%">
         <thead>
 
         <tr>
             <th>Name</th>
-            <th>Users Solved</th>
-            <th>AC %</th>
-            <th>Points</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Submission Window</th>
         </tr>
         <tr>
             <th colspan="4"><hr/></th>
@@ -59,15 +59,26 @@
         </thead>
         <tbody>
 
-        <tr th:each="problem: ${problems}">
-            <td><a th:href="@{'/problem/' + ${problem.name}}" th:text="${problem.prettyName}"></a></td>
-            <td th:text="${problem.usersSolved}"></td>
-            <td th:text="${problem.rateOfAC}"></td>
-            <td th:text="${problem.totalPointsWorth}"></td>
+        <tr th:each="contest: ${contests}">
+            <td><a th:href="@{'/contest/' + ${contest.name}}" th:text="${contest.prettyName}"></a></td>
+            <td th:text="${contest.timeStart}" class="date"></td>
+            <td th:text="${contest.timeEnd}" class="date"></td>
+            <td>[[${contest.submissionPeriod}]] minutes</td>
         </tr>
 
         </tbody>
     </table>
 </div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/moment.min.js}"></script>
+<script>
+    $(() => {
+        $('.date').each((i, e) => {
+            e.innerText = moment(parseInt(e.innerText, 10)).format('LLL');
+        });
+    });
+</script>
+
 </body>
 </html>

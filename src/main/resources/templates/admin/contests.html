@@ -90,13 +90,23 @@
             <td th:text="${contest.prettyName}"></td>
             <td th:text="${contest.enabled}"></td>
             <td th:text="${contest.visibleToPublic}"></td>
-            <td th:text="${contest.timeStart}"></td>
-            <td th:text="${contest.timeEnd}"></td>
+            <td th:text="${contest.timeStart}" class="date"></td>
+            <td th:text="${contest.timeEnd}" class="date"></td>
         </tr>
 
         </tbody>
     </table>
 
 </div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/moment.min.js}"></script>
+<script>
+    $(() => {
+        $('.date').each((i, e) => {
+            e.innerText = moment(parseInt(e.innerText, 10)).format('LLL');
+        });
+    });
+</script>
 </body>
 </html>

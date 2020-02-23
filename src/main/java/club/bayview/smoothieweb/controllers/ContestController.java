@@ -22,6 +22,14 @@ public class ContestController {
     @Autowired
     SmoothieContestService contestService;
 
+    @GetMapping("/contests")
+    public Mono<String> getContestsRoute(Model model) {
+        return contestService.findAllContests().collectList().flatMap(cs -> {
+            model.addAttribute("contests", cs);
+            return Mono.just("contests");
+        });
+    }
+
     @GetMapping("/contest/{name}")
     public Mono<String> getContestRoute(@PathVariable String name, Model model, Authentication auth) {
         return contestService.findContestByName(name)
