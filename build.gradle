@@ -23,6 +23,7 @@ sourceCompatibility = '11'
 
 configurations {
     developmentOnly
+    providedRuntime
     runtimeClasspath {
         extendsFrom developmentOnly
     }
@@ -37,7 +38,6 @@ repositories {
 
 def protobufVersion = '3.6.1'
 def grpcVersion = '1.16.1'
-
 
 protobuf {
     protoc {
@@ -70,8 +70,10 @@ ext {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+    implementation 'org.springframework.boot:spring-boot-devtools'
+    implementation 'org.springframework.session:spring-session-core'
     implementation 'org.springframework.session:spring-session-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -79,7 +81,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
-    implementation 'org.springframework.session:spring-session-core'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
     implementation 'io.grpc:grpc-netty:1.25.0'
     implementation 'io.grpc:grpc-protobuf:1.25.0'
@@ -92,7 +93,7 @@ dependencies {
     compile group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.8.0'
     implementation 'com.esotericsoftware:kryo:5.0.0-RC4'
 
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools' // in order to use livereload in intellij - ctrl-f9 (or build -> build project)
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
