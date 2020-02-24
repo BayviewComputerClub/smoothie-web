@@ -120,7 +120,6 @@ public class AdminContestController {
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> postContestDeleteRoute(@PathVariable String name, Model model) {
 
-        // TODO fix
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(c -> contestService.deleteContestById(c.getId()))

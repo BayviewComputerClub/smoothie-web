@@ -74,14 +74,10 @@ public class ProblemController {
                     if (!contest.hasPermissionToView(auth))
                         return Mono.error(new NoPermissionException());
 
-                    System.out.println("aiayyay"); // TODO
-
                     if (problemNum >= contest.getContestProblems().size()) {
                         return Mono.error(new NotFoundException());
                     }
                     Contest.ContestProblem cp = contest.getContestProblemsInOrder().get(problemNum);
-
-                    System.out.println(cp.getProblemId()); // TODO
 
                     // add contest problem (override some problem fields)
                     model.addAttribute("contestProblem", cp);

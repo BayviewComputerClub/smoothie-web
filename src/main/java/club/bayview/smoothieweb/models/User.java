@@ -81,7 +81,7 @@ public class User implements UserDetails, Serializable {
 
     public void encodePassword() {
         //this.password = SmoothieWebApplication.context.getBean(SmoothieAuthenticationProvider.class).passwordEncoder.encode(this.password);
-        this.password =  new Argon2PasswordEncoder().encode(this.password); // TODO
+        this.password =  new Argon2PasswordEncoder().encode(this.password);
     }
 
     public boolean isAdmin() {
