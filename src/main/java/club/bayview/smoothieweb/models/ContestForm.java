@@ -1,6 +1,7 @@
 package club.bayview.smoothieweb.models;
 
 import club.bayview.smoothieweb.SmoothieWebApplication;
+import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,14 +42,17 @@ public class ContestForm {
         private int contestProblemNumber,
                 totalPointsWorth;
 
-        private String problemId,
+        private String problemName,
                 customName,
                 colourHex;
+
+        SmoothieProblemService problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
 
         public ContestProblemForm(Contest.ContestProblem cp) {
             this.contestProblemNumber = cp.getContestProblemNumber();
             this.totalPointsWorth = cp.getTotalPointsWorth();
-            this.problemId = cp.getProblemId();
+            Problem p = problemService.findProblemById(cp.getProblemId()).block();
+            if (p != null) this.problemName = p.getName(); // TODO
             this.customName = cp.getCustomName();
             this.colourHex = cp.getColourHex();
         }
@@ -57,7 +61,8 @@ public class ContestForm {
             Contest.ContestProblem cp = new Contest.ContestProblem();
             cp.setContestProblemNumber(contestProblemNumber);
             cp.setTotalPointsWorth(totalPointsWorth);
-            cp.setProblemId(problemId);
+            Problem p = problemService.findProblemByName(problemName).block();
+            if (p != null) cp.setProblemId(p.getId()); // TODO
             cp.setCustomName(customName);
             cp.setColourHex(colourHex);
             return cp;
@@ -65,6 +70,7 @@ public class ContestForm {
     }
 
     SmoothieUserService userService = SmoothieWebApplication.context.getBean(SmoothieUserService.class);
+    SmoothieProblemService problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
 
     // fields
     @NotBlank
@@ -142,7 +148,8 @@ public class ContestForm {
 
         c.getContestProblems().clear();
         for (var p : problems) {
-            c.getContestProblems().put(p.getProblemId(), p.getContestProblem());
+            Contest.ContestProblem cp = p.getContestProblem();
+            c.getContestProblems().put(cp.getProblemId(), cp);
         }
 
         // resolve handle -> id for testers and editors list

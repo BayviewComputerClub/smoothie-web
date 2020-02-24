@@ -37,6 +37,20 @@ public class ProblemController {
         });
     }
 
+    @RequestMapping("/contest/{contestName}/problems")
+    public Mono<String> getContestProblemsRoute(@PathVariable String contestName, Model model, Authentication auth) {
+        return contestService.findContestByName(contestName)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(c -> {
+                    if (!c.hasPermissionToView(auth))
+                        return Mono.error(new NoPermissionException());
+
+                    model.addAttribute("contest", c);
+                    return Mono.just("contest-problems");
+                })
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{contestName}/problems"));
+    }
+
     @GetMapping("/problem/{name}")
     public Mono<String> getProblemRoute(@PathVariable String name, Model model, Authentication auth) {
         return problemService.findProblemByName(name)
@@ -48,20 +62,26 @@ public class ProblemController {
                     model.addAttribute("problem", p);
                     return Mono.just("problem");
                 })
-                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "/problem/{name} route exception: "));
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /problem/{name} route exception: "));
     }
 
-    @GetMapping("/contest/{contestName}/problem/{problemName}")
-    public Mono<String> getContestProblemRoute(@PathVariable String contestName, @PathVariable String problemName, Model model, Authentication auth) {
+    @GetMapping("/contest/{contestName}/problem/{problemNum}")
+    public Mono<String> getContestProblemRoute(@PathVariable String contestName, @PathVariable int problemNum, Model model, Authentication auth) {
+
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(contest -> {
                     if (!contest.hasPermissionToView(auth))
                         return Mono.error(new NoPermissionException());
 
-                    Contest.ContestProblem cp = contest.getContestProblems().get(problemName);
-                    if (cp == null)
+                    System.out.println("aiayyay"); // TODO
+
+                    if (problemNum >= contest.getContestProblems().size()) {
                         return Mono.error(new NotFoundException());
+                    }
+                    Contest.ContestProblem cp = contest.getContestProblemsInOrder().get(problemNum);
+
+                    System.out.println(cp.getProblemId()); // TODO
 
                     // add contest problem (override some problem fields)
                     model.addAttribute("contestProblem", cp);
@@ -72,7 +92,7 @@ public class ProblemController {
                     model.addAttribute("problem", problem);
                     return Mono.just("problem");
                 })
-                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "/contest/{contestName}/{problemName} route exception: "));
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{contestName}/{problemNum} route exception: "));
     }
 
 }

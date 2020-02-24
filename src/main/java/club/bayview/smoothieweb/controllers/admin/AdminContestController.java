@@ -103,7 +103,7 @@ public class AdminContestController {
                 .flatMap(contestForm::toContest)
                 .flatMap(c -> contestService.saveContest(c))
                 .flatMap(c -> Mono.just("redirect:/contest/" + c.getName() + "/admin"))
-                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{name}/edit"));
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{name}/edit route exception: "));
     }
 
     @GetMapping("/contest/{name}/delete")

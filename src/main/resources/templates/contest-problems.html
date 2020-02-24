@@ -3,7 +3,7 @@
 <head>
     <!-- ignore tag name "script", it will be replaced by favicon fragment -->
     <script th:replace="fragments/favicon"></script>
-    <title>Problems | [[${siteName}]]</title>
+    <title>Contest [[${contest.prettyName}]] Problems | [[${siteName}]]</title>
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
@@ -20,21 +20,20 @@
         <thead>
 
         <tr>
+            <th>Number</th>
             <th>Name</th>
-            <th>Users Solved</th>
-            <th>AC %</th>
             <th>Points</th>
         </tr>
         <tr>
-            <th colspan="4"><hr/></th>
+            <th colspan="3"><hr/></th>
         </tr>
         </thead>
         <tbody>
 
-        <tr th:each="problem: ${problems}">
-            <td><a th:href="@{'/problem/' + ${problem.name}}" th:text="${problem.prettyName}"></a></td>
-            <td th:text="${problem.usersSolved}"></td>
-            <td th:text="${problem.rateOfAC}"></td>
+        <tr th:each="problem: ${contest.getContestProblemsInOrder()}">
+            <!-- todo do colour -->
+            <td th:text="${problem.contestProblemNumber}+1"></td>
+            <td><a th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${problem.contestProblemNumber}}" th:text="${problem.customName}"></a></td>
             <td th:text="${problem.totalPointsWorth}"></td>
         </tr>
 

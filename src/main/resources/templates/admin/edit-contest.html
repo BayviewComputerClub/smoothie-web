@@ -178,7 +178,7 @@
                         <button type="button" onclick="moveProblemRowDown(this)"><i class="material-icons">arrow_downward</i></button>
                     </td>
                     <td class="problem-order" th:text="${problem.contestProblemNumber}+1"></td>
-                    <td><input type="text" placeholder="ex. ioi2020p1" th:value="${problem.problemId}"></td>
+                    <td><input type="text" placeholder="ex. ioi2020p1" th:value="${problem.problemName}"></td>
                     <td><input type="text" placeholder="ex. IOI 2020 P1 - Jungle" th:value="${problem.customName}"></td>
                     <td><input type="color" value="#e91e63" th:value="${problem.colourHex}"></td>
                     <td><input type="number" style="width: 80px;"  th:value="${problem.totalPointsWorth}"></td>
@@ -358,7 +358,7 @@
         for (let i = 0; i < table.rows.length; i++) {
             let row = table.rows[i];
             if (row.classList.contains("problem")) {
-                row.cells[2].children[0].setAttribute("name", "problems[" + rowNum + "].problemId");
+                row.cells[2].children[0].setAttribute("name", "problems[" + rowNum + "].problemName");
                 row.cells[3].children[0].setAttribute("name", "problems[" + rowNum + "].customName");
                 row.cells[4].children[0].setAttribute("name", "problems[" + rowNum + "].colourHex");
                 row.cells[5].children[0].setAttribute("name", "problems[" + rowNum + "].totalPointsWorth");
