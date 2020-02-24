@@ -83,6 +83,8 @@
         </div>
 
         <div style="margin-left: auto;">
+            <!-- -=-=- TODO PERMISSIONS -=-=- -->
+            <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/problems'}">Problems</a>
             <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/leaderboard'}">Leaderboard</a>
             <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/join'}">Join</a>
             <a class="button-link" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{'/contest/' + ${contest.name} + '/admin'}">Manage</a>

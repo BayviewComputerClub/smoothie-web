@@ -45,8 +45,17 @@ public class ContestController {
     }
 
     @GetMapping("/contest/{name}/leaderboard")
-    public Mono<String> getContestLeaderboard(@PathVariable String name, Model model) {
-        return Mono.just("contest");
-    }
+    public Mono<String> getContestLeaderboard(@PathVariable String name, Model model, Authentication auth) {
 
+        return contestService.findContestByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(c -> {
+                    if (!c.hasPermissionToView(auth))
+                        return Mono.error(new NoPermissionException());
+
+                    model.addAttribute("contest", c);
+                    return Mono.just("contest-leaderboard");
+                })
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{name}/leaderboard route exception: "));
+    }
 }

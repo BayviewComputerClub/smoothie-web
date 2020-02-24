@@ -62,7 +62,7 @@ public class Contest {
 
         // must be refreshed before sorting
         private double points;
-        List<ContestUserSubmission> bestSubmissions; // submission to show on leaderboard; each index is the contestProblemNumber
+        List<ContestUserSubmission> bestSubmissions; // submission to show on leaderboard; each index is the contestProblemNumber (it's in order)
 
         private String userId;
 
@@ -210,25 +210,20 @@ public class Contest {
 
                     // loop over contest problems in order and add to best submissions
                     for (ContestProblem cp : getContestProblemsInOrder()) {
+                        var cus = new ContestUserSubmission();
                         if (m.containsKey(cp.getProblemId())) { // submission for problem has been recorded
                             var sub = m.get(cp.getProblemId());
-                            var cus = new ContestUserSubmission();
-
                             cus.setMaxPoints(cp.getTotalPointsWorth());
                             cus.setPoints(sub.getPoints()/sub.getMaxPoints()*cp.getTotalPointsWorth()); // convert from problem points to contest points
                             cus.setProblemId(sub.getProblemId());
                             cus.setTimeSubmitted(sub.getTimeSubmitted());
-
-                            u.getBestSubmissions().add(cus);
                         } else { // no submissions yet
-                            var cus = new ContestUserSubmission();
                             cus.setMaxPoints(cp.getTotalPointsWorth());
                             cus.setPoints(0);
                             cus.setProblemId(cp.getProblemId());
                             cus.setTimeSubmitted(0);
-
-                            u.getBestSubmissions().add(cus);
                         }
+                        u.getBestSubmissions().add(cus);
                     }
 
                     participants.put(userId, u);
