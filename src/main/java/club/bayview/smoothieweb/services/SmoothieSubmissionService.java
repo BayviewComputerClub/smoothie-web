@@ -25,6 +25,14 @@ public class SmoothieSubmissionService {
         return submissionRepository.findByUserIdOrderByTimeSubmittedDesc(userId);
     }
 
+    public Flux<Submission> findSubmissionsForContest(String contestId) {
+        return submissionRepository.findByContestIdOrderByTimeSubmittedDesc(contestId);
+    }
+
+    public Flux<Submission> findSubmissionsForContestAndProblem(String contestId, String problemId) {
+        return submissionRepository.findByContestIdAndProblemIdOrderByTimeSubmittedDesc(contestId, problemId);
+    }
+
     public Flux<Submission> findSubmissionsByUserAndProblem(String userId, String problemId) {
         return submissionRepository.findByUserIdAndProblemIdOrderByTimeSubmittedDesc(userId, problemId);
     }

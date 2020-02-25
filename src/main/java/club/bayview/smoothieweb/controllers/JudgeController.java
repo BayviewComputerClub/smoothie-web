@@ -84,10 +84,10 @@ public class JudgeController {
                     if (!contest.hasPermissionToView(auth))
                         return Mono.error(new NoPermissionException());
 
-                    Contest.ContestProblem cp = contest.getContestProblemsInOrder().get(problemNum);
-                    if (cp == null)
+                    if (contest.getContestProblemsInOrder().size() <= problemNum)
                         return Mono.error(new NotFoundException());
 
+                    Contest.ContestProblem cp = contest.getContestProblemsInOrder().get(problemNum);
                     model.addAttribute("contestProblem", cp);
 
                     return problemService.findProblemById(cp.getProblemId());

@@ -181,7 +181,7 @@ public class Contest {
 
     // refresh a participant's information
     // be sure to save contest object
-    public Mono<Void> updateParticipant(String userId) {
+    public Mono<Contest> updateParticipant(String userId) {
         List<String> checkedSubmissions = Arrays.asList(Verdict.AC.toString(), Verdict.WA.toString(), Verdict.MLE.toString(), Verdict.TLE.toString());
 
         HashMap<String, Submission> m = new HashMap<>();
@@ -227,6 +227,6 @@ public class Contest {
                     }
 
                     participants.put(userId, u);
-                }).then();
+                }).then(Mono.just(this));
     }
 }

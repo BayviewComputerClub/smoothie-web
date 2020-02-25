@@ -19,4 +19,8 @@ public interface SubmissionRepository extends ReactiveMongoRepository<Submission
 
     Flux<Submission> findByUserIdAndContestIdAndProblemIdOrderByTimeSubmittedDesc(String userId, String contestId, String problemId);
 
+    Flux<Submission> findByContestIdOrderByTimeSubmittedDesc(String contestId);
+
+    Flux<Submission> findByContestIdAndProblemIdOrderByTimeSubmittedDesc(String contestId, String problemId);
+
 }

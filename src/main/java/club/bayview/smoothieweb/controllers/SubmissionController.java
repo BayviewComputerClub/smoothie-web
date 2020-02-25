@@ -1,11 +1,14 @@
 package club.bayview.smoothieweb.controllers;
 
+import club.bayview.smoothieweb.models.Contest;
 import club.bayview.smoothieweb.models.Problem;
+import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.services.SmoothieContestService;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieSubmissionService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import club.bayview.smoothieweb.util.ErrorCommon;
+import club.bayview.smoothieweb.util.NoPermissionException;
 import club.bayview.smoothieweb.util.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,13 +133,66 @@ public class SubmissionController {
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .doOnNext(c -> model.addAttribute("contest", c))
-                .flatMap(c -> submissionService.find)
+                .flatMap(c -> Mono.zip(submissionService.findSubmissionsForContest(contestName).collectList(), Mono.just(c)))
+                .flatMap(t -> {
+                    List<Submission> submissions = t.getT1();
+                    Contest c = t.getT2();
+                    if (!c.hasPermissionToView(auth))
+                        return Mono.error(new NoPermissionException());
+
+                    model.addAttribute("submissions", submissions);
+                    model.addAttribute("problems", c.getContestProblems());
+
+                    List<String> userIds = new ArrayList<>();
+                    submissions.forEach(s -> userIds.add(s.getUserId()));
+                    return userService.findUsersWithIds(userIds).collectList();
+                })
+                .flatMap(users -> {
+                    HashMap<String, String> usersMap = new HashMap<>();
+                    users.forEach(user -> usersMap.put(user.getId(), user.getHandle()));
+                    model.addAttribute("users", usersMap);
+
+                    return Mono.just("submissions-contest");
+                })
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{contestName}/submissions route exception: "));
     }
 
-    @GetMapping("/contest/{contestName}/problem/{problemName}/submissions")
-    public Mono<String> getContestProblemSubmissionsRoute(@PathVariable String contestName, String problemName, Model model, Authentication auth) {
+    @GetMapping("/contest/{contestName}/problem/{problemNum}/submissions")
+    public Mono<String> getContestProblemSubmissionsRoute(@PathVariable String contestName, @PathVariable int problemNum, Model model, Authentication auth) {
+        return contestService.findContestByName(contestName)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(c -> {
+                    if (!c.hasPermissionToView(auth))
+                        return Mono.error(new NoPermissionException());
 
+                    if (problemNum >= c.getContestProblemsInOrder().size())
+                        return Mono.error(new NotFoundException());
+
+                    model.addAttribute("contest", c);
+
+                    Contest.ContestProblem cp = c.getContestProblemsInOrder().get(problemNum);
+                    model.addAttribute("contestProblem", cp);
+
+                    return Mono.zip(submissionService.findSubmissionsForContestAndProblem(contestName, cp.getProblemId()).collectList(), problemService.findProblemById(cp.getProblemId()));
+                })
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(t -> {
+                    List<Submission> submissions = t.getT1();
+                    model.addAttribute("submissions", submissions);
+                    model.addAttribute("problem", t.getT2());
+
+                    List<String> ids = new ArrayList<>();
+                    submissions.forEach(s -> ids.add(s.getUserId()));
+                    return userService.findUsersWithIds(ids).collectList();
+                })
+                .flatMap(users -> {
+                    HashMap<String, String> userMap = new HashMap<>();
+                    users.forEach(user -> userMap.put(user.getId(), user.getHandle()));
+                    model.addAttribute("users", userMap);
+
+                    return Mono.just("submissions-problem");
+                })
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{contestName}/problem/{problemNum}/submissions route exception: "));
     }
 
 

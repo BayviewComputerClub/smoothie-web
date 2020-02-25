@@ -42,12 +42,12 @@
 </div>
 
 <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/moment.min.js}"></script>
 <script>
     $(() => {
         $(".timeSubmitted").each((i, obj) => {
             // properly format time
-            let date = new Date(obj.innerText*1000);
-            obj.innerText = ("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear() + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+            obj.innerText = moment(obj.innerText*1000).format('LLL');
         });
     })
 </script>

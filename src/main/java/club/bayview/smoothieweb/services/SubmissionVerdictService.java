@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.services;
 
+import club.bayview.smoothieweb.models.Contest;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.models.User;
@@ -9,6 +10,8 @@ import club.bayview.smoothieweb.util.Verdict;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class SubmissionVerdictService {
@@ -27,6 +30,7 @@ public class SubmissionVerdictService {
 
     /**
      * Called when a submission is finished judging, and applies the final verdict.
+     *
      * @param submission submission that finished judging
      * @return mono emitted when verdict is applied and saved to database
      */
@@ -63,10 +67,10 @@ public class SubmissionVerdictService {
                     if (submission.getContestId() != null) {
                         return contestService.findContestById(submission.getContestId())
                                 .switchIfEmpty(Mono.error(new NoPermissionException()))
-                                .flatMap(contest -> {
-                                    contest.updateParticipant(user.getId());
-                                    contest.updateLeaderBoard();
-                                    return Mono.zip(userService.saveUser(user), problemService.saveProblem(problem), submissionService.saveSubmission(submission), contestService.saveContest(contest));
+                                .flatMap(c -> c.updateParticipant(user.getId()))
+                                .flatMap(c -> {
+                                    c.updateLeaderBoard();
+                                    return Mono.zip(userService.saveUser(user), problemService.saveProblem(problem), submissionService.saveSubmission(submission), contestService.saveContest(c));
                                 });
                     }
 

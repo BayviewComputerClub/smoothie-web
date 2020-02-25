@@ -1,10 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
+    <!-- ignore tag name "script", it will be replaced by favicon fragment -->
+    <script th:replace="fragments/favicon"></script>
+    <title>Submissions for [[${contest.prettyName}]] | [[${siteName}]]</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/submissions.css}"/>
+    <link rel="stylesheet" th:href="@{/css/title.css}"/>
 </head>
 <body>
-$END$
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <h1>Submissions for <a th:href="@{'/contest/' + ${contest.name}}">[[${contest.prettyName}]]</a></h1>
+    <table style="width: 80%">
+        <thead>
+        <tr>
+            <th>Submission Id</th>
+            <th>Problem</th>
+            <th>User</th>
+            <th>Language</th>
+            <th>Date</th>
+            <th>Verdict</th>
+        </tr>
+        <tr><th colspan="5"><hr/></th></tr>
+        </thead>
+        <tbody>
+
+        <tr th:each="submission: ${submissions}">
+            <td><a th:href="@{'/submission/' + ${submission.id}}" th:text="${submission.id}"></a></td>
+            <td th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${problems.get(submission.problemId).contestProblemNumber}}" th:text="${problems.get(submission.problemId).customName}"></td>
+            <td><a th:href="@{'/user/' + ${users.get(submission.userId)}}" th:text="${users.get(submission.userId)}"></a></td>
+            <td th:text="${submission.lang}"></td>
+            <td th:text="${submission.timeSubmitted}" class="timeSubmitted"></td>
+            <td th:text="${submission.verdict}"></td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/moment.min.js}"></script>
+<script>
+    $(() => {
+        $(".timeSubmitted").each((i, obj) => {
+            // properly format time
+            obj.innerText = moment(obj.innerText*1000).format('LLL');
+        });
+    })
+</script>
 </body>
 </html>
