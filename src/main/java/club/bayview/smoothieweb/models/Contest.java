@@ -113,9 +113,6 @@ public class Contest {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    private SmoothieProblemService problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
-    private SmoothieSubmissionService submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
-
     public List<ContestProblem> getContestProblemsInOrder() {
         List<ContestProblem> list = new ArrayList<>(contestProblems.values());
         Collections.sort(list);
@@ -147,6 +144,7 @@ public class Contest {
     // be sure to save contest object after
     public void updateLeaderBoard() {
         leaderBoard = new ArrayList<>();
+
         for (var user : participants.values()) {
             long timePenalty = user.getTimePenalty();
 
@@ -186,7 +184,7 @@ public class Contest {
 
         HashMap<String, Submission> m = new HashMap<>();
 
-        return submissionService.findSubmissionsByUserForContest(userId, this.getId())
+        return SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class).findSubmissionsByUserForContest(userId, this.getId())
                 .collectList() // can't use flux directly because the order of the comparisons may become messed up
                 .doOnNext(submissions -> {
 

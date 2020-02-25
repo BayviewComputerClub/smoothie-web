@@ -146,7 +146,7 @@ public class SubmissionController {
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .doOnNext(c -> model.addAttribute("contest", c))
-                .flatMap(c -> Mono.zip(submissionService.findSubmissionsForContest(contestName).collectList(), Mono.just(c)))
+                .flatMap(c -> Mono.zip(submissionService.findSubmissionsForContest(c.getId()).collectList(), Mono.just(c)))
                 .flatMap(t -> {
                     List<Submission> submissions = t.getT1();
                     Contest c = t.getT2();
@@ -186,7 +186,7 @@ public class SubmissionController {
                     Contest.ContestProblem cp = c.getContestProblemsInOrder().get(problemNum);
                     model.addAttribute("contestProblem", cp);
 
-                    return Mono.zip(submissionService.findSubmissionsForContestAndProblem(contestName, cp.getProblemId()).collectList(), problemService.findProblemById(cp.getProblemId()));
+                    return Mono.zip(submissionService.findSubmissionsForContestAndProblem(c.getId(), cp.getProblemId()).collectList(), problemService.findProblemById(cp.getProblemId()));
                 })
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(t -> {

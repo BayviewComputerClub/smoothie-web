@@ -21,6 +21,7 @@ import java.util.*;
 @Document(collation = "{ 'locale' : 'en_US', 'strength': 2 }") // indexes case insensitive
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class Problem {
 

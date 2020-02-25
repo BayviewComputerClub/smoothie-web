@@ -85,7 +85,7 @@
             <span class="material-icons" style="vertical-align: middle;">linear_scale</span> Memory Limit
             <br/><span id="memory-limit" class="topbar-bottom-text"></span>
         </div>
-        <div class="topbar-item">
+        <div class="topbar-item" th:unless="${contestProblem}">
             Created
             <br/> <span th:text="${problem.timeCreated}" id="time-created" class="topbar-bottom-text"></span>
         </div>
