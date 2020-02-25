@@ -54,17 +54,30 @@ public class SubmissionController {
                         Mono.just(submission)
                         )
                 )
-                .flatMap(tuple -> {
-                    // has permission to view submission
-                    if (!tuple.getT3().hasPermissionToView(auth, tuple.getT2())) {
-                        return Mono.just("no");
-                    }
-
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .doOnNext(tuple -> {
                     model.addAttribute("user", tuple.getT1());
                     model.addAttribute("problem", tuple.getT2());
                     model.addAttribute("submission", tuple.getT3());
-                    return Mono.just(submissionPageTemplate);
                 })
+                .flatMap(tuple -> {
+                    // has permission to view submission
+                    if (!tuple.getT3().hasPermissionToView(auth, tuple.getT2())) {
+                        return Mono.error(new NoPermissionException());
+                    }
+
+                    // if this submission is associated with a contest
+                    if (tuple.getT3().getContestId() != null) {
+                        return contestService.findContestById(tuple.getT3().getContestId())
+                                .switchIfEmpty(Mono.error(new NotFoundException()))
+                                .doOnNext(c -> {
+                                    model.addAttribute("contest", c);
+                                    model.addAttribute("contestProblem", c.getContestProblems().get(tuple.getT3().getProblemId()));
+                                });
+                    }
+                    return Mono.empty();
+                })
+                .then(Mono.just(submissionPageTemplate))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "Issue with get submission request: "));
     }
 

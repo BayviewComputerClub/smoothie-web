@@ -3,7 +3,8 @@
 <head>
     <!-- ignore tag name "script", it will be replaced by favicon fragment -->
     <script th:replace="fragments/favicon"></script>
-    <title>Submit to [[${problem.prettyName}]] | [[${siteName}]]</title>
+    <title th:if="${contestProblem}">Submit to [[${contestProblem.customName}]] | [[${siteName}]]</title>
+    <title th:unless="${contestProblem}">Submit to [[${problem.prettyName}]] | [[${siteName}]]</title>
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
@@ -101,7 +102,8 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>Submit solution for [[${problem.prettyName}]]</h1>
+    <h1 th:if="${contestProblem}">Submit solution for [[${contestProblem.customName}]]</h1>
+    <h1 th:unless="${contestProblem}">Submit solution for [[${problem.prettyName}]]</h1>
 
     <form method="POST" id="submit-form" th:object="${submitRequest}" th:action="${postUrl}" onsubmit="addCodeToPost()">
         <label for="code-box">

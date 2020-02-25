@@ -3,7 +3,8 @@
 <head>
     <!-- ignore tag name "script", it will be replaced by favicon fragment -->
     <script th:replace="fragments/favicon"></script>
-    <title>Submission for [[${problem.name}]] | [[${siteName}]]</title>
+    <title th:if="${contestProblem}">Submission for [[${contestProblem.customName}]] | [[${siteName}]]</title>
+    <title th:unless="${contestProblem}">Submission for [[${problem.name}]] | [[${siteName}]]</title>
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
@@ -93,7 +94,8 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <h1>Code for <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a> submission in [[${submission.lang}]] by [[${user.handle}]]</h1>
+    <h1 th:if="${contestProblem}">Code for <a th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber}}">[[${contestProblem.customName}]]</a> submission in [[${submission.lang}]] by [[${user.handle}]]</h1>
+    <h1 th:unless="${contestProblem}">Code for <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a> submission in [[${submission.lang}]] by [[${user.handle}]]</h1>
 
     <div class="topbar">
         <div class="topbar-item">

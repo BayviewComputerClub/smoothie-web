@@ -16,7 +16,7 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1 th:if="${contestProblem}">Submissions for <a th:href="@{'/contest/' + ${contest.customName} + '/problem/' + ${contestProblem.contestProblemNumber}}">[[${contestProblem.customName}]]</a></h1>
+    <h1 th:if="${contestProblem}">Submissions for <a th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber}}">[[${contestProblem.customName}]]</a></h1>
     <h1 th:unless="${contestProblem}">Submissions for <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a></h1>
     <table style="width: 80%">
         <thead>

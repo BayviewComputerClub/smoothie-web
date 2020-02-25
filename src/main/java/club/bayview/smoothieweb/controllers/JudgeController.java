@@ -147,7 +147,7 @@ public class JudgeController {
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /problem/{name}/submit route exception: "));
     }
 
-    @PostMapping("/contest/{contestName}/problem/{problemNum}")
+    @PostMapping("/contest/{contestName}/problem/{problemNum}/submit")
     @PreAuthorize("hasRole('ROLE_USER')")
     public Mono<String> postContestProblemSubmitRoute(@PathVariable String contestName, @PathVariable int problemNum, @Valid SubmitRequest form, BindingResult result, Authentication auth) {
         form.setLanguage(JudgeLanguage.prettyToName(form.getLanguage()));
