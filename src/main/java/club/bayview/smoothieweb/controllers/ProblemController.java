@@ -81,6 +81,7 @@ public class ProblemController {
 
                     // add contest problem (override some problem fields)
                     model.addAttribute("contestProblem", cp);
+                    model.addAttribute("contest", contest);
                     return problemService.findProblemById(cp.getProblemId()).switchIfEmpty(Mono.error(new NotFoundException()));
                 })
                 .flatMap(problem -> {

@@ -17,9 +17,8 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
 
     LiveSubmissionController liveSubmissionController = SmoothieWebApplication.context.getBean(LiveSubmissionController.class);
     SmoothieSubmissionService submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
-    SmoothieUserService userService = SmoothieWebApplication.context.getBean(SmoothieUserService.class);
-    SmoothieProblemService problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
     SmoothieQueuedSubmissionService queuedSubmissionService = SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class);
+    SubmissionVerdictService verdictService = SmoothieWebApplication.context.getBean(SubmissionVerdictService.class);
 
     private Submission submission;
 
@@ -82,36 +81,7 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
         logger.info("Judging has completed for submission " + submission.getId() + ".");
 
         // store verdict and update points if necessary
-        Mono.zip(userService.findUserById(submission.getUserId()), problemService.findProblemById(submission.getProblemId()))
-                .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(tuple -> {
-                    User user = tuple.getT1();
-                    Problem problem = tuple.getT2();
-
-                    submission.determineVerdict();
-                    submission.determinePoints(problem);
-
-                    // if first time solve
-                    if (submission.getVerdict().equals(Verdict.AC.toString())) {
-                        if (!user.getSolved().contains(problem.getId())) {
-                            user.getSolved().add(problem.getId());
-                            problem.setUsersSolved(problem.getUsersSolved() + 1);
-                        }
-                    }
-
-                    // update points if the submission is higher
-                    if (!user.getProblemsAttempted().containsKey(problem.getId()) || user.getProblemsAttempted().get(problem.getId()) < submission.getPoints()) {
-                        if (user.getProblemsAttempted().containsKey(problem.getId()) && user.getProblemsAttempted().get(problem.getId()) < submission.getPoints()) {
-                            user.setPoints(user.getPoints() - user.getProblemsAttempted().get(problem.getId()));
-                        }
-
-                        user.getProblemsAttempted().put(problem.getId(), submission.getPoints());
-                        user.setPoints(user.getPoints() + submission.getPoints());
-                    }
-
-                    return Mono.zip(userService.saveUser(user), problemService.saveProblem(problem), submissionService.saveSubmission(submission));
-                })
-                .subscribe();
+        verdictService.applyVerdictToSubmission(submission).subscribe();
 
         // find next task to do
         queuedSubmissionService.checkRunnersTask();

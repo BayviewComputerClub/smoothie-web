@@ -1,9 +1,11 @@
 package club.bayview.smoothieweb.controllers;
 
 import club.bayview.smoothieweb.models.Problem;
+import club.bayview.smoothieweb.services.SmoothieContestService;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieSubmissionService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
+import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +37,9 @@ public class SubmissionController {
     @Autowired
     private SmoothieProblemService problemService;
 
+    @Autowired
+    private SmoothieContestService contestService;
+
     private Mono<String> getSubmissionHelper(String submissionId, Model model, String submissionPageTemplate) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
@@ -57,14 +62,7 @@ public class SubmissionController {
                     model.addAttribute("submission", tuple.getT3());
                     return Mono.just(submissionPageTemplate);
                 })
-                .onErrorResume(e -> {
-                    if (e instanceof NotFoundException) {
-                        return Mono.just("404");
-                    } else {
-                        logger.error("Issue with get submission request: ", e);
-                        return Mono.just("500");
-                    }
-                });
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "Issue with get submission request: "));
     }
 
     @GetMapping("/submission/{submissionId}")
@@ -99,7 +97,7 @@ public class SubmissionController {
                     model.addAttribute("problems", problemsMap);
                     return Mono.just("submissions-user");
                 })
-                .onErrorResume(e -> Mono.just("404"));
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /user/{handle}/submissions route exception: "));
     }
 
     @GetMapping("/problem/{name}/submissions")
@@ -124,7 +122,21 @@ public class SubmissionController {
                     model.addAttribute("users", usersMap);
                     return Mono.just("submissions-problem");
                 })
-                .onErrorResume(e -> Mono.just("404"));
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /problem/{name}/submissions route exception: "));
+    }
+
+    @GetMapping("/contest/{contestName}/submissions")
+    public Mono<String> getContestSubmissionsRoute(@PathVariable String contestName, Model model, Authentication auth) {
+        return contestService.findContestByName(contestName)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .doOnNext(c -> model.addAttribute("contest", c))
+                .flatMap(c -> submissionService.find)
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{contestName}/submissions route exception: "));
+    }
+
+    @GetMapping("/contest/{contestName}/problem/{problemName}/submissions")
+    public Mono<String> getContestProblemSubmissionsRoute(@PathVariable String contestName, String problemName, Model model, Authentication auth) {
+
     }
 
 

@@ -76,15 +76,15 @@ public class JudgeController {
                 .onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /problem/{name}/submit route exception: "));
     }
 
-    @GetMapping("/contest/{contestName}/problem/{problemName}/submit")
-    public Mono<String> getContestProblemSubmitRoute(@PathVariable String contestName, @PathVariable String problemName, Model model, Authentication auth) {
+    @GetMapping("/contest/{contestName}/problem/{problemNum}/submit")
+    public Mono<String> getContestProblemSubmitRoute(@PathVariable String contestName, @PathVariable int problemNum, Model model, Authentication auth) {
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(contest -> {
                     if (!contest.hasPermissionToView(auth))
                         return Mono.error(new NoPermissionException());
 
-                    Contest.ContestProblem cp = contest.getContestProblems().get(problemName);
+                    Contest.ContestProblem cp = contest.getContestProblemsInOrder().get(problemNum);
                     if (cp == null)
                         return Mono.error(new NotFoundException());
 
@@ -97,7 +97,7 @@ public class JudgeController {
                     model.addAttribute("problem", problem);
                     model.addAttribute("submitRequest", new SubmitRequest());
                     model.addAttribute("languages", JudgeLanguage.getLanguages());
-                    model.addAttribute("postUrl", "/contest/" + contestName + "/problem/" + problemName + "/submit");
+                    model.addAttribute("postUrl", "/contest/" + contestName + "/problem/" + problemNum + "/submit");
 
                     return Mono.just("submit");
                 })
@@ -114,16 +114,14 @@ public class JudgeController {
                 .flatMap(t -> {
                     Problem p = t.getT1();
                     Submission s = t.getT2();
-
                     // check user permission first
-                    if (!s.hasPermissionToView(auth, p)) {
+                    if (!s.hasPermissionToView(auth, p) || !p.hasPermissionToView(auth))
                         return Mono.just("no");
-                    }
 
                     model.addAttribute("problem", p);
                     model.addAttribute("submitRequest", new SubmitRequest(s.getCode(), JudgeLanguage.nameToPretty(s.getLang())));
                     model.addAttribute("languages", JudgeLanguage.getLanguages());
-                    model.addAttribute("postUrl", "/problem/" + p.getName() + "/submit");
+                    model.addAttribute("postUrl", "/problem/" + p.getName() + "/submit"); // TODO check if authentication is in contest
                     return Mono.just("submit");
                 })
                 .onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /submission/{submissionId}/resubmit route exception: "));
@@ -134,16 +132,51 @@ public class JudgeController {
     public Mono<String> postProblemSubmitRoute(@PathVariable String name, @Valid SubmitRequest form, BindingResult result, Authentication auth) {
         form.setLanguage(JudgeLanguage.prettyToName(form.getLanguage()));
 
+        if (result.hasErrors())
+            return Mono.just("redirect:/error");
+
         return Mono.zip(problemService.findProblemByName(name), userService.findUserByHandle(auth.getName()))
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(t -> {
-                    if (result.hasErrors()) return Mono.just("redirect:/error");
-                    return gradeSubmission(t.getT1(), form, t.getT2()).flatMap(id -> Mono.just("redirect:/submission/" + id));
+                    if (!t.getT1().hasPermissionToView(auth))
+                        return Mono.error(new NoPermissionException());
+
+                    return gradeSubmission(t.getT1(), t.getT2(), form);
                 })
-                .onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /problem/{name}/submit route exception: "));
+                .flatMap(id -> Mono.just("redirect:/submission/" + id))
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /problem/{name}/submit route exception: "));
     }
 
-    private Mono<String> gradeSubmission(Problem problem, SubmitRequest form, User user) {
+    @PostMapping("/contest/{contestName}/problem/{problemNum}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public Mono<String> postContestProblemSubmitRoute(@PathVariable String contestName, @PathVariable int problemNum, @Valid SubmitRequest form, BindingResult result, Authentication auth) {
+        form.setLanguage(JudgeLanguage.prettyToName(form.getLanguage()));
+        if (result.hasErrors())
+            return Mono.just("redirect:/error");
+
+        return contestService.findContestByName(contestName)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(contest -> {
+                    if (!contest.hasPermissionToView(auth))
+                        return Mono.error(new NoPermissionException());
+
+                    Contest.ContestProblem cp = contest.getContestProblemsInOrder().get(problemNum);
+                    if (cp == null)
+                        return Mono.error(new NotFoundException());
+
+                    return Mono.zip(problemService.findProblemById(cp.getProblemId()), userService.findUserByHandle(auth.getName()), Mono.just(contest));
+                })
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(t -> gradeSubmission(t.getT1(), t.getT2(), t.getT3(), form))
+                .flatMap(id -> Mono.just("redirect:/submission/" + id))
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{contestName}/problem/{problemNum} route exception: "));
+    }
+
+    private Mono<String> gradeSubmission(Problem problem, User user, SubmitRequest form) {
+        return gradeSubmission(problem, user, null, form);
+    }
+
+    private Mono<String> gradeSubmission(Problem problem, User user, Contest contest, SubmitRequest form) {
 
         Submission sub = new Submission();
         sub.setId(ObjectId.get().toString());
@@ -155,6 +188,7 @@ public class JudgeController {
         sub.setJudgingCompleted(false);
         sub.setPoints(0);
         sub.setMaxPoints(problem.getTotalPointsWorth());
+        if (contest != null) sub.setContestId(contest.getId());
 
         return problem.getSubmissionBatchCases()
                 .flatMap(batches -> {

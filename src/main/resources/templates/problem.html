@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <!-- ignore tag name "script", it will be replaced by favicon fragment -->
     <script th:replace="fragments/favicon"></script>
@@ -62,13 +62,20 @@
 
 <div th:replace="fragments/header :: header"></div>
 
-<div class="container" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <h1 th:text="${problem.prettyName}"></h1>
+<div class="container">
+    <!-- Contest -->
+    <h1 th:if="${contestProblem}" th:text="${contestProblem.customName}"></h1>
+    <!-- Regular -->
+    <h1 th:unless="${contestProblem}" th:text="${problem.prettyName}"></h1>
 
     <div class="topbar">
         <div class="topbar-item">
             <span class="material-icons" style="vertical-align: middle;">data_usage</span> Points
-            <br/><span th:text="${problem.totalPointsWorth}" class="topbar-bottom-text"></span>
+            <br/>
+            <!-- Contest -->
+            <span th:if="${contestProblem}" th:text="${contestProblem.totalPointsWorth}" class="topbar-bottom-text"></span>
+            <!-- Regular -->
+            <span th:unless="${contestProblem}" th:text="${problem.totalPointsWorth}" class="topbar-bottom-text"></span>
         </div>
         <div class="topbar-item">
             <span class="material-icons" style="vertical-align: middle;">timer</span> Time Limit
@@ -83,11 +90,21 @@
             <br/> <span th:text="${problem.timeCreated}" id="time-created" class="topbar-bottom-text"></span>
         </div>
 
-        <div style="margin-left: auto;">
+        <!-- Contest -->
+        <div th:if="${contestProblem}" style="margin-left: auto;">
+            <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber} + '/submissions'}">Submissions</a>
+            <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber} + '/submit'}">Submit</a>
+            <a class="button-link" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{'/problem/' + ${problem.name} + '/manage'}">Manage</a>
+        </div>
+
+        <!-- Regular -->
+        <div th:unless="${contestProblem}" style="margin-left: auto;">
             <a class="button-link" th:href="@{'/problem/' + ${problem.name} + '/submissions'}">Submissions</a>
             <a class="button-link" th:href="@{'/problem/' + ${problem.name} + '/submit'}">Submit</a>
             <a class="button-link" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{'/problem/' + ${problem.name} + '/manage'}">Manage</a>
         </div>
+
+
     </div>
 
     <p id="problem-statement" th:text="${problem.problemStatement}" style="white-space: pre;">
