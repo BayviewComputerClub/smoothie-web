@@ -26,9 +26,9 @@ public class AdminPostController {
 
     @GetMapping("/admin/new-post")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String getNewAdminGlobalPost(Model model) {
+    public Mono<String> getNewAdminGlobalPost(Model model) {
         model.addAttribute("form", new PostController.PostForm());
-        return "admin/new-post";
+        return Mono.just("admin/new-post");
     }
 
     @GetMapping("/admin/post/{slug}/{id}")

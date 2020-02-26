@@ -2,6 +2,8 @@ package club.bayview.smoothieweb.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -18,13 +20,19 @@ import java.net.URI;
 @Configuration
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+//@EnableGlobalMethodSecurity(
+//        securedEnabled =  true,
+//        prePostEnabled = true,
+//        jsr250Enabled = true
+//)
+public class WebSecurityConfig {
 
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
 
         http
                 .authorizeExchange()
+                    .pathMatchers("/admin/**").hasRole("ADMIN")
                     .pathMatchers("/**").permitAll()
                 .and()
                 .formLogin()

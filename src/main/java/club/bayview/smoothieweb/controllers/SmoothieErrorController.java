@@ -4,6 +4,7 @@ import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -11,20 +12,20 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class SmoothieErrorController implements ErrorController {
     @RequestMapping("/error")
-    public String requestError(HttpServletRequest request) {
+    public Mono<String> requestError(HttpServletRequest request) {
         Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
 
         if (status != null) {
             int statusCode = Integer.parseInt(status.toString());
 
             if (statusCode == HttpStatus.NOT_FOUND.value()) {
-                return "404";
+                return Mono.just("404");
             } else if (statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
-                return "500";
+                return Mono.just("500");
             }
         }
 
-        return "error";
+        return Mono.just("error");
     }
 
     @Override

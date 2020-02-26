@@ -37,8 +37,8 @@ public class MainController {
     }
 
     @RequestMapping("/no")
-    public String getNoRoute() {
-        return "no";
+    public Mono<String> getNoRoute() {
+        return Mono.just("no");
     }
 
 }

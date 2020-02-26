@@ -88,10 +88,10 @@ public class AdminRunnerController {
 
     @GetMapping("/admin/new-runner")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String getNewRunnerRoute(Model model) {
+    public Mono<String> getNewRunnerRoute(Model model) {
         model.addAttribute("newRunner", true);
         model.addAttribute("runner", defaultRunner);
-        return "admin/runner-edit";
+        return Mono.just("admin/runner-edit");
     }
 
     @GetMapping("/admin/runner/{name}/edit")

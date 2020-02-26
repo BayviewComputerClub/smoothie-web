@@ -94,14 +94,14 @@
         <div th:if="${contestProblem}" style="margin-left: auto;">
             <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber} + '/submissions'}">Submissions</a>
             <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber} + '/submit'}">Submit</a>
-            <a class="button-link" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{'/problem/' + ${problem.name} + '/manage'}">Manage</a>
+            <a class="button-link" th:if="${isAdmin}" th:href="@{'/problem/' + ${problem.name} + '/manage'}">Manage</a>
         </div>
 
         <!-- Regular -->
         <div th:unless="${contestProblem}" style="margin-left: auto;">
             <a class="button-link" th:href="@{'/problem/' + ${problem.name} + '/submissions'}">Submissions</a>
             <a class="button-link" th:href="@{'/problem/' + ${problem.name} + '/submit'}">Submit</a>
-            <a class="button-link" sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{'/problem/' + ${problem.name} + '/manage'}">Manage</a>
+            <a class="button-link" th:if="${isAdmin}" th:href="@{'/problem/' + ${problem.name} + '/manage'}">Manage</a>
         </div>
 
 

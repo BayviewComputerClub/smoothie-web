@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <!-- ignore tag name "script", it will be replaced by favicon fragment -->
     <script th:replace="fragments/favicon"></script>
@@ -48,7 +48,7 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>Edit Profile<span sec:authorize="hasRole('ROLE_ADMIN')"> of [[${user.handle}]]</span></h1>
+    <h1>Edit Profile<span th:if="${isAdmin}"> of [[${user.handle}]]</span></h1>
 
     <form method="POST" id="form" th:object="${profileForm}">
         <h3>Description</h3>

@@ -51,8 +51,8 @@ public class AuthController {
     // ~~~~~~~~~~
 
     @GetMapping("/logout")
-    public String logoutGetRoute() {
-        return "redirect:/";
+    public Mono<String> logoutGetRoute() {
+        return Mono.just("redirect:/");
     }
 
     @GetMapping("/login")
@@ -61,8 +61,8 @@ public class AuthController {
     }
 
     @GetMapping("/register")
-    public String registerGetRoute() {
-        return "register";
+    public Mono<String> registerGetRoute() {
+        return Mono.just("register");
     }
 
     @PostMapping("/register")

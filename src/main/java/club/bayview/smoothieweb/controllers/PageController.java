@@ -100,17 +100,17 @@ public class PageController {
     }
 
     @RequestMapping("/page/{slug}")
-    public String requestPage(Model model, @PathVariable("slug") String slug) throws Exception {
+    public Mono<String> requestPage(Model model, @PathVariable("slug") String slug) throws Exception {
 
         PageResponse pageResponse = getPageResponseBySlug(slug);
 
         if(pageResponse.pages.length == 0) {
-            return "404";
+            return Mono.just("404");
         }
 
         Page page = pageResponse.pages[0];
         model.addAttribute("page", page);
-        return "page";
+        return Mono.just("page");
     }
 
     public static Page[] getNavs(int parent) {

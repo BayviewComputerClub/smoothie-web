@@ -34,17 +34,17 @@ public class AdminPageController {
 
     @GetMapping("/admin/pages")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String pagesList(Model model) throws Exception{
+    public Mono<String> pagesList(Model model) throws Exception{
 
         PageController.PageResponse pageResponse;
 
         try {
             pageResponse = PageController.getPageResponse();
             model.addAttribute("pages", pageResponse.pages);
-            return "admin/pages";
+            return Mono.just("admin/pages");
         } catch (Exception e) {
             e.printStackTrace();
-            return "error";
+            return Mono.just("error");
         }
 
     }
@@ -61,7 +61,7 @@ public class AdminPageController {
 
     @PostMapping("/admin/pages/{slug}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String pageEditPost(Model model, @PathVariable("slug") String slug,
+    public Mono<String> pageEditPost(Model model, @PathVariable("slug") String slug,
                                @RequestParam("slug") String new_slug,
                                @RequestParam("date") String date,
                                @RequestParam("display_on_nav") boolean display_on_nav,
@@ -86,6 +86,6 @@ public class AdminPageController {
         pageUpdateRequest.page = page;
 
         updatePage(pageUpdateRequest);
-        return "admin/admin";
+        return Mono.just("admin/admin");
     }
 }

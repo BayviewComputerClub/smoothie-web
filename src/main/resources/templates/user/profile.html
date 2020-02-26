@@ -59,7 +59,7 @@
                 <a class="button-link" th:href="@{'/user/' + ${user.handle} + '/edit'}">Edit Profile</a>
                 <a class="button-link" th:href="@{'/account/settings'}">Account Settings</a>
             </span>
-            <a class="button-link" th:href="@{'/user/' + ${user.handle} + '/admin'}" sec:authorize="hasRole('ROLE_ADMIN')">Admin</a>
+            <a class="button-link" th:href="@{'/user/' + ${user.handle} + '/admin'}" th:if="${isAdmin}">Admin</a>
         </div>
     </div>
 

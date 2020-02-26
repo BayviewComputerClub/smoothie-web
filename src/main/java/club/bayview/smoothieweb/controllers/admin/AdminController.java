@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -26,14 +27,14 @@ public class AdminController {
 
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String getAdminRoute() {
-        return "admin/admin";
+    public Mono<String> getAdminRoute() {
+        return Mono.just("admin/admin");
     }
 
     @GetMapping("/admin/problems")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String getAdminProblemsRoute() {
-        return "admin/problems";
+    public Mono<String> getAdminProblemsRoute() {
+        return Mono.just("admin/problems");
     }
 
     @NoArgsConstructor
@@ -60,9 +61,9 @@ public class AdminController {
 
     @GetMapping("/admin/general")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public String getAdminGeneralRoute(Model model) {
+    public Mono<String> getAdminGeneralRoute(Model model) {
         model.addAttribute("form", new GeneralForm(settingsService.getGeneralSettings()));
-        return "admin/edit-general";
+        return Mono.just("admin/edit-general");
     }
 
     @PostMapping("/admin/general")
