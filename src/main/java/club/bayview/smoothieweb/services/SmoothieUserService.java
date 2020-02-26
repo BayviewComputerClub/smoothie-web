@@ -8,9 +8,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -29,7 +31,7 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
     private UserRepository userRepository;
 
     @Autowired
-    private FindByIndexNameSessionRepository<? extends Session> sessions;
+    private ReactiveSessionRepository<? extends Session> sessions;
 
     public Mono<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -74,12 +76,12 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
         return userRepository.save(user)
                 .doOnNext(u -> {
                     // update user object for all sessions
-                    for (Session s : sessions.findByPrincipalName(user.getHandle()).values()) {
-                        SecurityContext securityContext = s.getAttribute("SPRING_SECURITY_CONTEXT");
-                        if (securityContext != null) {
-                            securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities()));
-                        }
-                    }
+//                    for (Session s : sessions.findByPrincipalName(user.getHandle()).values()) {
+//                        SecurityContext securityContext = s.getAttribute("SPRING_SECURITY_CONTEXT");
+//                        if (securityContext != null) {
+//                            securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities()));
+//                        }
+//                    }
                 });
     }
 

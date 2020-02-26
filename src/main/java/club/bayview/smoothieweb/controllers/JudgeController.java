@@ -77,6 +77,7 @@ public class JudgeController {
     }
 
     @GetMapping("/contest/{contestName}/problem/{problemNum}/submit")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public Mono<String> getContestProblemSubmitRoute(@PathVariable String contestName, @PathVariable int problemNum, Model model, Authentication auth) {
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))

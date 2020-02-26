@@ -8,10 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import reactor.core.publisher.Mono;
 
 @Controller
@@ -57,5 +60,19 @@ public class ContestController {
                     return Mono.just("contest-leaderboard");
                 })
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{name}/leaderboard route exception: "));
+    }
+
+    @PostMapping("/contest/{name}/join")
+    public Mono<String> postContestJoin(@PathVariable String name, Authentication auth) {
+        return contestService.findContestByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(c -> {
+                    if (!c.hasPermissionToView(auth))
+                        return Mono.error(new NoPermissionException());
+
+                    // TODO update user object
+                    return Mono.just("redirect:/contest/" + name + "/problems");
+                })
+                .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{name}/join"));
     }
 }

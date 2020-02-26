@@ -12,7 +12,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
 
 @Configuration
-@EnableRedisHttpSession // currently blocking one, switch to websession todo
+//@EnableRedisWebSession | seems like spring session automatically detects redis, so this is not necessary
 public class SmoothieRedisLoader {
 
     @Value("${spring.redis.host}")
