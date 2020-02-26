@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -16,11 +17,11 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
 import org.springframework.web.context.request.RequestContextListener;
+import org.springframework.web.reactive.config.EnableWebFlux;
 
 @SpringBootApplication
-@EnableReactiveMongoRepositories
-@EnableScheduling
 @EnableAsync
+@EnableScheduling
 public class SmoothieWebApplication extends SpringBootServletInitializer {
 
     private Logger logger = LoggerFactory.getLogger(SmoothieWebApplication.class);

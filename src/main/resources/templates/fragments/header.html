@@ -4,7 +4,7 @@
     <a href="/contests" th:href="@{/contests}" >Contests</a>
     <a href="/ranking" th:href="@{/ranking}" >Ranking</a>
     <a th:each="page: ${T(club.bayview.smoothieweb.controllers.PageController).getNavs(0)}" th:text="${page.nav_title}" th:href="${'/page/' + page.slug}"></a>
-    <a sec:authorize="hasRole('ROLE_ADMIN')" href="/admin" th:href="@{/admin}">Admin</a>
+    <a th:if="${isAdmin}" href="/admin" th:href="@{/admin}">Admin</a>
 
     <div class="header-right">
         <div sec:authorize="isAnonymous()">

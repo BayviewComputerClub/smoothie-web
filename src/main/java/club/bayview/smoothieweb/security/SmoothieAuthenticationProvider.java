@@ -1,28 +1,20 @@
 package club.bayview.smoothieweb.security;
 
-import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.session.FindByIndexNameSessionRepository;
-import org.springframework.session.Session;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
-import javax.servlet.http.HttpSession;
+import reactor.core.publisher.Mono;
 
 @Service
-public class SmoothieAuthenticationProvider implements AuthenticationProvider {
+public class SmoothieAuthenticationProvider implements ReactiveAuthenticationManager {
 
-    @Autowired
-    FindByIndexNameSessionRepository<? extends Session> sessions;
+//    @Autowired
+//    FindByIndexNameSessionRepository<? extends Session> sessions;
 
     @Autowired
     private SmoothieUserService userService;
@@ -30,23 +22,19 @@ public class SmoothieAuthenticationProvider implements AuthenticationProvider {
     public PasswordEncoder passwordEncoder = new Argon2PasswordEncoder();
 
     @Override
-    public Authentication authenticate(Authentication authentication) {
+    public Mono<Authentication> authenticate(Authentication authentication) {
         String username = authentication.getName(), password = authentication.getCredentials().toString();
 
-        User user = userService.findUserByHandle(username).block();
+        return userService.findUserByHandle(username)
+                .flatMap(u -> {
+                    if (!passwordEncoder.matches(password, u.getPassword()))
+                        return Mono.empty();
 
-        if (user == null) return null;
-        if (!passwordEncoder.matches(password, user.getPassword())) return null;
-
-        // update session
-        ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-                .getSession(true).setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, user.getHandle());
-
-        return new UsernamePasswordAuthenticationToken(user, passwordEncoder.encode(password), user.getAuthorities());
+                    return Mono.just(new UsernamePasswordAuthenticationToken(u, passwordEncoder.encode(password), u.getAuthorities()));
+                });
+//        // update session
+//        ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
+//                .getSession(true).setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, user.getHandle());
     }
 
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return authentication.equals(UsernamePasswordAuthenticationToken.class);
-    }
 }

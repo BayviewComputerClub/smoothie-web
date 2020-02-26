@@ -5,11 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
@@ -20,9 +23,6 @@ import java.util.regex.Pattern;
 @Service
 public class CaptchaService {
     private final static Logger LOGGER = LoggerFactory.getLogger(CaptchaService.class);
-
-    @Autowired
-    private HttpServletRequest request;
 
     @Autowired
     private CaptchaSettings captchaSettings;
@@ -98,11 +98,12 @@ public class CaptchaService {
     }
 
     private String getClientIP() {
-        final String xfHeader = request.getHeader("X-Forwarded-For");
+        return RequestContextHolder.getRequestAttributes().getSessionId();
+        /*final String xfHeader = request.getHeader("X-Forwarded-For");
         if (xfHeader == null) {
             return request.getRemoteAddr();
         }
-        return xfHeader.split(",")[0];
+        return xfHeader.split(",")[0];*/
     }
 
 }

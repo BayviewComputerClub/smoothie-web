@@ -20,13 +20,9 @@ import org.springframework.data.mongodb.core.mapping.event.LoggingEventListener;
 import org.springframework.data.mongodb.gridfs.ReactiveGridFsTemplate;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
-import javax.annotation.PostConstruct;
-
 @Configuration
-@EnableReactiveMongoRepositories
+@EnableReactiveMongoRepositories(basePackages = {"club.bayview.smoothieweb.repositories"})
 public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
-
-    private Logger logger = LoggerFactory.getLogger(SmoothieMongoLoader.class);
 
     @Value("${spring.data.mongodb.host:localhost}")
     private String host;
@@ -36,12 +32,6 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
 
     @Value("${spring.data.mongodb.database:'main'}")
     private String databaseName;
-
-    @Value("${smoothieweb.admin.password:'password'}")
-    private String adminPassword;
-
-    @Autowired
-    SmoothieAuthenticationProvider authenticationProvider;
 
     @Bean
     public LoggingEventListener mongoEventListener() {
@@ -69,47 +59,10 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
         return new ReactiveMongoTemplate(reactiveMongoClient(), "databaseName");
     }
 
-    @Autowired
-    private SmoothieUserService userService;
-
-    @Autowired
-    private SmoothieSettingsService settingsService;
-
     // let mongo client automatically create indexes
     @Override
     public boolean autoIndexCreation() {
         return true;
     }
 
-    // Default mongo objects
-    @PostConstruct
-    public void init() {
-
-        try {
-            // create default admin account
-            if (userService.findByUsername("admin").block() == null) {
-                User admin = new User("admin", "", adminPassword);
-                admin.encodePassword();
-                admin.setEnabled(true);
-                admin.getRoles().add(Role.ROLE_ADMIN);
-                admin.getRoles().add(Role.ROLE_EDITOR);
-                userService.saveUser(admin).block();
-            }
-
-            if (settingsService.getGeneralSettings() == null) {
-                GeneralSettings settings = new GeneralSettings();
-                settings.setSiteName("smoothie-web");
-                settings.setTagLine("i like potatoes.");
-                settings.setHomeContent("Welcome to this smoothie-web instance.\n" +
-                        "\n" +
-                        "Sit down, have a smoothie, and enjoy hitting the keyboard furiously. (~˘▾˘)~\n" +
-                        "\n" +
-                        " \\ (•◡•) /");
-                settingsService.saveGeneralSettings(settings).block();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        logger.info("-=-=-=-=- MongoDB Loaded -=-=-=-=-");
-    }
 }

@@ -52,7 +52,7 @@ public class AuthController {
 
     @GetMapping("/logout")
     public String logoutGetRoute() {
-        return "logout";
+        return "redirect:/";
     }
 
     @GetMapping("/login")

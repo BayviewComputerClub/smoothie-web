@@ -1,60 +1,49 @@
 package club.bayview.smoothieweb.security;
 
-import club.bayview.smoothieweb.security.voters.SubmissionAccessVoter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.access.AccessDecisionVoter;
-import org.springframework.security.access.vote.UnanimousBased;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
+import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
 
-import java.util.Arrays;
-import java.util.List;
+import java.net.URI;
 
 @Configuration
 @EnableWebFluxSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableReactiveMethodSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
+
         http
-                .authorizeRequests()
-                .antMatchers("/**").permitAll()
-                .antMatchers("/").permitAll()
+                .authorizeExchange()
+                    .pathMatchers("/**").permitAll()
                 .and()
                 .formLogin()
-                .loginPage("/login")
-                .failureUrl("/login?error=true")
-                .defaultSuccessUrl("/")
-                .usernameParameter("username")
-                .passwordParameter("password")
+                    .loginPage("/login")
+                    .authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/"))
                 .and()
-                .csrf() // todo
-                .disable()
                 .logout()
-                .logoutSuccessUrl("/")
-        ;
+                    .logoutUrl("/logout")
+                    .logoutSuccessHandler(logoutSuccessHandler("/"))
+                .and()
+                .csrf().disable();
+
+        return http.build();
     }
 
-    @Bean
-    public SecurityWebFilterChain securitygWebFilterChain(ServerHttpSecurity http) {
-
-        return http
-                /*.httpBasic().disable()
-                .formLogin().disable()
-                .csrf().disable()
-                .authorizeExchange().anyExchange().permitAll()
-                .and()*/
-                .build();
+    public ServerLogoutSuccessHandler logoutSuccessHandler(String uri) {
+        RedirectServerLogoutSuccessHandler successHandler = new RedirectServerLogoutSuccessHandler();
+        successHandler.setLogoutSuccessUrl(URI.create(uri));
+        return successHandler;
     }
 
     @Bean
