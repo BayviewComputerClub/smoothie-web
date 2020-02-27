@@ -22,7 +22,7 @@ Install gradle, and in a terminal, run:
 gradle wrapper
 ./gradlew build
  ```
-The compiled JAR file will be in build/libs/.
+The compiled JAR file will be in `build/libs/`.
 
 ### Precompiled JAR/WAR
 [Download the JAR/WAR :coffee:](https://github.com/BayviewComputerClub/smoothie-web/actions?query=workflow%3A%22Smoothie-Web+Build%22)
