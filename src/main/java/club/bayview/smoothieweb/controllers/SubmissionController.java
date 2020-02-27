@@ -43,9 +43,7 @@ public class SubmissionController {
     @Autowired
     private SmoothieContestService contestService;
 
-    private Mono<String> getSubmissionHelper(String submissionId, Model model, String submissionPageTemplate) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
+    private Mono<String> getSubmissionHelper(String submissionId, Model model, Authentication auth, String submissionPageTemplate) {
         return submissionService.findSubmissionById(submissionId)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(submission -> Mono.zip(
@@ -82,13 +80,13 @@ public class SubmissionController {
     }
 
     @GetMapping("/submission/{submissionId}")
-    public Mono<String> getSubmissionRoute(@PathVariable String submissionId, Model model) {
-        return getSubmissionHelper(submissionId, model, "submission");
+    public Mono<String> getSubmissionRoute(@PathVariable String submissionId, Model model, Authentication auth) {
+        return getSubmissionHelper(submissionId, model, auth, "submission");
     }
 
     @GetMapping("/submission/{submissionId}/code")
-    public Mono<String> getSubmissionCodeRoute(@PathVariable String submissionId, Model model) {
-        return getSubmissionHelper(submissionId, model, "submission-code");
+    public Mono<String> getSubmissionCodeRoute(@PathVariable String submissionId, Model model, Authentication auth) {
+        return getSubmissionHelper(submissionId, model, auth, "submission-code");
     }
 
     @GetMapping("/user/{handle}/submissions")

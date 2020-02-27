@@ -7,7 +7,7 @@
     <a th:if="${isAdmin}" href="/admin" th:href="@{/admin}">Admin</a>
 
     <div class="header-right">
-        <div sec:authorize="isAnonymous()">
+        <div th:unless="${#authentication}">
             <a href="/login" th:href="@{/login}" >Login</a>
             <a href="/register" th:href="@{/register}" >Register</a>
         </div>

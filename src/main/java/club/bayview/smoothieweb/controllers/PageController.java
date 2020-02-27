@@ -105,7 +105,7 @@ public class PageController {
         PageResponse pageResponse = getPageResponseBySlug(slug);
 
         if(pageResponse.pages.length == 0) {
-            return Mono.just("404");
+            return Mono.just("error/404");
         }
 
         Page page = pageResponse.pages[0];

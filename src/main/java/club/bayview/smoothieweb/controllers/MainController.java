@@ -1,12 +1,10 @@
 package club.bayview.smoothieweb.controllers;
 
-import club.bayview.smoothieweb.services.SmoothiePostService;
 import club.bayview.smoothieweb.services.SmoothieSettingsService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import reactor.core.publisher.Mono;
 
@@ -15,9 +13,6 @@ public class MainController {
 
     @Autowired
     private SmoothieUserService userService;
-
-    @Autowired
-    private SmoothiePostService postService;
 
     @Autowired
     private SmoothieSettingsService settingsService;
@@ -38,7 +33,7 @@ public class MainController {
 
     @RequestMapping("/no")
     public Mono<String> getNoRoute() {
-        return Mono.just("no");
+        return Mono.just("error/no");
     }
 
 }

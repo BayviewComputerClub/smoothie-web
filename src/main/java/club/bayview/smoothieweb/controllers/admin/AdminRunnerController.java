@@ -76,8 +76,6 @@ public class AdminRunnerController {
     @GetMapping("/admin/runner/{name}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Mono<String> getRunnerRoute(@PathVariable String name, Model model) {
-        if (name == null) return Mono.just("404");
-
         return runnerService.findRunnerByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(runner -> {
@@ -97,8 +95,6 @@ public class AdminRunnerController {
     @GetMapping("/admin/runner/{name}/edit")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Mono<String> getEditRunnerRoute(@PathVariable String name, Model model) {
-        if (name == null) return Mono.just("404");
-
         return runnerService.findRunnerByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(runner -> {
@@ -130,7 +126,6 @@ public class AdminRunnerController {
     @PostMapping("/admin/runner/{name}/edit")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Mono<String> postEditRunnerRoute(@Valid RunnerForm form, BindingResult result, @PathVariable String name, Model model) {
-        if (name == null) return Mono.just("404");
         if (result.hasErrors()) {
             model.addAttribute("newRunner", false);
             model.addAttribute("runner", form);
