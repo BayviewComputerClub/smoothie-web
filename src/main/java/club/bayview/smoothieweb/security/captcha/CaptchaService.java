@@ -58,7 +58,7 @@ public class CaptchaService {
         factory.setReadTimeout(7 * 1000);
         return new RestTemplate(factory);
     }
-TODO
+//TODO
     public void processResponse(final String response, ServerWebExchange req) {
         LOGGER.debug("Attempting to validate response {}", response);
 

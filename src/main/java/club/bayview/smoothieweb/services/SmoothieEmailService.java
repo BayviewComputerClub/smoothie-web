@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SmoothieEmailService {
 
-    @Autowired
+    // @Autowired
     public JavaMailSender emailSender;
 
     public void sendSimpleMessage(String to, String subject, String text) {
