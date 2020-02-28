@@ -1,18 +1,36 @@
-<header xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <a href="/" th:href="@{/}" class="header-title"><b th:text="${siteName}"></b></a>
-    <a href="/problems" th:href="@{/problems}" >Problems</a>
-    <a href="/contests" th:href="@{/contests}" >Contests</a>
-    <a href="/ranking" th:href="@{/ranking}" >Ranking</a>
+<!-- Default header -->
+<header xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:unless="${currentContest}">
+    <a th:href="@{/}" class="header-title"><b th:text="${siteName}"></b></a>
+    <a th:href="@{/problems}" >Problems</a>
+    <a th:href="@{/contests}" >Contests</a>
+    <a th:href="@{/ranking}" >Ranking</a>
     <a th:each="page: ${T(club.bayview.smoothieweb.controllers.PageController).getNavs(0)}" th:text="${page.nav_title}" th:href="${'/page/' + page.slug}"></a>
-    <a th:if="${isAdmin}" href="/admin" th:href="@{/admin}">Admin</a>
+    <a th:if="${isAdmin}" th:href="@{/admin}">Admin</a>
 
     <div class="header-right">
         <div th:unless="${#authentication}">
-            <a href="/login" th:href="@{/login}" >Login</a>
-            <a href="/register" th:href="@{/register}" >Register</a>
+            <a th:href="@{/login}" >Login</a>
+            <a th:href="@{/register}" >Register</a>
         </div>
         <div sec:authorize="isAuthenticated()">
-            <a href="/logout" th:href="@{/logout}" >Logout</a>
+            <a th:href="@{/logout}" >Logout</a>
+            <a class="header-hello" th:href="@{'/user/' + ${#authentication.getPrincipal().getUsername()}}">Hello, <span th:text="${#authentication.getPrincipal().getUsername()}"></span>!</a>
+        </div>
+    </div>
+</header>
+
+<!-- Contest mode header -->
+<header xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:if="${currentContest}">
+    <a th:href="@{'/contest/' + ${currentContest.name}}" class="header-title"><b th:text="${currentContest.prettyName}"></b></a>
+    <a th:href="@{'/contest/' + ${currentContest.name} + '/problems'}" >Problems</a>
+    <a th:href="@{'/contest/' + ${currentContest.name} + '/leaderboard'}" >Leaderboard</a>
+    <a th:if="${isAdmin}" th:href="@{/admin}">Admin</a>
+
+    <div class="header-right">
+        <div>
+            <form th:action="@{'/contest/' + ${currentContest.name} + '/leave'}" method="post" id="leaveContestHeader"></form>
+            <button class="button-as-link" form="leaveContestHeader">Leave Contest</button>
+            <a th:href="@{/logout}" >Logout</a>
             <a class="header-hello" th:href="@{'/user/' + ${#authentication.getPrincipal().getUsername()}}">Hello, <span th:text="${#authentication.getPrincipal().getUsername()}"></span>!</a>
         </div>
     </div>

@@ -1,6 +1,8 @@
 package club.bayview.smoothieweb.controllers;
 
+import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieContestService;
+import club.bayview.smoothieweb.services.SmoothieUserService;
 import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NoPermissionException;
 import club.bayview.smoothieweb.util.NotFoundException;
@@ -25,6 +27,9 @@ public class ContestController {
     @Autowired
     SmoothieContestService contestService;
 
+    @Autowired
+    SmoothieUserService userService;
+
     @GetMapping("/contests")
     public Mono<String> getContestsRoute(Model model) {
         return contestService.findAllContests().collectList().flatMap(cs -> {
@@ -38,9 +43,9 @@ public class ContestController {
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(c -> {
-                    if (!c.hasPermissionToView(auth)) {
+                    if (!c.hasPermissionToView(auth))
                         return Mono.error(new NoPermissionException());
-                    }
+
                     model.addAttribute("contest", c);
                     return Mono.just("contest");
                 })
@@ -49,7 +54,6 @@ public class ContestController {
 
     @GetMapping("/contest/{name}/leaderboard")
     public Mono<String> getContestLeaderboard(@PathVariable String name, Model model, Authentication auth) {
-
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(c -> {
@@ -70,9 +74,34 @@ public class ContestController {
                     if (!c.hasPermissionToView(auth))
                         return Mono.error(new NoPermissionException());
 
-                    // TODO update user object
-                    return Mono.just("redirect:/contest/" + name + "/problems");
+                    if (!(auth.getPrincipal() instanceof User))
+                        return Mono.error(new NoPermissionException());
+
+                    return Mono.zip(userService.findUserById(((User) auth.getPrincipal()).getId()), Mono.just(c));
                 })
+                .flatMap(t -> {
+                    // set the user's contestId
+                    t.getT1().setContestId(t.getT2().getId());
+                    return userService.saveUser(t.getT1());
+                })
+                .then(Mono.just("redirect:/contest/" + name + "/problems"))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{name}/join"));
+    }
+
+    @PostMapping("/contest/{name}/leave")
+    public Mono<String> postContestLeave(@PathVariable String name, Authentication auth) {
+        // this just sets the contestId field to null, regardless of whether the user is in a contest
+        if (auth.getPrincipal() instanceof User) {
+            return userService.findUserById(((User) auth.getPrincipal()).getId())
+                    .switchIfEmpty(Mono.error(new NotFoundException()))
+                    .flatMap(u -> {
+                        u.setContestId(null);
+                        return userService.saveUser(u);
+                    })
+                    .then(Mono.just("redirect:/"));
+
+        } else {
+            return Mono.just("redirect:/");
+        }
     }
 }

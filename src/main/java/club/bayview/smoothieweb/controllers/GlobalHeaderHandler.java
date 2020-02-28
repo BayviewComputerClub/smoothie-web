@@ -41,10 +41,10 @@ public class GlobalHeaderHandler {
     }
 
     @ModelAttribute("currentContest")
-    public Mono<Contest> getCurrentContest(Principal p) {
+    public Mono<Contest> getCurrentContest(Authentication auth) {
         // get current contest, if the user is in one
-        if (p instanceof User) {
-            return userService.findUserById(((User) p).getId())
+        if (auth.getPrincipal() instanceof User) {
+            return userService.findUserById(((User) auth.getPrincipal()).getId())
                     .flatMap(u -> {
                         if (u.getContestId() != null) {
                             return contestService.findContestById(u.getContestId());

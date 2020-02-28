@@ -24,7 +24,7 @@
             line-height: 1.5;
         }
 
-        button, .button-link {
+        .button-link {
             border-radius: 10px;
             box-shadow: 1px 1px 5px 0 #607d8b;
             cursor: pointer;
@@ -40,11 +40,11 @@
             text-decoration: none;
         }
 
-        button:focus, .button-link:focus {
+        .button-link:focus {
             outline: 0;
         }
 
-        button:hover, .button-link:hover {
+        .button-link:hover {
             box-shadow: 1px 1px 15px 0 #607d8b;
             transition: box-shadow 0.3s;
         }
@@ -82,11 +82,15 @@
             <br/> <span class="topbar-bottom-text">ongoing</span>
         </div>
 
+        <form th:action="@{'/contest/' + ${contest.name} + '/join'}" method="post" id="joinContest"></form>
+        <form th:action="@{'/contest/' + ${contest.name} + '/leave'}" method="post" id="leaveContest"></form>
+
         <div style="margin-left: auto;">
             <!-- -=-=- TODO PERMISSIONS -=-=- -->
             <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/problems'}">Problems</a>
             <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/leaderboard'}">Leaderboard</a>
-            <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/join'}">Join</a>
+            <button class="button-link" th:unless="${currentContest}" form="joinContest">Join</button>
+            <button class="button-link" th:if="${currentContest}" form="leaveContest">Leave</button>
             <a class="button-link" th:if="${isAdmin}" th:href="@{'/contest/' + ${contest.name} + '/admin'}">Manage</a>
         </div>
     </div>

@@ -30,7 +30,7 @@
             margin-top: 40px;
         }
 
-        button {
+        .round-button {
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -42,11 +42,11 @@
             outline: none;
         }
 
-        button:focus {
+        .round-button:focus {
             outline: 0;
         }
 
-        button:hover {
+        .round-button:hover {
             box-shadow: 1px 1px 15px 0 #9e9e9e;
             transition: box-shadow 0.3s;
         }
@@ -173,9 +173,9 @@
 
                 <tr th:each="problem : ${form.problems}" class="problem">
                     <td style="text-align: left;">
-                        <button type="button" onclick="removeProblemRow(this)"><i class="material-icons">close</i></button>
-                        <button type="button" onclick="moveProblemRowUp(this)"><i class="material-icons">arrow_upward</i></button>
-                        <button type="button" onclick="moveProblemRowDown(this)"><i class="material-icons">arrow_downward</i></button>
+                        <button class="round-button" type="button" onclick="removeProblemRow(this)"><i class="material-icons">close</i></button>
+                        <button class="round-button" type="button" onclick="moveProblemRowUp(this)"><i class="material-icons">arrow_upward</i></button>
+                        <button class="round-button" type="button" onclick="moveProblemRowDown(this)"><i class="material-icons">arrow_downward</i></button>
                     </td>
                     <td class="problem-order" th:text="${problem.contestProblemNumber}+1"></td>
                     <td><input type="text" placeholder="ex. ioi2020p1" th:value="${problem.problemName}"></td>
@@ -186,7 +186,7 @@
 
                 </tbody>
             </table>
-            <button type="button" onclick="addProblemRow()" style="margin-left: 3px; margin-top: 10px;"><i
+            <button type="button" class="round-button" onclick="addProblemRow()" style="margin-left: 3px; margin-top: 10px;"><i
                     class="material-icons">add</i></button>
         </div>
 
@@ -401,9 +401,9 @@
         $('#problem-table tr:last').after(`
             <tr class="problem">
                 <td style="text-align: left;">
-                    <button type="button" onclick="removeProblemRow(this)" style="display: inline;"><i class="material-icons">close</i></button>
-                    <button type="button" onclick="moveProblemRowUp(this)" style="display: inline;"><i class="material-icons">arrow_upward</i></button>
-                    <button type="button" onclick="moveProblemRowDown(this)" style="display: inline;"><i class="material-icons">arrow_downward</i></button>
+                    <button class="round-button" type="button" onclick="removeProblemRow(this)" style="display: inline;"><i class="material-icons">close</i></button>
+                    <button class="round-button" type="button" onclick="moveProblemRowUp(this)" style="display: inline;"><i class="material-icons">arrow_upward</i></button>
+                    <button class="round-button" type="button" onclick="moveProblemRowDown(this)" style="display: inline;"><i class="material-icons">arrow_downward</i></button>
                  </td>
                  <td class="problem-order">` + ($('#problem-table tr').length-1) + `</td>
                  <td><input type="text" value="" placeholder="ex. ioi2020p1" required></td>

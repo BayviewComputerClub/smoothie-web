@@ -21,7 +21,7 @@ header {
 
 }
 
-header a {
+header a, header .button-as-link {
     font-family: Metropolis, sans-serif;
     float: left;
     color: white;
@@ -32,9 +32,15 @@ header a {
     line-height: 15px;
     transition: text-shadow 0.5s;
     outline: none;
+    cursor: pointer;
 }
 
-header a:hover {
+header .button-as-link {
+    border: none;
+    background: none;
+}
+
+header a:hover, header .button-as-link:hover {
     text-shadow: 0 0 5px #FFFFFF;
     transition: text-shadow 0.5s;
 }
