@@ -1,6 +1,5 @@
 package club.bayview.smoothieweb.services;
 
-import club.bayview.smoothieweb.models.Contest;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.models.User;
@@ -10,8 +9,6 @@ import club.bayview.smoothieweb.util.Verdict;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class SubmissionVerdictService {

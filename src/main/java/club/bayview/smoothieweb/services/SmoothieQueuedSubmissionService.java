@@ -4,6 +4,7 @@ import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.QueuedSubmission;
 import club.bayview.smoothieweb.repositories.QueuedSubmissionRepository;
 import club.bayview.smoothieweb.models.Submission;
+import io.grpc.ConnectivityState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,11 +100,15 @@ public class SmoothieQueuedSubmissionService {
     public ArrayList<SmoothieRunner> sortRunnersForSubmission(ArrayList<SmoothieRunner> runners, QueuedSubmission submission) {
         ArrayList<SmoothieRunner> order = new ArrayList<>();
         if (submission.getRequestedRunnerIds() == null || submission.getRequestedRunnerIds().isEmpty()) {
-            order = runners;
+            runners.stream()
+                    .filter(runner -> runner.getStatus().equals(ConnectivityState.IDLE) || runner.getStatus().equals(ConnectivityState.READY))
+                    .forEach(order::add);
         } else {
             for (var runner : runners) {
-                if (submission.getRequestedRunnerIds().contains(runner.getId())) {
-                    order.add(runner);
+                if (runner.getStatus().equals(ConnectivityState.IDLE) || runner.getStatus().equals(ConnectivityState.READY)) {
+                    if (submission.getRequestedRunnerIds().contains(runner.getId())) {
+                        order.add(runner);
+                    }
                 }
             }
         }

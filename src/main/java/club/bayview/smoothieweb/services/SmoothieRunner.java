@@ -9,6 +9,7 @@ import com.google.protobuf.ByteString;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,8 +146,18 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
 
     @Override
     public int compareTo(SmoothieRunner runner) {
-        var s1 = this.getHealth();
-        var s2 = runner.getHealth();
+        club.bayview.smoothieweb.SmoothieRunner.ServiceHealth s1 = null, s2 = null;
+        try {
+            s1 = this.getHealth();
+        } catch (StatusRuntimeException ignored) {}
+        try {
+            s2 = runner.getHealth();
+        } catch (StatusRuntimeException ignored) {}
+
+        if (s1 == null && s2 == null) return 0;
+        if (s1 == null) return 1;
+        if (s2 == null) return -1;
+
         return Long.compare(s1.getNumOfTasksInQueue(), s2.getNumOfTasksToBeDone());
     }
 }

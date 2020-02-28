@@ -383,6 +383,10 @@
         let row = $(r).parents("tr:first");
         let rowNumElement = row.children(".problem-order"), rowPrevNumElement = row.prev().children(".problem-order");
         let num = rowNumElement.text();
+
+        if (!(/^\d+$/.test(rowPrevNumElement.text())))
+            return;
+
         rowNumElement.text(rowPrevNumElement.text());
         rowPrevNumElement.text(num);
         row.insertBefore(row.prev());
@@ -392,6 +396,10 @@
         let row = $(r).parents("tr:first");
         let rowNumElement = row.children(".problem-order"), rowNextNumElement = row.next().children(".problem-order");
         let num = rowNumElement.text();
+
+        if (!(/^\d+$/.test(rowNextNumElement.text())))
+            return;
+
         rowNumElement.text(rowNextNumElement.text());
         rowNextNumElement.text(num);
         row.insertAfter(row.next());

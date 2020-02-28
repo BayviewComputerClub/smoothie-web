@@ -194,7 +194,7 @@ public class Contest {
                     for (var s : submissions) {
                         // ignore AR (awaiting) submissions
                         if (!checkedSubmissions.contains(s.getVerdict())) {
-                            return;
+                            continue;
                         }
                         // add submissions to map with best points and submitted time
                         Submission compare = m.get(s.getProblemId());

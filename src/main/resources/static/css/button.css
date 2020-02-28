@@ -1,4 +1,4 @@
-button, .button-link {
+.button-link {
     border-radius: 10px;
     box-shadow: 1px 1px 5px 0 #607d8b;
     cursor: pointer;
@@ -15,11 +15,11 @@ button, .button-link {
     outline: none;
 }
 
-button:focus, .button-link:focus {
+.button-link:focus {
     outline: 0;
 }
 
-button:hover, .button-link:hover {
+.button-link:hover {
     box-shadow: 1px 1px 15px 0 #607d8b;
     transition: box-shadow 0.3s;
 }
