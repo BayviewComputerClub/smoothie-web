@@ -1,10 +1,12 @@
 package club.bayview.smoothieweb.security;
 
+import club.bayview.smoothieweb.controllers.GlobalHandlerFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +26,7 @@ public class WebSecurityConfig {
                     .pathMatchers("/admin/**").hasRole("ADMIN")
                     .pathMatchers("/**").permitAll()
                 .and()
+                .addFilterAfter(new GlobalHandlerFilter(), SecurityWebFiltersOrder.AUTHENTICATION) // add global filter
                 .formLogin()
                     .loginPage("/login")
                     .authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/"))

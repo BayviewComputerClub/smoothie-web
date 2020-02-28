@@ -25,17 +25,19 @@ import org.springframework.web.reactive.function.server.HandlerFilterFunction;
 import org.springframework.web.reactive.function.server.HandlerFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
-public class GlobalHandlerFilter implements HandlerFilterFunction<ServerResponse, ServerResponse> {
+public class GlobalHandlerFilter implements WebFilter {
 
     @Override
-    public Mono<ServerResponse> filter(ServerRequest request, HandlerFunction<ServerResponse> next) {
-
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         SmoothieContestService contestService = SmoothieWebApplication.context.getBean(SmoothieContestService.class);
         SmoothieUserService userService = SmoothieWebApplication.context.getBean(SmoothieUserService.class);
 
-        return request.principal()
+        return exchange.getPrincipal()
                 .flatMap(p -> {
                     // add currentContest that the user is in to request
                     if (p instanceof User) {
@@ -46,10 +48,10 @@ public class GlobalHandlerFilter implements HandlerFilterFunction<ServerResponse
                                     }
                                     return Mono.empty();
                                 })
-                                .doOnNext(c -> request.attributes().put("currentContest", c));
+                                .doOnNext(c -> exchange.getAttributes().put("currentContest", c));
                     }
                     return Mono.empty();
                 })
-                .then(next.handle(request));
+                .then(chain.filter(exchange));
     }
 }
