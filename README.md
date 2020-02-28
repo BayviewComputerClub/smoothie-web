@@ -63,6 +63,9 @@ google.recaptcha.key.secret=
 # Default admin password
 smoothieweb.admin.password=password
 
+# Whether or not to show stack traces on error pages
+smoothieweb.error.debug=true
+
 # Set upload limit
 spring.servlet.multipart.max-file-size = 1GB
 spring.servlet.multipart.max-request-size = 1GB

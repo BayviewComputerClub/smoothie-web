@@ -1,12 +1,10 @@
 package club.bayview.smoothieweb.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.result.view.ViewResolver;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,6 +24,9 @@ public class GlobalErrorExceptionHandler implements ErrorWebExceptionHandler {
     @Autowired
     ViewResolver viewResolver;
 
+    @Value("${smoothieweb.error.debug:false}")
+    private boolean showDebugErrors;
+
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
         exchange.getAttributes().put("siteName", headerHandler.getSiteName());
@@ -38,7 +39,14 @@ public class GlobalErrorExceptionHandler implements ErrorWebExceptionHandler {
                 viewName = "error/404";
             } else if (e.getStatus().is5xxServerError()) {
                 viewName = "error/500";
+                ex.printStackTrace();
             }
+        } else {
+            ex.printStackTrace();
+        }
+
+        if (showDebugErrors) {
+            exchange.getAttributes().put("error", ex.getMessage());
         }
 
         return viewResolver

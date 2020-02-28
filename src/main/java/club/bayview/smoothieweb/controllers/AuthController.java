@@ -14,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.servlet.ModelAndView;
 import reactor.core.publisher.Mono;
 
@@ -25,7 +26,7 @@ import javax.validation.constraints.NotNull;
 public class AuthController {
 
     @Autowired
-    private SmoothieUserService userDetailsService;
+    private SmoothieUserService userService;
 
     @Autowired
     SmoothieAuthenticationProvider authenticationProvider;
@@ -66,32 +67,35 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ModelAndView registerPostRoute(@Valid RegisterForm form, BindingResult result, HttpServletRequest req) {
-        ModelAndView page = new ModelAndView();
+    public Mono<String> registerPostRoute(@Valid RegisterForm form, BindingResult result, ServerWebExchange req, Model model) {
 
-        try {
-            String captchaRes = req.getParameter("g-recaptcha-response");
-            captchaService.processResponse(captchaRes);
-        } catch (Exception e) {
-            result.reject("captcha", "Captcha failed! Try again and prove you're not a robot.");
-        }
+        return req.getFormData()
+                .flatMap(formData -> {
+                    String captchaRes = formData.getFirst("g-recaptcha-response");
+                    try {
+                        captchaService.processResponse(captchaRes, req);
+                    } catch (Exception e) {
+                        result.reject("captcha", "Captcha failed! Try again and prove you're not a robot.");
+                        return Mono.error(e);
+                    }
 
-        if (userDetailsService.findUserByHandle(form.username).block() != null) {
-            result.rejectValue("username", "error.user", "The username has already been taken!");
-        } else if (userDetailsService.findUserByEmail(form.email).block() != null) {
-            result.rejectValue("email", "error.user", "The email has already been used!");
-        }
+                    if (userService.findUserByHandle(form.username).block() != null) {
+                        result.rejectValue("username", "error.user", "The username has already been taken!");
+                    } else if (userService.findUserByEmail(form.email).block() != null) {
+                        result.rejectValue("email", "error.user", "The email has already been used!");
+                    }
 
-        if (result.hasErrors()) {
-            page.setViewName("register");
-        } else {
-            User user = new User(form.username, form.email, form.password);
-            user.encodePassword();
-            userDetailsService.saveUser(user).block();
-            page.setViewName("redirect:/login");
-            // TODO "Conf email sent" message
-        }
-        return page;
+                    if (result.hasErrors()) {
+                        return Mono.error(new Exception());
+                    } else {
+                        User user = new User(form.username, form.email, form.password);
+                        user.encodePassword();
+                        userService.saveUser(user).block();
+                        return Mono.just("redirect:/login");
+                        // TODO "Conf email sent" message
+                    }
+                })
+                .onErrorResume(e -> Mono.just("register"));
     }
 
 }

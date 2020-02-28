@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -13,6 +14,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.server.ServerWebExchange;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
@@ -56,11 +58,11 @@ public class CaptchaService {
         factory.setReadTimeout(7 * 1000);
         return new RestTemplate(factory);
     }
-
-    public void processResponse(final String response) {
+TODO
+    public void processResponse(final String response, ServerWebExchange req) {
         LOGGER.debug("Attempting to validate response {}", response);
 
-        if (reCaptchaAttemptService.isBlocked(getClientIP())) {
+        if (reCaptchaAttemptService.isBlocked(getClientIP(req))) {
             throw new ReCaptchaInvalidException("Client exceeded maximum number of failed attempts");
         }
 
@@ -68,21 +70,21 @@ public class CaptchaService {
             throw new ReCaptchaInvalidException("Response contains invalid characters");
         }
 
-        final URI verifyUri = URI.create(String.format("https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s&remoteip=%s", getReCaptchaSecret(), response, getClientIP()));
+        final URI verifyUri = URI.create(String.format("https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s&remoteip=%s", getReCaptchaSecret(), response, getClientIP(req)));
         try {
             final GoogleResponse googleResponse = restTemplate.getForObject(verifyUri, GoogleResponse.class);
             LOGGER.debug("Google's response: {} ", googleResponse.toString());
 
             if (!googleResponse.isSuccess()) {
                 if (googleResponse.hasClientError()) {
-                    reCaptchaAttemptService.reCaptchaFailed(getClientIP());
+                    reCaptchaAttemptService.reCaptchaFailed(getClientIP(req));
                 }
                 throw new ReCaptchaInvalidException("reCaptcha was not successfully validated");
             }
         } catch (RestClientException rce) {
             throw new ReCaptchaUnavailableException("Registration unavailable at this time.  Please try again later.", rce);
         }
-        reCaptchaAttemptService.reCaptchaSucceeded(getClientIP());
+        reCaptchaAttemptService.reCaptchaSucceeded(getClientIP(req));
     }
 
     private boolean responseSanityCheck(final String response) {
@@ -97,8 +99,8 @@ public class CaptchaService {
         return captchaSettings.getSecret();
     }
 
-    private String getClientIP() {
-        return RequestContextHolder.getRequestAttributes().getSessionId();
+    private String getClientIP(ServerWebExchange req) {
+        return req.getRequest().getRemoteAddress().getAddress().getHostAddress();
         /*final String xfHeader = request.getHeader("X-Forwarded-For");
         if (xfHeader == null) {
             return request.getRemoteAddr();
