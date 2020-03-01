@@ -27,15 +27,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         config.enableSimpleBroker("/live-submission");
     }
 
-    @Bean
-    public HandlerMapping webSocketHandlerMapping() {
-        Map<String, WebSocketHandler> map = new HashMap<>();
-        map.put("/ws/live-submission/*");
-
-        SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
-        handlerMapping.setOrder(1);
-        handlerMapping.setUrlMap(map);
-        return handlerMapping;
-    }
+//    @Bean
+//    public HandlerMapping webSocketHandlerMapping() {
+//        Map<String, WebSocketHandler> map = new HashMap<>();
+//        map.put("/ws/live-submission/*");
+//
+//        SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
+//        handlerMapping.setOrder(1);
+//        handlerMapping.setUrlMap(map);
+//        return handlerMapping;
+//    }
 
 }
