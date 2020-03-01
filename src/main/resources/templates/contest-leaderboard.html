@@ -22,28 +22,20 @@
             font-family: Nunito, sans-serif;
         }
 
-        .leaderboard > thead {
-            /*border-top-left-radius: 20px;*/
-            /*border-top-right-radius: 20px;*/
+        .leaderboard thead {
             padding: 10px;
         }
 
-        .leaderboard > thead th {
+        .leaderboard > thead th, .actual-row td {
             padding-top: 10px;
             padding-bottom: 10px;
         }
 
-        /*.leaderboard > thead th:first-of-type {*/
-        /*    border-top-left-radius: 20px;*/
-        /*}*/
-
-        /*.leaderboard > thead th:last-of-type {*/
-        /*    border-top-right-radius: 20px;*/
-        /*}*/
-
-        .leaderboard > tbody {
-
+        .actual-row {
+            padding: 10px;
+            text-align: center;
         }
+
     </style>
 
 </head>
@@ -54,7 +46,7 @@
 <div class="container">
     <h1>[[${contest.prettyName}]] Standings</h1>
     <table class="leaderboard">
-        <thead class="leaderboard-head ms-depth-16">
+        <thead class="leaderboard-head">
         <tr>
             <th>Rank</th>
             <th>User</th>
@@ -62,10 +54,13 @@
             <th th:each="problem : ${contest.getContestProblemsInOrder()}">[[${problem.contestProblemNumber}+1]] <span
                     th:style="'width: 50px; border-radius: 50%; background-color:' + ${problem.colourHex}"></span></th>
         </tr>
+        <tr>
+            <th th:colspan="${contest.getContestProblemsInOrder().size()}+3"><hr/></th>
+        </tr>
         </thead>
         <tbody th:each="rank, ord : ${contest.leaderBoard}">
-        <tr th:each="user : ${rank}">
-            <td th:text="${ord}+1"></td>
+        <tr th:each="user : ${rank}" class="actual-row">
+            <td th:text="${ord.index}+1"></td>
             <td th:text="${user.userId}"></td>
             <td th:text="${user.points}"></td>
             <td th:each="sub : ${user.bestSubmissions}" th:text="${sub.points}"></td>
