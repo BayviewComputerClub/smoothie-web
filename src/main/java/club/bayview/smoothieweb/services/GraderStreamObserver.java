@@ -3,19 +3,19 @@ package club.bayview.smoothieweb.services;
 import club.bayview.smoothieweb.SmoothieRunner;
 import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.controllers.LiveSubmissionController;
-import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.Submission;
-import club.bayview.smoothieweb.models.User;
-import club.bayview.smoothieweb.util.NotFoundException;
-import club.bayview.smoothieweb.util.Verdict;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestSolutionResponse> {
 
-    LiveSubmissionController liveSubmissionController = SmoothieWebApplication.context.getBean(LiveSubmissionController.class);
+    WebSocketSessionService webSocketSessionService = SmoothieWebApplication.context.getBean(WebSocketSessionService.class);
     SmoothieSubmissionService submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
     SmoothieQueuedSubmissionService queuedSubmissionService = SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class);
     SubmissionVerdictService verdictService = SmoothieWebApplication.context.getBean(SubmissionVerdictService.class);
@@ -28,6 +28,8 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
     private SmoothieRunner.TestSolutionRequest req; // initial sending request
 
     private boolean terminated = false;
+
+    ObjectMapper ob = new ObjectMapper();
 
     public GraderStreamObserver(Submission submission, club.bayview.smoothieweb.services.SmoothieRunner runner, SmoothieRunner.TestSolutionRequest req) {
         this.submission = submission;
@@ -49,6 +51,7 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
         } else if (value.getCompletedTesting()) { // testing has completed
             submission.setJudgingCompleted(true);
         } else {
+            List<Submission.SubmissionBatchCase> socketSend = new ArrayList<>();
             for (var cases : submission.getBatchCases()) {
                 for (var c : cases) {
                     if (c.getBatchNumber() == value.getTestCaseResult().getBatchNumber() && c.getCaseNumber() == value.getTestCaseResult().getCaseNumber()) {
@@ -56,11 +59,15 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
                         c.setMemUsage(value.getTestCaseResult().getMemUsage());
                         c.setTime(value.getTestCaseResult().getTime());
                         c.setResultCode(value.getTestCaseResult().getResult());
-
-                        // send to websocket
-                        liveSubmissionController.sendSubmissionBatch(submission.getId(), c);
+                        socketSend.add(c);
                     }
                 }
+            }
+            // send to websocket
+            try {
+                webSocketSessionService.sendToClients("/live-submission/" + submission.getId(), ob.writeValueAsString(socketSend));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
             }
         }
 

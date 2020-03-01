@@ -1,41 +1,37 @@
 package club.bayview.smoothieweb.config;
 
+import club.bayview.smoothieweb.controllers.LiveSubmissionController;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
-import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.config.annotation.*;
-import reactor.core.publisher.UnicastProcessor;
+import org.springframework.web.reactive.socket.WebSocketHandler;
+import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+public class WebSocketConfig {
 
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS();
+    @Bean
+    public HandlerMapping webSocketHandlerMapping() {
+        Map<String, WebSocketHandler> map = new HashMap<>();
+        map.put("/ws/live-submission", new LiveSubmissionController());
+
+        SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
+        handlerMapping.setUrlMap(map);
+        handlerMapping.setOrder(10);
+        handlerMapping.setCorsConfigurations(Collections.singletonMap("*", new CorsConfiguration().applyPermitDefaultValues()));
+        return handlerMapping;
     }
 
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.setApplicationDestinationPrefixes("/live-submission");
-        config.enableSimpleBroker("/live-submission");
+    @Bean
+    public WebSocketHandlerAdapter handlerAdapter() {
+        return new WebSocketHandlerAdapter();
     }
-
-//    @Bean
-//    public HandlerMapping webSocketHandlerMapping() {
-//        Map<String, WebSocketHandler> map = new HashMap<>();
-//        map.put("/ws/live-submission/*");
-//
-//        SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
-//        handlerMapping.setOrder(1);
-//        handlerMapping.setUrlMap(map);
-//        return handlerMapping;
-//    }
 
 }

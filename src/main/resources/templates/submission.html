@@ -26,7 +26,7 @@
             line-height: 1.5;
         }
 
-        button, .button-link {
+        .button-link {
             border-radius: 10px;
             box-shadow: 1px 1px 5px 0 #607d8b;
             cursor: pointer;
@@ -42,11 +42,11 @@
             text-decoration: none;
         }
 
-        button:focus, .button-link:focus {
+        .button-link:focus {
             outline: 0;
         }
 
-        button:hover, .button-link:hover {
+        .button-link:hover {
             box-shadow: 1px 1px 15px 0 #607d8b;
             transition: box-shadow 0.3s;
         }
@@ -99,25 +99,27 @@
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
 <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
 
 <script th:inline="javascript">
 
-    let stompClient = null;
     let id = /*[[${submission.id}]]*/;
     console.log('ID: ' + id);
 
     function connect() {
-        let socket = new SockJS('/ws');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, frame => {
-            console.log('Connected to ws: ' + frame);
-            stompClient.subscribe('/live-submission/' + id, c => {
-                console.log(c);
-                JSON.parse(c.body).forEach(sub => {
-                    $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber+1) + ": " + sub.resultCode + " (" + (Math.round(sub.time*100)/100).toFixed(3) + "s) (" + sub.memUsage + "MB)");
-                });
+        let prefix = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/ws";
+        let socket = new WebSocket(prefix + '/live-submission');
+        socket.addEventListener('open', e => {
+            console.log('Connected to websocket.');
+            socket.send(id);
+        });
+        socket.addEventListener('close', e => {
+            console.log('Disconnected from websocket.');
+        });
+        socket.addEventListener('message', e => {
+            console.log(e.data);
+            JSON.parse(e.data).forEach(sub => {
+                $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber + 1) + ": " + sub.resultCode + " (" + (Math.round(sub.time * 100) / 100).toFixed(3) + "s) (" + sub.memUsage + "MB)");
             });
         });
     }
