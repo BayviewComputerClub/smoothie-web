@@ -88,7 +88,7 @@
     <h1 th:if="${newRunner}">New Runner</h1>
     <h1 th:unless="${newRunner}">Edit Runner</h1>
 
-    <form method="POST" id="runner-form" th:object="${runner}">
+    <form method="POST" id="runner-form" th:action="'?'" th:object="${runner}">
 
         <div class="input-container">
             <label for="runner-name">Runner Name</label>

@@ -50,7 +50,7 @@
 <div class="container">
     <h1>Edit Profile<span th:if="${isAdmin}"> of [[${user.handle}]]</span></h1>
 
-    <form method="POST" id="form" th:object="${profileForm}">
+    <form method="POST" th:action="'?'" id="form" th:object="${profileForm}">
         <h3>Description</h3>
 
         <textarea form="form" th:field="*{description}" rows="5"></textarea>

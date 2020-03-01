@@ -47,7 +47,7 @@
 
     <h2>Are you sure? ᕙ(⇀‸↼‶)ᕗ </h2>
 
-    <form method="POST">
+    <form method="POST" th:action="'?'">
         <div style="display: flex; margin-top: 20px;">
         <input type="submit" class="button-link" value="Yes">
         <a class="button-link" th:href="@{'/problem/' + ${problem.name} + '/manage'}">No</a>

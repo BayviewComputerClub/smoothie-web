@@ -31,8 +31,7 @@ public class WebSecurityConfig {
                 .logout()
                     .logoutUrl("/logout")
                     .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/logout"))
-                .and()
-                .csrf().disable();
+                ;
 
         return http.build();
     }

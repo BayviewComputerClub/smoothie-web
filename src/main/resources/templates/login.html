@@ -138,6 +138,7 @@
         <br/>
         <input type="submit" id="login" value="Login">
         </div>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
     </form>
 </div>
 

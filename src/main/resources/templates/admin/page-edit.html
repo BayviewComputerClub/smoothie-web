@@ -89,7 +89,7 @@
 <div th:replace="fragments/header-admin"></div>
 
 <div class="container">
-    <form method="POST" id="runner-form" th:object="${page}">
+    <form method="POST" id="runner-form" th:action="'?'" th:object="${page}">
 
         <div class="input-container">
             <label for="slug">Slug</label>

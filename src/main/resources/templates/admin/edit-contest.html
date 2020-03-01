@@ -141,7 +141,7 @@
     <h1 th:if="${newContest}">New Contest</h1>
     <h1 th:unless="${newContest}">Edit Contest <a th:href="@{'/contest/' + ${form.name}}">[[${form.name}]]</a></h1>
 
-    <form method="POST" id="form" th:object="${form}" autocomplete="off" onsubmit="prepareSubmitForm()">
+    <form method="POST" id="form" th:action="'?'" th:object="${form}" autocomplete="off" onsubmit="prepareSubmitForm()">
 
         <div class="input-container">
             <label for="contest-id">Contest ID (no spaces)</label>

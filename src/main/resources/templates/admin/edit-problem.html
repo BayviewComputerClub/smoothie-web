@@ -121,7 +121,7 @@
     <h1 th:unless="${newProblem}">Edit Problem <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.name}]]</a>
     </h1>
 
-    <form method="POST" id="problem-form" enctype="multipart/form-data" th:object="${problem}"
+    <form method="POST" id="problem-form" th:action="'?'" enctype="multipart/form-data" th:object="${problem}"
           onsubmit="modifyTablesOnSubmit()">
 
         <div class="input-container">

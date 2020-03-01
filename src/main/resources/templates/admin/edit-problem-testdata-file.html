@@ -146,7 +146,7 @@
     <hr/>
     <br/>
 
-    <form method="post" class="upload-box" enctype="multipart/form-data" th:object="${testDataForm}">
+    <form method="post" class="upload-box" enctype="multipart/form-data" th:action="'?'" th:object="${testDataForm}">
         <div class="upload-box-input">
             <input class="upload-box-file" type="file" name="testData" id="file"/>
             <label for="file" class="upload-box-label"><strong><u>Choose a file</u></strong><span

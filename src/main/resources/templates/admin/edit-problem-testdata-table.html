@@ -135,7 +135,7 @@
 <div class="container">
     <h1>Edit Test Data for <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.name}]]</a></h1>
 
-    <form method="POST" id="testdata-form" enctype="multipart/form-data" th:object="${testDataForm}">
+    <form method="POST" id="testdata-form" enctype="multipart/form-data" th:action="'?'" th:object="${testDataForm}">
 
         <div class="input-container">
             <table id="batch-table">
