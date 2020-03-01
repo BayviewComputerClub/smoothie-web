@@ -8,6 +8,8 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.reactive.socket.WebSocketHandler;
+import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -17,7 +19,7 @@ import java.util.List;
 // stomp over websocket
 
 @Controller
-public class LiveSubmissionController {
+public class LiveSubmissionController implements WebSocketHandler {
 
     private SimpMessagingTemplate template;
 
@@ -45,4 +47,19 @@ public class LiveSubmissionController {
         template.convertAndSend("/live-submission/" + submissionId, Arrays.asList(batchCase));
     }
 
+    @Override
+    public Mono<Void> handle(WebSocketSession session) {
+
+        return session.receive()
+                .next()
+                .flatMap(msg -> submissionService.findSubmissionById(msg.getPayloadAsText()))
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(s -> {
+                    List<Submission.SubmissionBatchCase> l = new ArrayList<>();
+                    for (var nl : s.getBatchCases()) l.addAll(nl);
+                    return Mono.just(l);
+                })
+                .onErrorResume(e -> Mono.just(new ArrayList<>()))
+                .then();
+    }
 }
