@@ -82,7 +82,7 @@ public class JudgeController {
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(contest -> {
-                    if (!contest.hasPermissionToView(auth))
+                    if (!contest.hasPermissionToSubmit(auth))
                         return Mono.error(new NoPermissionException());
 
                     if (contest.getContestProblemsInOrder().size() <= problemNum)
@@ -105,6 +105,7 @@ public class JudgeController {
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /problem/{contestName}/problem/{problemName}/submit route exception:"));
     }
 
+    // TODO resubmit for contest needs contest id
     @GetMapping("/submission/{submissionId}/resubmit")
     @PreAuthorize("hasRole('ROLE_USER')")
     public Mono<String> getSubmissionResubmitRoute(@PathVariable String submissionId, Model model, Authentication auth) {
@@ -157,15 +158,15 @@ public class JudgeController {
 
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(contest -> {
-                    if (!contest.hasPermissionToView(auth))
+                .flatMap(c -> {
+                    if (!c.hasPermissionToSubmit(auth))
                         return Mono.error(new NoPermissionException());
 
-                    Contest.ContestProblem cp = contest.getContestProblemsInOrder().get(problemNum);
+                    Contest.ContestProblem cp = c.getContestProblemsInOrder().get(problemNum);
                     if (cp == null)
                         return Mono.error(new NotFoundException());
 
-                    return Mono.zip(problemService.findProblemById(cp.getProblemId()), userService.findUserByHandle(auth.getName()), Mono.just(contest));
+                    return Mono.zip(problemService.findProblemById(cp.getProblemId()), userService.findUserByHandle(auth.getName()), Mono.just(c));
                 })
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(t -> gradeSubmission(t.getT1(), t.getT2(), t.getT3(), form))

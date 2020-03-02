@@ -42,7 +42,7 @@ public class ProblemController {
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(c -> {
-                    if (!c.hasPermissionToView(auth))
+                    if (!c.hasPermissionToViewProblems(auth))
                         return Mono.error(new NoPermissionException());
 
                     model.addAttribute("contest", c);
@@ -70,18 +70,18 @@ public class ProblemController {
 
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(contest -> {
-                    if (!contest.hasPermissionToView(auth))
+                .flatMap(c -> {
+                    if (!c.hasPermissionToViewProblems(auth))
                         return Mono.error(new NoPermissionException());
 
-                    if (problemNum >= contest.getContestProblems().size()) {
+                    if (problemNum >= c.getContestProblems().size()) {
                         return Mono.error(new NotFoundException());
                     }
-                    Contest.ContestProblem cp = contest.getContestProblemsInOrder().get(problemNum);
+                    Contest.ContestProblem cp = c.getContestProblemsInOrder().get(problemNum);
 
                     // add contest problem (override some problem fields)
                     model.addAttribute("contestProblem", cp);
-                    model.addAttribute("contest", contest);
+                    model.addAttribute("contest", c);
                     return problemService.findProblemById(cp.getProblemId()).switchIfEmpty(Mono.error(new NotFoundException()));
                 })
                 .flatMap(problem -> {

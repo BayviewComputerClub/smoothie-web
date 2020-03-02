@@ -86,12 +86,11 @@
         <form th:action="@{'/contest/' + ${contest.name} + '/leave'}" method="post" id="leaveContest"></form>
 
         <div style="margin-left: auto;">
-            <!-- -=-=- TODO PERMISSIONS -=-=- -->
-            <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/problems'}">Problems</a>
+            <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/problems'}" th:if="${contest.hasPermissionToViewProblems(#authentication)}">Problems</a>
             <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/leaderboard'}">Leaderboard</a>
-            <button class="button-link" th:unless="${currentContest}" form="joinContest">Join</button>
+            <button class="button-link" th:unless="${currentContest}" form="joinContest" sec:authorize="isAuthenticated()">Join</button>
             <button class="button-link" th:if="${currentContest}" form="leaveContest">Leave</button>
-            <a class="button-link" th:if="${isAdmin}" th:href="@{'/contest/' + ${contest.name} + '/admin'}">Manage</a>
+            <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/admin'}" th:if="${contest.hasPermissionToManage(#authentication)}">Manage</a>
         </div>
     </div>
 

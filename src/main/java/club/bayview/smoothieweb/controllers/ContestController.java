@@ -32,11 +32,14 @@ public class ContestController {
     SmoothieUserService userService;
 
     @GetMapping("/contests")
-    public Mono<String> getContestsRoute(Model model) {
-        return contestService.findAllContests().collectList().flatMap(cs -> {
-            model.addAttribute("contests", cs);
-            return Mono.just("contests");
-        });
+    public Mono<String> getContestsRoute(Model model, Authentication auth) {
+        return contestService.findAllContests()
+                .filter(c -> c.hasPermissionToView(auth))
+                .collectList()
+                .flatMap(cs -> {
+                    model.addAttribute("contests", cs);
+                    return Mono.just("contests");
+                });
     }
 
     @GetMapping("/contest/{name}")
@@ -75,7 +78,7 @@ public class ContestController {
                     if (!c.hasPermissionToView(auth))
                         return Mono.error(new NoPermissionException());
 
-                    if (!(auth.getPrincipal() instanceof User))
+                    if (auth == null || !(auth.getPrincipal() instanceof User))
                         return Mono.error(new NoPermissionException());
 
                     return Mono.zip(userService.findUserById(((User) auth.getPrincipal()).getId()), Mono.just(c));
@@ -88,6 +91,10 @@ public class ContestController {
                     if (!t.getT2().getParticipants().containsKey(t.getT1().getId())) {
                         t.getT2().getParticipants().put(t.getT1().getId(), Contest.ContestUser.getDefault(t.getT2(), t.getT1()));
                     }
+
+                    // update contest leaderboard
+                    t.getT2().updateLeaderBoard();
+
                     // save
                     return Mono.zip(userService.saveUser(t.getT1()), contestService.saveContest(t.getT2()));
                 })
@@ -98,7 +105,7 @@ public class ContestController {
     @PostMapping("/contest/{name}/leave")
     public Mono<String> postContestLeave(@PathVariable String name, Authentication auth) {
         // this just sets the contestId field to null, regardless of whether the user is in a contest
-        if (auth.getPrincipal() instanceof User) {
+        if (auth != null && auth.getPrincipal() instanceof User) {
             return userService.findUserById(((User) auth.getPrincipal()).getId())
                     .switchIfEmpty(Mono.error(new NotFoundException()))
                     .flatMap(u -> {

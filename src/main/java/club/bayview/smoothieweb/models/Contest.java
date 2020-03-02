@@ -159,6 +159,7 @@ public class Contest {
                 continue;
             }
 
+            boolean inserted = false;
             // insert user into leaderboard
             for (int i = 0; i < leaderBoard.size(); i++) { // assume every thing has one element
                 var l = leaderBoard.get(i);
@@ -169,17 +170,30 @@ public class Contest {
                         long timePenaltyCompare = userCompare.getTimePenalty();
                         if (timePenalty == timePenaltyCompare) { // same time penalty, add to same list
                             l.add(user.getUserId());
+                            inserted = true;
+                            break;
                         } else if (timePenalty < timePenaltyCompare) { // time penalty is smaller, it takes the place
                             leaderBoard.add(i, new ArrayList<>(Arrays.asList(user.getUserId())));
+                            inserted = true;
+                            break;
                         }
                         // otherwise, continue
-                    } else {
+                    } else { // if time does not matter, just add to the same group
                         l.add(user.getUserId());
+                        inserted = true;
+                        break;
                     }
                 } else if (userCompare.getPoints() < user.getPoints()) { // insert before this one
                     leaderBoard.add(i, new ArrayList<>(Arrays.asList(user.getUserId())));
-                }
+                    inserted = true;
+                    break;
 
+                }
+            }
+
+            // add to end of leaderboard
+            if (!inserted) {
+                leaderBoard.add(new ArrayList<>(Arrays.asList(user.getUserId())));
             }
         }
     }
@@ -263,7 +277,7 @@ public class Contest {
      */
 
     public boolean hasPermissionToView(Authentication auth) {
-        if (isVisibleToPublic()) return true; // TODO user has to be in contest mode as well
+        if (isVisibleToPublic()) return true;
 
         // not logged in
         if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User))
@@ -293,6 +307,10 @@ public class Contest {
         if (!hasPermissionToView(auth))
             return false;
 
+        // not logged in
+        if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User))
+            return false;
+
         // users that can submit can also see problems
         if (hasPermissionToSubmit(auth))
             return true;
@@ -312,16 +330,25 @@ public class Contest {
         if (!hasPermissionToView(auth))
             return false;
 
-        long currentTime = System.currentTimeMillis();
-        // if the contest has ended
-        if (currentTime > getTimeEnd())
+        // not logged in
+        if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User))
             return false;
+
+        long currentTime = System.currentTimeMillis();
 
         User u = (User) auth.getPrincipal();
         // todo check if user's contestId is this contest
 
+        // is admin
+        if (u.getRoles().contains(Role.ROLE_ADMIN))
+            return true;
+
         // if user is not a contest participant
         if (!participants.containsKey(u.getId()))
+            return false;
+
+        // if the contest has ended
+        if (currentTime > getTimeEnd())
             return false;
 
         ContestUser cu  = participants.get(u.getId());
@@ -343,6 +370,10 @@ public class Contest {
 
     public boolean hasPermissionToManage(Authentication auth) {
         if (!hasPermissionToView(auth))
+            return false;
+
+        // not logged in
+        if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User))
             return false;
 
         User u = (User) auth.getPrincipal();

@@ -59,11 +59,11 @@
         </tr>
         </thead>
         <tbody th:each="rank, ord : ${contest.leaderBoard}">
-        <tr th:each="user : ${rank}" class="actual-row">
+        <tr th:each="userId : ${rank}" class="actual-row" th:if="${contest.participants.get(userId)}">
             <td th:text="${ord.index}+1"></td>
-            <td th:text="${user.userId}"></td>
-            <td th:text="${user.points}"></td>
-            <td th:each="sub : ${user.bestSubmissions}" th:text="${sub.points}"></td>
+            <td th:text="${userId}"></td>
+            <td th:text="${contest.participants.get(userId).points}"></td>
+            <td th:each="sub : ${contest.participants.get(userId).bestSubmissions}" th:text="${sub.points}"></td>
         </tr>
         </tbody>
 

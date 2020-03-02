@@ -5,11 +5,13 @@ import club.bayview.smoothieweb.services.SmoothieContestService;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import club.bayview.smoothieweb.util.ErrorCommon;
+import club.bayview.smoothieweb.util.NoPermissionException;
 import club.bayview.smoothieweb.util.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -37,12 +39,16 @@ public class AdminContestController {
     /* ~~~~~ Routes ~~~~~ */
 
     @GetMapping("/contest/{name}/admin")
-    @PreAuthorize("hasRole('ROLE_EDITOR')")
-    public Mono<String> getContestDashboard(@PathVariable String name, Model model) {
+    public Mono<String> getContestDashboard(@PathVariable String name, Model model, Authentication auth) {
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .doOnNext(c -> model.addAttribute("contest", c))
-                .flatMap(c -> Mono.just("admin/manage-contest"))
+                .flatMap(c -> {
+                    if (!c.hasPermissionToManage(auth))
+                        return Mono.error(new NoPermissionException());
+
+                    model.addAttribute("contest", c);
+                    return Mono.just("admin/manage-contest");
+                })
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{name}/admin route exception: "));
     }
 
@@ -79,20 +85,22 @@ public class AdminContestController {
     }
 
     @GetMapping("/contest/{name}/edit")
-    @PreAuthorize("hasRole('ROLE_EDITOR')")
-    public Mono<String> getContestEditRoute(@PathVariable String name, Model model) {
+    public Mono<String> getContestEditRoute(@PathVariable String name, Model model, Authentication auth) {
 
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(ContestForm::fromContest)
-                .doOnNext(cf -> model.addAttribute("form", cf))
-                .then(Mono.just("admin/edit-contest"))
+                .flatMap(c -> {
+                    if (!c.hasPermissionToEdit(auth))
+                        return Mono.error(new NoPermissionException());
+
+                    model.addAttribute("form", ContestForm.fromContest(c));
+                    return Mono.just("admin/edit-contest");
+                })
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{name}/edit route exception: "));
     }
 
     @PostMapping("/contest/{name}/edit")
-    @PreAuthorize("hasRole('ROLE_EDITOR')")
-    public Mono<String> postContestEditRoute(@PathVariable String name, @Valid ContestForm contestForm, BindingResult result, Model model) {
+    public Mono<String> postContestEditRoute(@PathVariable String name, @Valid ContestForm contestForm, BindingResult result, Authentication auth) {
         if (result.hasErrors()) {
             return Mono.just("admin/edit-contest");
         }
@@ -100,7 +108,12 @@ public class AdminContestController {
         // TODO check if contest name exists
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(contestForm::toContest)
+                .flatMap(c -> {
+                    if (!c.hasPermissionToEdit(auth))
+                        return Mono.error(new NoPermissionException());
+
+                    return contestForm.toContest(c);
+                })
                 .flatMap(c -> contestService.saveContest(c))
                 .flatMap(c -> Mono.just("redirect:/contest/" + c.getName() + "/admin"))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{name}/edit route exception: "));

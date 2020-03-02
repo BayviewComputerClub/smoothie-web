@@ -62,12 +62,13 @@ public class SubmissionVerdictService {
 
                     // if there is a contest
                     if (submission.getContestId() != null) {
-                        return contestService.findContestById(submission.getContestId())
+                        return Mono.zip(userService.saveUser(user), problemService.saveProblem(problem), submissionService.saveSubmission(submission))
+                                .then(contestService.findContestById(submission.getContestId()))
                                 .switchIfEmpty(Mono.error(new NoPermissionException()))
                                 .flatMap(c -> c.updateParticipant(user.getId()))
                                 .flatMap(c -> {
                                     c.updateLeaderBoard();
-                                    return Mono.zip(userService.saveUser(user), problemService.saveProblem(problem), submissionService.saveSubmission(submission), contestService.saveContest(c));
+                                    return contestService.saveContest(c);
                                 });
                     }
 
