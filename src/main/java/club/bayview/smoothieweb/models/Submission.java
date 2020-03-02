@@ -109,7 +109,7 @@ public class Submission {
             return true;
         }
         // if the user is an editor
-        if (problem.getEditorIds().contains(user.getId())) {
+        if (problem.getEditorIds() != null && problem.getEditorIds().contains(user.getId())) {
             return true;
         }
         // deny otherwise

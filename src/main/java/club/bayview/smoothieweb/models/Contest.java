@@ -60,11 +60,37 @@ public class Contest {
     @AllArgsConstructor
     public static class ContestUser {
 
-        // must be refreshed before sorting
-        private double points;
+        private double points; // must be refreshed before sorting
+        private long timeStart; // when the user clicked "join" on the contest
         List<ContestUserSubmission> bestSubmissions; // submission to show on leaderboard; each index is the contestProblemNumber (it's in order)
 
         private String userId;
+
+        /**
+         * Get a default contest user using user information.
+         * Used for users initially joining the contest.
+         *
+         * @param contest the contest being joined
+         * @param user the user
+         * @return the contest user to be added to the contest
+         */
+        public static ContestUser getDefault(Contest contest, User user) {
+            ContestUser u = new ContestUser();
+            u.setPoints(0);
+            u.setTimeStart(System.currentTimeMillis());
+            u.setUserId(user.getId());
+            u.setBestSubmissions(new ArrayList<>());
+
+            for (ContestProblem cp : contest.getContestProblemsInOrder()) {
+                ContestUserSubmission cus = new ContestUserSubmission();
+                cus.setTimeSubmitted(0);
+                cus.setProblemId(cp.getProblemId());
+                cus.setPoints(0);
+                cus.setMaxPoints(cp.getTotalPointsWorth());
+                u.getBestSubmissions().add(cus);
+            }
+            return u;
+        }
 
         public long getTimePenalty() {
             long penalty = 0;
@@ -98,7 +124,8 @@ public class Contest {
 
     private boolean enabled,
             visibleToPublic,
-            timeMatters; // time adds points (breaks ties)
+            timeMatters, // time adds points (breaks ties)
+            hiddenLeaderBoard; // TODO
 
     private List<String> testerUserIds = new ArrayList<>();
     private List<String> juryUserIds = new ArrayList<>();
@@ -107,9 +134,9 @@ public class Contest {
     // <userId, contest information>
     private HashMap<String, ContestUser> participants = new HashMap<>();
 
-    // TODO use user id instead of full contestuser
     // [ranking][users in that rank]
-    private List<List<ContestUser>> leaderBoard = new ArrayList<>();
+    // uses user ids
+    private List<List<String>> leaderBoard = new ArrayList<>();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -119,7 +146,122 @@ public class Contest {
         return list;
     }
 
-    // TODO
+    // generate sorted leaderboard
+    // be sure to save contest object after
+    public void updateLeaderBoard() {
+        leaderBoard = new ArrayList<>();
+
+        for (var user : participants.values()) {
+            long timePenalty = user.getTimePenalty();
+
+            if (leaderBoard.isEmpty()) { // first element
+                leaderBoard.add(new ArrayList<>(Arrays.asList(user.getUserId())));
+                continue;
+            }
+
+            // insert user into leaderboard
+            for (int i = 0; i < leaderBoard.size(); i++) { // assume every thing has one element
+                var l = leaderBoard.get(i);
+                var userCompare = participants.get(l.get(0));
+
+                if (userCompare.getPoints() == user.getPoints()) { // same points
+                    if (isTimeMatters()) { // compare time penalty
+                        long timePenaltyCompare = userCompare.getTimePenalty();
+                        if (timePenalty == timePenaltyCompare) { // same time penalty, add to same list
+                            l.add(user.getUserId());
+                        } else if (timePenalty < timePenaltyCompare) { // time penalty is smaller, it takes the place
+                            leaderBoard.add(i, new ArrayList<>(Arrays.asList(user.getUserId())));
+                        }
+                        // otherwise, continue
+                    } else {
+                        l.add(user.getUserId());
+                    }
+                } else if (userCompare.getPoints() < user.getPoints()) { // insert before this one
+                    leaderBoard.add(i, new ArrayList<>(Arrays.asList(user.getUserId())));
+                }
+
+            }
+        }
+    }
+
+    // refresh a participant's information
+    // be sure to save contest object
+    public Mono<Contest> updateParticipant(String userId) {
+        List<String> checkedSubmissions = Arrays.asList(Verdict.AC.toString(), Verdict.WA.toString(), Verdict.MLE.toString(), Verdict.TLE.toString());
+
+        HashMap<String, Submission> m = new HashMap<>();
+
+        return SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class)
+                .findSubmissionsByUserForContest(userId, this.getId())
+                .collectList() // can't use flux directly because the order of the comparisons may become messed up
+                .doOnNext(submissions -> {
+
+                    // TODO do this separately, and individually per user when a submission is done for the user
+                    // TODO prevent data race, use cache
+                    // TODO submissions could be for problems not in contest (contest was edited)
+                    for (var s : submissions) {
+                        // ignore AR (awaiting) submissions
+                        if (!checkedSubmissions.contains(s.getVerdict())) {
+                            continue;
+                        }
+                        // add submissions to map with best points and submitted time
+                        Submission compare = m.get(s.getProblemId());
+                        if (compare == null || // if the submission has not been added yet
+                                compare.getPoints() < s.getPoints() || // the points calculated for the submission are higher than what is currently in cache
+                                compare.getTimeSubmitted() > s.getTimeSubmitted() || // take older submission
+                                (!compare.getVerdict().equals("AC") && s.getVerdict().equals("AC"))) { // if the old submission was not AC
+
+                            m.put(s.getProblemId(), s);
+                        }
+                    }
+
+                    // get contest user object and clear old data
+                    ContestUser u;
+                    if (participants.containsKey(userId)) {
+                        u = participants.get(userId);
+                    } else {
+                        u = new ContestUser();
+                        u.setTimeStart(System.currentTimeMillis());
+                    }
+                    u.getBestSubmissions().clear();;
+                    u.setPoints(0);
+
+                    // loop over contest problems in order and add to best submissions
+                    for (ContestProblem cp : getContestProblemsInOrder()) {
+                        var cus = new ContestUserSubmission();
+                        if (m.containsKey(cp.getProblemId())) { // submission for problem has been recorded
+                            var sub = m.get(cp.getProblemId());
+                            cus.setMaxPoints(cp.getTotalPointsWorth());
+                            cus.setPoints(sub.getPoints() / sub.getMaxPoints() * cp.getTotalPointsWorth()); // convert from problem points to contest points
+                            cus.setProblemId(sub.getProblemId());
+                            cus.setTimeSubmitted(sub.getTimeSubmitted());
+                        } else { // no submissions yet
+                            cus.setMaxPoints(cp.getTotalPointsWorth());
+                            cus.setPoints(0);
+                            cus.setProblemId(cp.getProblemId());
+                            cus.setTimeSubmitted(0);
+                        }
+
+                        // add points to contest user and add submission
+                        u.setPoints(u.getPoints() + cus.getPoints());
+                        u.getBestSubmissions().add(cus);
+                    }
+
+                    participants.put(userId, u);
+                })
+                .then(Mono.just(this));
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Permissions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    /**
+     * Whether or not a user can view a contest at all.
+     * This does not include viewing problems, and submitting to them.
+     *
+     * @param auth the authentication session
+     * @return whether or not the authentication has permission to view the contest
+     */
+
     public boolean hasPermissionToView(Authentication auth) {
         if (isVisibleToPublic()) return true; // TODO user has to be in contest mode as well
 
@@ -140,91 +282,95 @@ public class Contest {
         return false;
     }
 
-    // generate sorted leaderboard
-    // be sure to save contest object after
-    public void updateLeaderBoard() {
-        leaderBoard = new ArrayList<>();
+    /**
+     * Whether or not a user can view problem statements in the contest.
+     *
+     * @param auth the authentication session
+     * @return whether or not the authentication has permission to view the contest problems
+     */
 
-        for (var user : participants.values()) {
-            long timePenalty = user.getTimePenalty();
+    public boolean hasPermissionToViewProblems(Authentication auth) {
+        if (!hasPermissionToView(auth))
+            return false;
 
-            if (leaderBoard.isEmpty()) { // first element
-                leaderBoard.add(new ArrayList<>(Arrays.asList(user)));
-                continue;
-            }
+        // users that can submit can also see problems
+        if (hasPermissionToSubmit(auth))
+            return true;
 
-            // insert user into leaderboard in a dumb way
-            for (int i = 0; i < leaderBoard.size(); i++) { // assume every thing has one element
-                var l = leaderBoard.get(i);
-
-                if (l.get(0).getPoints() == user.getPoints()) { // same points
-                    if (isTimeMatters()) { // compare time penalty
-                        long timePenaltyCompare = l.get(0).getTimePenalty();
-                        if (timePenalty == timePenaltyCompare) { // same time penalty, add to same list
-                            l.add(user);
-                        } else if (timePenalty < timePenaltyCompare) { // time penalty is smaller, it takes the place
-                            leaderBoard.add(i, new ArrayList<>(Arrays.asList(user)));
-                        }
-                        // otherwise, continue
-                    } else {
-                        l.add(user);
-                    }
-                } else if (l.get(0).getPoints() < user.getPoints()) { // insert before this one
-                    leaderBoard.add(i, new ArrayList<>(Arrays.asList(user)));
-                }
-
-            }
-        }
+        // if the contest has ended, everyone can view problems
+        return System.currentTimeMillis() > getTimeEnd();
     }
 
-    // refresh a participant's information
-    // be sure to save contest object
-    public Mono<Contest> updateParticipant(String userId) {
-        List<String> checkedSubmissions = Arrays.asList(Verdict.AC.toString(), Verdict.WA.toString(), Verdict.MLE.toString(), Verdict.TLE.toString());
+    /**
+     * Whether or not a user can submit to problems in the contest.
+     *
+     * @param auth the authentication session
+     * @return whether or not the authentication has permission to submit to problems in the contest
+     */
 
-        HashMap<String, Submission> m = new HashMap<>();
+    public boolean hasPermissionToSubmit(Authentication auth) {
+        if (!hasPermissionToView(auth))
+            return false;
 
-        return SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class).findSubmissionsByUserForContest(userId, this.getId())
-                .collectList() // can't use flux directly because the order of the comparisons may become messed up
-                .doOnNext(submissions -> {
+        long currentTime = System.currentTimeMillis();
+        // if the contest has ended
+        if (currentTime > getTimeEnd())
+            return false;
 
-                    // TODO do this separately, and individually per user when a submission is done for the user
-                    // TODO prevent data race, use cache
-                    // TODO submissions could be for problems not in contest (contest was edited)
-                    for (var s : submissions) {
-                        // ignore AR (awaiting) submissions
-                        if (!checkedSubmissions.contains(s.getVerdict())) {
-                            continue;
-                        }
-                        // add submissions to map with best points and submitted time
-                        Submission compare = m.get(s.getProblemId());
-                        if (compare == null || compare.getPoints() < s.getPoints() || compare.getTimeSubmitted() > s.getTimeSubmitted() || (!compare.getVerdict().equals("AC") && s.getVerdict().equals("AC"))) {
-                            m.put(s.getProblemId(), s);
-                        }
-                    }
+        User u = (User) auth.getPrincipal();
+        // todo check if user's contestId is this contest
 
-                    // form new contest user object
-                    ContestUser u = new ContestUser(0, new ArrayList<>(), userId);
+        // if user is not a contest participant
+        if (!participants.containsKey(u.getId()))
+            return false;
 
-                    // loop over contest problems in order and add to best submissions
-                    for (ContestProblem cp : getContestProblemsInOrder()) {
-                        var cus = new ContestUserSubmission();
-                        if (m.containsKey(cp.getProblemId())) { // submission for problem has been recorded
-                            var sub = m.get(cp.getProblemId());
-                            cus.setMaxPoints(cp.getTotalPointsWorth());
-                            cus.setPoints(sub.getPoints()/sub.getMaxPoints()*cp.getTotalPointsWorth()); // convert from problem points to contest points
-                            cus.setProblemId(sub.getProblemId());
-                            cus.setTimeSubmitted(sub.getTimeSubmitted());
-                        } else { // no submissions yet
-                            cus.setMaxPoints(cp.getTotalPointsWorth());
-                            cus.setPoints(0);
-                            cus.setProblemId(cp.getProblemId());
-                            cus.setTimeSubmitted(0);
-                        }
-                        u.getBestSubmissions().add(cus);
-                    }
+        ContestUser cu  = participants.get(u.getId());
 
-                    participants.put(userId, u);
-                }).then(Mono.just(this));
+        // if user is out of time
+        if (submissionPeriod != 0 && currentTime > submissionPeriod + cu.getTimeStart())
+            return false;
+
+        return true;
+    }
+
+    /**
+     * Whether or not a user can manage a contest (answer clarifications, view statistics and submissions).
+     * This does not include edit capabilities.
+     *
+     * @param auth the authentication session
+     * @return whether or not the authentication has permission to manage the contest
+     */
+
+    public boolean hasPermissionToManage(Authentication auth) {
+        if (!hasPermissionToView(auth))
+            return false;
+
+        User u = (User) auth.getPrincipal();
+        // is admin
+        if (u.getRoles().contains(Role.ROLE_ADMIN))
+            return true;
+
+        // is editor or jury
+        return editorUserIds.contains(u.getId()) || juryUserIds.contains(u.getId());
+    }
+
+    /**
+     * Whether or not a user has permission to edit the contest.
+     *
+     * @param auth the authentication session
+     * @return whether or not the authentication has permission to edit this contest
+     */
+
+    public boolean hasPermissionToEdit(Authentication auth) {
+        if (!hasPermissionToManage(auth))
+            return false;
+
+        User u = (User) auth.getPrincipal();
+        // is admin
+        if (u.getRoles().contains(Role.ROLE_ADMIN))
+            return true;
+
+        // is editor
+        return editorUserIds.contains(u.getId());
     }
 }

@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.controllers;
 
+import club.bayview.smoothieweb.models.Contest;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieContestService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
@@ -82,7 +83,13 @@ public class ContestController {
                 .flatMap(t -> {
                     // set the user's contestId
                     t.getT1().setContestId(t.getT2().getId());
-                    return userService.saveUser(t.getT1());
+
+                    // add user as participant if not already
+                    if (!t.getT2().getParticipants().containsKey(t.getT1().getId())) {
+                        t.getT2().getParticipants().put(t.getT1().getId(), Contest.ContestUser.getDefault(t.getT2(), t.getT1()));
+                    }
+                    // save
+                    return Mono.zip(userService.saveUser(t.getT1()), contestService.saveContest(t.getT2()));
                 })
                 .then(Mono.just("redirect:/contest/" + name + "/problems"))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{name}/join"));
