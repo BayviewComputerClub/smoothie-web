@@ -111,7 +111,7 @@ public class AdminProblemController {
             return Mono.just("admin/edit-problem");
         } else {
             Problem p = form.toProblem(null);
-            p.setTimeCreated(System.currentTimeMillis() / 1000L);
+            p.setTimeCreated(System.currentTimeMillis());
 
             // TODO check if problem already exists
 

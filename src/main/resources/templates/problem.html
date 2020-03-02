@@ -140,7 +140,7 @@
     }
 
     let timeCreated = $("#time-created");
-    let date = new Date(timeCreated.text()*1000);
+    let date = new Date(timeCreated.text());
     timeCreated.text(("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear());
 
     // load problem statement

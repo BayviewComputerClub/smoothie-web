@@ -21,7 +21,6 @@ public class WebSecurityConfig {
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
         http
                 .authorizeExchange()
-                    .pathMatchers("/admin/**").hasRole("ADMIN")
                     .pathMatchers("/**").permitAll()
                 .and()
                 .formLogin()

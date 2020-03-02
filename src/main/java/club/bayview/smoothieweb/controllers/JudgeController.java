@@ -185,7 +185,7 @@ public class JudgeController {
         sub.setUserId(user.getId());
         sub.setProblemId(problem.getId());
         sub.setCode(form.code);
-        sub.setTimeSubmitted(System.currentTimeMillis() / 1000L);
+        sub.setTimeSubmitted(System.currentTimeMillis());
         sub.setJudgingCompleted(false);
         sub.setPoints(0);
         sub.setMaxPoints(problem.getTotalPointsWorth());

@@ -5,7 +5,6 @@ import club.bayview.smoothieweb.models.Post;
 import club.bayview.smoothieweb.services.SmoothiePostService;
 import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NotFoundException;
-import club.bayview.smoothieweb.util.SmUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +53,8 @@ public class AdminPostController {
 
         Post p = form.toPost();
         p.setGlobalScope(true);
-        p.setCreated(SmUtil.getCurrentUnix());
-        p.setLastEdited(SmUtil.getCurrentUnix());
+        p.setCreated(System.currentTimeMillis());
+        p.setLastEdited(System.currentTimeMillis());
 
         return postService.savePost(p).flatMap(post -> Mono.just("redirect:/post/global/" + post.getSlug() + "/" + post.getId()));
     }
@@ -72,7 +71,7 @@ public class AdminPostController {
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(post -> {
                     form.toPost(post);
-                    post.setLastEdited(SmUtil.getCurrentUnix());
+                    post.setLastEdited(System.currentTimeMillis());
                     return postService.savePost(post);
                 })
                 .flatMap(post -> Mono.just("redirect:/post/global/" + post.getSlug() + "/" + post.getId()))
