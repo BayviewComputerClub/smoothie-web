@@ -56,7 +56,7 @@ public class SmoothieMongoLoader extends AbstractReactiveMongoConfiguration {
 
     @Bean
     public ReactiveMongoTemplate mongoTemplate() {
-        return new ReactiveMongoTemplate(reactiveMongoClient(), "databaseName");
+        return new ReactiveMongoTemplate(reactiveMongoClient(), databaseName);
     }
 
     // let mongo client automatically create indexes
