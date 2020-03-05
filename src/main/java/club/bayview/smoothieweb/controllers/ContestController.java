@@ -18,7 +18,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.HashMap;
 
 @Controller
 public class ContestController {
@@ -60,13 +63,22 @@ public class ContestController {
     public Mono<String> getContestLeaderboard(@PathVariable String name, Model model, Authentication auth) {
         return contestService.findContestByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(c -> {
+                .flatMapMany(c -> {
                     if (!c.hasPermissionToView(auth))
-                        return Mono.error(new NoPermissionException());
+                        return Flux.error(new NoPermissionException());
 
                     model.addAttribute("contest", c);
-                    return Mono.just("contest-leaderboard");
+
+                    return userService.findUsersWithIds(Flux.fromStream(c.getParticipants().values().stream().map(cu -> cu.getUserId())));
                 })
+                .collectList()
+                .doOnNext(users -> {
+                    HashMap<String, String> m = new HashMap<>();
+                    users.forEach(u -> m.put(u.getId(), u.getHandle()));
+
+                    model.addAttribute("users", m);
+                })
+                .then(Mono.just("contest-leaderboard"))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{name}/leaderboard route exception: "));
     }
 

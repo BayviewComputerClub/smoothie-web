@@ -51,6 +51,10 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
         return userRepository.findAllByIdIn(ids);
     }
 
+    public Flux<User> findUsersWithIds(Flux<String> ids) {
+        return userRepository.findAllByIdIn(ids);
+    }
+
     public Flux<User> findUsersWithHandles(List<String> handles) {
         return userRepository.findAllByHandleIn(handles);
     }

@@ -36,8 +36,17 @@
             text-align: center;
         }
 
-    </style>
+        .column-rank {
+            width: 175px;
+        }
+        .column-score {
+            width: 175px;
+        }
+        .column-problem {
+            width: 175px;
+        }
 
+    </style>
 </head>
 <body>
 
@@ -48,11 +57,10 @@
     <table class="leaderboard">
         <thead class="leaderboard-head">
         <tr>
-            <th>Rank</th>
-            <th>User</th>
-            <th>Score</th>
-            <th th:each="problem : ${contest.getContestProblemsInOrder()}">[[${problem.contestProblemNumber}+1]] <span
-                    th:style="'width: 50px; border-radius: 50%; background-color:' + ${problem.colourHex}"></span></th>
+            <th class="column-rank">Rank</th>
+            <th class="column-user">User</th>
+            <th class="column-problem" th:each="problem : ${contest.getContestProblemsInOrder()}"><a th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${problem.contestProblemNumber}}">[[${problem.contestProblemNumber}+1]]</a><span th:style="'width: 50px; border-radius: 50%; background-color:' + ${problem.colourHex}"></span></th>
+            <th class="column-score">Score</th>
         </tr>
         <tr>
             <th th:colspan="${contest.getContestProblemsInOrder().size()}+3"><hr/></th>
@@ -61,9 +69,9 @@
         <tbody th:each="rank, ord : ${contest.leaderBoard}">
         <tr th:each="userId : ${rank}" class="actual-row" th:if="${contest.participants.get(userId)}">
             <td th:text="${ord.index}+1"></td>
-            <td th:text="${userId}"></td>
-            <td th:text="${contest.participants.get(userId).points}"></td>
+            <td th:text="${users.get(userId)}"></td>
             <td th:each="sub : ${contest.participants.get(userId).bestSubmissions}" th:text="${sub.points}"></td>
+            <td th:text="${contest.participants.get(userId).points}"></td>
         </tr>
         </tbody>
 
