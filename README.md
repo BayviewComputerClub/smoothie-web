@@ -38,6 +38,9 @@ This optional file should to be in the directory where you run the JAR/WAR from.
 
 ```
 # These are useful to change
+# Port
+server.port=8080
+
 # Mongo
 spring.data.mongodb.port=27017
 spring.data.mongodb.host=localhost
