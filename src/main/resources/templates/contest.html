@@ -9,6 +9,7 @@
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/top-flex-bar.css}"/>
     <link rel="stylesheet" th:href="@{/css/title.css}"/>
+    <link rel="stylesheet" th:href="@{/css/button.css}"/>
     <link rel="stylesheet" th:href="@{/css/katex-0.11.1.min.css}"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -22,40 +23,6 @@
         .container {
             animation: header-fade-in 1s;
             line-height: 1.5;
-        }
-
-        .button-link {
-            border-radius: 10px;
-            /*box-shadow: 1px 1px 5px 0 #607d8b;*/
-            box-shadow: 0 3px 14.4px 0 rgba(0, 0, 0, .20), 0 1.2px 3.6px 0 rgba(0, 0, 0, .108);
-            cursor: pointer;
-            font-family: Nunito, sans-serif;
-            font-size: 18px;
-            padding: 12px 16px 12px 16px;
-            background-color: #FFFFFF;
-            border-style: solid;
-            border-color: #eeeeee;
-            border-width: 1px;
-            color: #757575;
-            text-decoration: none;
-            display: inline-block;
-            transform: translateY(0);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        a.button-link {
-            padding: 6px 16px 6px 16px !important;
-        }
-
-        .button-link:focus {
-            outline: 0;
-        }
-
-        .button-link:hover {
-            box-shadow: 0 3px 14.4px 0 rgba(0, 102, 204, 0.22), 0 1.2px 3.6px 0 rgba(0, 102, 204, 0.15);
-            /*box-shadow: 1px 1px 12px 0 rgb(0, 102, 204);*/
-            transform: translateY(-5px);
-            transition: box-shadow 0.3s, transform 0.3s;
         }
 
         hr {
@@ -84,11 +51,12 @@
         </div>
         <div class="topbar-item">
             <span class="material-icons" style="vertical-align: middle;">timer</span> Submission Window
-            <br/><span th:text="${contest.submissionPeriod}" id="submission-window" class="topbar-bottom-text"></span>
+            <br/><span th:if="${contest.submissionPeriod} == 0" th:text="${contest.submissionPeriod}" id="submission-window" class="topbar-bottom-text"></span>
+            <span th:unless="${contest.submissionPeriod} == 0" class="topbar-bottom-text">full contest</span>
         </div>
         <div class="topbar-item">
             <span class="material-icons" style="vertical-align: middle;">grade</span> Status
-            <br/> <span class="topbar-bottom-text">ongoing</span>
+            <br/> <span class="topbar-bottom-text" th:text="${contest.getStatus().getPretty().toLowerCase()}"></span>
         </div>
 
         <form th:action="@{'/contest/' + ${contest.name} + '/join'}" method="post" id="joinContest"></form>

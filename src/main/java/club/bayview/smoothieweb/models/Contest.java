@@ -74,6 +74,7 @@ public class Contest {
          * @param user the user
          * @return the contest user to be added to the contest
          */
+
         public static ContestUser getDefault(Contest contest, User user) {
             ContestUser u = new ContestUser();
             u.setPoints(0);
@@ -96,7 +97,7 @@ public class Contest {
             if (c.getSubmissionPeriod() == 0) {
                 return c.getTimeEnd();
             } else {
-                return Math.min(c.getTimeEnd(), c.getSubmissionPeriod() + getTimeStart());
+                return Math.min(c.getTimeEnd(), c.getSubmissionPeriod()*1000*60 + getTimeStart());
             }
         }
 
@@ -147,6 +148,33 @@ public class Contest {
     private List<List<String>> leaderBoard = new ArrayList<>();
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    enum ContestStatus {
+        DISABLED("Disabled"),
+        AWAITING_START("Awaiting Start"),
+        ONGOING("Ongoing"),
+        FINISHED("Finished");
+
+        @Getter
+        String pretty;
+        ContestStatus(String pretty) {
+            this.pretty = pretty;
+        }
+    }
+
+    public ContestStatus getStatus() {
+        if (!isEnabled())
+            return ContestStatus.DISABLED;
+
+        long currentTime = System.currentTimeMillis();
+        if (currentTime < getTimeStart())
+            return ContestStatus.AWAITING_START;
+
+        if (currentTime > getTimeEnd())
+            return ContestStatus.FINISHED;
+
+        return ContestStatus.ONGOING;
+    }
 
     public List<ContestProblem> getContestProblemsInOrder() {
         List<ContestProblem> list = new ArrayList<>(contestProblems.values());
@@ -356,7 +384,7 @@ public class Contest {
             return false;
 
         // if the contest has ended
-        if (currentTime > getTimeEnd())
+        if (getStatus() != ContestStatus.ONGOING)
             return false;
 
         ContestUser cu  = participants.get(u.getId());
