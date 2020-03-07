@@ -362,7 +362,7 @@ public class Contest {
         ContestUser cu  = participants.get(u.getId());
 
         // if user is out of time
-        if (submissionPeriod != 0 && currentTime > submissionPeriod + cu.getTimeStart())
+        if (currentTime > cu.getSubmissionEndTime(this))
             return false;
 
         return true;

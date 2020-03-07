@@ -2,10 +2,12 @@ h1 {
     font-size: 48px;
     font-family: Metropolis-bold, sans-serif;
     line-height: 96px;
+    font-weight: normal;
 }
 
 h3 {
     font-size: 24px;
     font-family: Metropolis-bold, sans-serif;
     line-height: 48px;
+    font-weight: normal;
 }

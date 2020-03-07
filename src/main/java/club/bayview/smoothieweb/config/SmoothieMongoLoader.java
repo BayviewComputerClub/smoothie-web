@@ -1,16 +1,7 @@
 package club.bayview.smoothieweb.config;
 
-import club.bayview.smoothieweb.models.GeneralSettings;
-import club.bayview.smoothieweb.models.Role;
-import club.bayview.smoothieweb.models.User;
-import club.bayview.smoothieweb.security.SmoothieAuthenticationProvider;
-import club.bayview.smoothieweb.services.SmoothieSettingsService;
-import club.bayview.smoothieweb.services.SmoothieUserService;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

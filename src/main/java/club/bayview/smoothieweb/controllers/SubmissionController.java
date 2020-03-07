@@ -3,6 +3,7 @@ package club.bayview.smoothieweb.controllers;
 import club.bayview.smoothieweb.models.Contest;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.Submission;
+import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieContestService;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieSubmissionService;
@@ -144,15 +145,22 @@ public class SubmissionController {
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .doOnNext(c -> model.addAttribute("contest", c))
-                .flatMap(c -> Mono.zip(submissionService.findSubmissionsForContest(c.getId()).collectList(), Mono.just(c)))
-                .flatMap(t -> {
-                    List<Submission> submissions = t.getT1();
-                    Contest c = t.getT2();
+                .flatMap(c -> {
                     if (!c.hasPermissionToView(auth))
                         return Mono.error(new NoPermissionException());
 
-                    model.addAttribute("submissions", submissions);
                     model.addAttribute("problems", c.getContestProblems());
+
+                    User u = (User) auth.getPrincipal();
+                    // check if user can see all submissions, or only submissions by itself
+                    if (System.currentTimeMillis() > c.getTimeEnd() || u.isAdmin() || c.getJuryUserIds().contains(u.getId())) {
+                        return submissionService.findSubmissionsForContest(c.getId()).collectList();
+                    } else {
+                        return submissionService.findSubmissionsByUserForContest(u.getId(), c.getId()).collectList();
+                    }
+                })
+                .flatMap(submissions -> {
+                    model.addAttribute("submissions", submissions);
 
                     List<String> userIds = new ArrayList<>();
                     submissions.forEach(s -> userIds.add(s.getUserId()));

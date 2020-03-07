@@ -30,9 +30,6 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private ReactiveSessionRepository<? extends Session> sessions;
-
     public Mono<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
