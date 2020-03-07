@@ -92,6 +92,14 @@ public class Contest {
             return u;
         }
 
+        public long getSubmissionEndTime(Contest c) {
+            if (c.getSubmissionPeriod() == 0) {
+                return c.getTimeEnd();
+            } else {
+                return Math.min(c.getTimeEnd(), c.getSubmissionPeriod() + getTimeStart());
+            }
+        }
+
         public long getTimePenalty() {
             long penalty = 0;
             for (var s : bestSubmissions) {

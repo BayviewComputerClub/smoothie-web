@@ -51,3 +51,25 @@ header a:hover, header .button-as-link:hover {
 .header-right {
     float: right;
 }
+
+#contest-clock-box {
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px;
+    border-radius: 5px;
+    position: fixed;
+    background: linear-gradient(60deg, #2c3e50, #607d8b);
+    padding: 10px 15px 10px 15px;
+    text-align: center;
+    cursor: move;
+    color: white;
+    box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, .132), 0 10.2px 30.6px 0 rgba(0, 0, 0, .108);
+    z-index: 10;
+    transition: box-shadow 0.5s, border-radius 0.5s, background 0.5s;
+}
+
+#contest-clock-box:hover {
+    box-shadow: 0 16px 24px 0 rgba(0, 0, 0, .202), 0 10px 30px 0 rgba(0, 0, 0, .158);
+    border-radius: 7px;
+    transition: box-shadow 0.5s, border-radius 0.5s;
+}
+

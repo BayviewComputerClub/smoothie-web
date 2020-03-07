@@ -1,37 +1,92 @@
 <!-- Default header -->
-<header xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:unless="${currentContest}">
+<header xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+        th:unless="${currentContest}">
     <a th:href="@{/}" class="header-title"><b th:text="${siteName}"></b></a>
-    <a th:href="@{/problems}" >Problems</a>
-    <a th:href="@{/contests}" >Contests</a>
-    <a th:href="@{/ranking}" >Ranking</a>
-    <a th:each="page: ${T(club.bayview.smoothieweb.controllers.PageController).getNavs(0)}" th:text="${page.nav_title}" th:href="${'/page/' + page.slug}"></a>
+    <a th:href="@{/problems}">Problems</a>
+    <a th:href="@{/contests}">Contests</a>
+    <a th:href="@{/ranking}">Ranking</a>
+    <a th:each="page: ${T(club.bayview.smoothieweb.controllers.PageController).getNavs(0)}" th:text="${page.nav_title}"
+       th:href="${'/page/' + page.slug}"></a>
     <a th:if="${isAdmin}" th:href="@{/admin}">Admin</a>
 
     <div class="header-right">
         <div th:unless="${#authentication}">
-            <a th:href="@{/login}" >Login</a>
-            <a th:href="@{/register}" >Register</a>
+            <a th:href="@{/login}">Login</a>
+            <a th:href="@{/register}">Register</a>
         </div>
         <div sec:authorize="isAuthenticated()">
-            <a th:href="@{/logout}" >Logout</a>
-            <a class="header-hello" th:href="@{'/user/' + ${#authentication.getPrincipal().getUsername()}}">Hello, <span th:text="${#authentication.getPrincipal().getUsername()}"></span>!</a>
+            <a th:href="@{/logout}">Logout</a>
+            <a class="header-hello" th:href="@{'/user/' + ${#authentication.getPrincipal().getUsername()}}">Hello, <span
+                    th:text="${#authentication.getPrincipal().getUsername()}"></span>!</a>
         </div>
     </div>
 </header>
 
 <!-- Contest mode header -->
-<header xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:if="${currentContest}">
-    <a th:href="@{'/contest/' + ${currentContest.name}}" class="header-title"><b th:text="${currentContest.prettyName}"></b></a>
-    <a th:href="@{'/contest/' + ${currentContest.name} + '/problems'}" >Problems</a>
-    <a th:href="@{'/contest/' + ${currentContest.name} + '/leaderboard'}" >Leaderboard</a>
+<header xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+        th:if="${currentContest}">
+    <a th:href="@{'/contest/' + ${currentContest.name}}" class="header-title"><b
+            th:text="${currentContest.prettyName}"></b></a>
+    <a th:href="@{'/contest/' + ${currentContest.name} + '/problems'}">Problems</a>
+    <a th:href="@{'/contest/' + ${currentContest.name} + '/leaderboard'}">Leaderboard</a>
     <a th:if="${isAdmin}" th:href="@{/admin}">Admin</a>
 
     <div class="header-right">
         <div>
-            <form th:action="@{'/contest/' + ${currentContest.name} + '/leave'}" method="post" id="leaveContestHeader"></form>
+            <form th:action="@{'/contest/' + ${currentContest.name} + '/leave'}" method="post"
+                  id="leaveContestHeader"></form>
             <button class="button-as-link" form="leaveContestHeader">Leave Contest</button>
-            <a th:href="@{/logout}" >Logout</a>
-            <a class="header-hello" th:href="@{'/user/' + ${#authentication.getPrincipal().getUsername()}}">Hello, <span th:text="${#authentication.getPrincipal().getUsername()}"></span>!</a>
+            <a th:href="@{/logout}">Logout</a>
+            <a class="header-hello" th:href="@{'/user/' + ${#authentication.getPrincipal().getUsername()}}">Hello, <span
+                    th:text="${#authentication.getPrincipal().getUsername()}"></span>!</a>
         </div>
     </div>
+
+    <div id="contest-clock-box" th:if="${currentContest}" style="bottom: 20px; left: 20px">
+        <span id="contest-clock-box-word">[[${currentContest.prettyName}]] - </span><span id="contest-clock-box-time"></span>
+    </div>
+    <script th:inline="javascript">
+        let contestClockBox = document.getElementById("contest-clock-box"), contestClockBoxTime = document.getElementById("contest-clock-box-time");
+
+        // countdown
+        function formatCountDownNums(num) {
+            return ('0' + Math.trunc(num)).slice(-2);
+        }
+
+        function updateCountDown() {
+            let origCountdownTime = /*[[${currentContest.participants.get(#authentication.principal.id).getSubmissionEndTime(currentContest)}]]*/;
+            let nTime = origCountdownTime - Date.now();
+            contestClockBoxTime.innerText = "";
+            if (formatCountDownNums(nTime / (1000*60*60*24)) !== '00') {
+                contestClockBoxTime.innerText += formatCountDownNums(nTime / (1000 * 60 * 60 * 24)) + ":";
+                nTime %= 1000 * 60 * 60 * 24; // day
+            }
+            contestClockBoxTime.innerText += formatCountDownNums(nTime / (1000*60*60)) + ":";
+            nTime %= 1000*60*60; // hour
+            contestClockBoxTime.innerText += formatCountDownNums(nTime / (1000*60)) + ":";
+            nTime %= 1000*60; // minute
+            contestClockBoxTime.innerText += formatCountDownNums(nTime / 1000);
+        }
+
+        updateCountDown();
+        setInterval(updateCountDown, 1000);
+
+        // allow dragging
+        let isContestBoxMouseDown = false, contestBoxOffset = [0, 0];
+        contestClockBox.addEventListener('mousedown', e => {
+            isContestBoxMouseDown = true;
+            contestBoxOffset = [contestClockBox.offsetLeft - e.clientX, contestClockBox.offsetTop - e.clientY];
+        }, true);
+        document.addEventListener('mouseup', () => {
+            isContestBoxMouseDown = false
+        }, true);
+        document.addEventListener('mousemove', e => {
+            e.preventDefault();
+            if (isContestBoxMouseDown) {
+                contestClockBox.style.bottom = null;
+                contestClockBox.style.left = (e.clientX + contestBoxOffset[0]) + 'px';
+                contestClockBox.style.top = (e.clientY + contestBoxOffset[1]) + 'px';
+            }
+        });
+    </script>
 </header>
