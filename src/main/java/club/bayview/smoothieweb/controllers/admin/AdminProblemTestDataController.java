@@ -11,23 +11,28 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.io.BufferedInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 @Controller
 public class AdminProblemTestDataController {
@@ -41,7 +46,7 @@ public class AdminProblemTestDataController {
     @Setter
     @NoArgsConstructor
     public static class TestDataFileForm {
-        private MultipartFile testData;
+        private Mono<MultipartFile> testData;
     }
 
     @GetMapping("/problem/{name}/edit/testdata")
@@ -83,21 +88,18 @@ public class AdminProblemTestDataController {
                 }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /problem/{name}/edit/testdata/file route exception: "));
     }
 
-    @PostMapping("/problem/{name}/edit/testdata/file")
+    @PostMapping(path = "/problem/{name}/edit/testdata/file")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
-    public Mono<String> postEditTestDataFileRoute(@Valid AdminProblemTestDataController.TestDataFileForm form, BindingResult result, @PathVariable String name, Model model) {
+    public Mono<String> postEditTestDataFileRoute(@RequestPart("testData") Mono<FilePart> file, @PathVariable String name, Model model) {
+
+        InputStream is = new SequenceInputStream(Collections.enumeration(file.flatMapMany(Part::content).map(DataBuffer::asInputStream).toStream().collect(Collectors.toList())));
 
         return problemService.findProblemByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(p -> {
-                    if (result.hasErrors()) {
-                        model.addAttribute("problem", p);
-                        model.addAttribute("testDataForm", new TestDataFileForm());
-                        return Mono.just("admin/edit-problem-testdata-file");
-                    }
-
                     try {
-                        StoredTestData.TestData testData = getTestCasesFromZip(form.getTestData());
+
+                        StoredTestData.TestData testData = getTestCasesFromZip(is);
                         Problem.TestDataWrapper w = new Problem.TestDataWrapper(new ArrayList<>(), testData);
 
                         for (var b : testData.getBatchList()) {
@@ -113,11 +115,11 @@ public class AdminProblemTestDataController {
                 }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "POST /problem/{name}/edit/testdata/file route exception: "));
     }
 
-    private StoredTestData.TestData getTestCasesFromZip(MultipartFile file) throws IOException {
+    private StoredTestData.TestData getTestCasesFromZip(InputStream file) throws IOException {
         var testData = StoredTestData.TestData.newBuilder();
         if (file == null) return testData.build();
 
-        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(file.getInputStream()));
+        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(file));
         ZipEntry entry;
 
         List<List<StoredTestData.TestDataBatchCase.Builder>> builders = new ArrayList<>();

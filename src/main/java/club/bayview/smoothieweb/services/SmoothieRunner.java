@@ -51,7 +51,9 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
         // notifiers
         channel.notifyWhenStateChanged(ConnectivityState.READY, () -> {
             logger.info(String.format("Runner %s changed state: READY", name));
-            SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class).checkRunnersTask(); // TODO
+            try {
+                SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class).checkRunnersTask(); // TODO
+            } catch (NullPointerException ignored) {} // if the bean has not initialized yet
         });
         channel.notifyWhenStateChanged(ConnectivityState.CONNECTING, () -> logger.info(String.format("Runner %s changed state: CONNECTING", name)));
         channel.notifyWhenStateChanged(ConnectivityState.IDLE, () -> logger.info(String.format("Runner %s changed state: IDLE", name)));

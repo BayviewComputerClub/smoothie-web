@@ -30,6 +30,8 @@ public class WebSecurityConfig {
                 .logout()
                     .logoutUrl("/logout")
                     .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/logout"))
+                .and()
+                .csrf().tokenFromMultipartDataEnabled(true)
                 ;
 
         return http.build();
