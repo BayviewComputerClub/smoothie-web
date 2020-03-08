@@ -1,0 +1,117 @@
+/* -=- hr -=- */
+
+hr {
+    border: none;
+    color: #9e9e9e;
+    background-color: #9e9e9e;
+    height: 1px;
+}
+
+/* -=- link -=- */
+
+a.link {
+    color: #009688;
+    text-decoration: none;
+    text-rendering: optimizeLegibility;
+    transition: text-shadow 0.3s, text-decoration 0.3s;
+    position: relative;
+}
+
+a.link:before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    bottom: 0;
+    left: 0;
+    background-color: #009688;
+    visibility: hidden;
+    transform: scaleX(0);
+    transition: all 0.3s ease-in-out;
+}
+
+a.link:hover:before {
+    visibility: visible;
+    transform: scaleX(1);
+}
+
+a.link:hover {
+    text-shadow: 0 0 1px #00bcd4;
+    transition: text-shadow 0.3s;
+}
+
+/* -=- title -=- */
+
+h1.title, h1.title-d {
+    font-family: 'Metropolis-Bold', sans-serif;
+    font-size: 36px;
+    font-weight: normal;
+}
+
+h3.title, h3.title-d {
+    font-family: 'Metropolis-Bold', sans-serif;
+    font-size: 24px;
+    font-weight: normal;
+}
+
+h1.title-d {
+    line-height: 2;
+}
+
+h3.title-d {
+    line-height: 2;
+}
+
+/* -=- tables -=- */
+
+table.standard-table {
+    text-rendering: optimizeLegibility;
+    border-bottom-color: rgb(128, 128, 128);
+    line-height: 24px;
+    border-collapse: collapse;
+}
+
+table.standard-table > thead > tr {
+    line-height: 21px;
+}
+
+table.standard-table > thead > tr > th {
+    font-size: 16px;
+    font-weight: 700;
+    text-align: left;
+    padding: 16px 16px 16px 24px;
+    color: rgb(21, 21, 21);
+}
+
+table.standard-table > tbody > tr {
+    line-height: 24px;
+    box-sizing: border-box;
+    display: table-row;
+    vertical-align: middle;
+}
+
+table.standard-table > tbody > tr > td {
+    border-top: 1px solid #e0e0e0;
+    vertical-align: baseline;
+    text-align: left;
+    padding: 20px 16px 20px 24px;
+    font-size: 18px;
+    font-weight: 400;
+    color: rgb(21, 21, 21);
+}
+
+table.sortable > thead > tr > th {
+    cursor: pointer;
+}
+
+table.sortable > thead > tr > th:hover {
+    color: #e91e63;
+}
+
+th.selected {
+    color: #e91e63;
+}
+
+table.compact > tbody > tr > td{
+    padding: 14px 8px 12px 24px;
+}

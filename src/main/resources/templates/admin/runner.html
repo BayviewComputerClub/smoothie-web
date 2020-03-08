@@ -8,7 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
-    <link rel="stylesheet" th:href="@{/css/elevated/title.css}"/>
+    <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
     <link rel="stylesheet" th:href="@{/css/elevated/button.css}"/>
 
     <style>
@@ -26,23 +26,6 @@
             animation: header-fade-in 1s;
         }
 
-        th {
-            text-align: left;
-        }
-        tr {
-            line-height: 50px;
-        }
-
-        a {
-            text-decoration: none;
-            color: #009688;
-            transition: text-shadow 0.3s;
-        }
-        a:hover {
-            text-shadow: 0 0 2px #00bcd4;
-            transition: text-shadow 0.3s;
-        }
-
     </style>
 </head>
 <body>
@@ -51,7 +34,7 @@
 <div th:replace="fragments/header-admin"></div>
 
 <div class="container">
-    <h1>Runner [[${runner.name}]]</h1>
+    <h1 class="title">Runner [[${runner.name}]]</h1>
     <a style="margin-bottom: 20px;" class="button-link" th:href="@{'/admin/runner/' + ${runner.name} + '/edit'}">Edit Runner</a>
 
     <br/>

@@ -9,7 +9,7 @@
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
     <link rel="stylesheet" th:href="@{/css/elevated/form.css}"/>
-    <link rel="stylesheet" th:href="@{/css/elevated/title.css}"/>
+    <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
     <link rel="stylesheet" th:href="@{/css/lib/simplemde-1.11.2.min.css}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -38,7 +38,7 @@
 <div th:replace="fragments/header-admin"></div>
 
 <div class="container">
-    <h1>General Settings</h1>
+    <h1 class="title">General Settings</h1>
 
     <form method="POST" id="form" th:action="'?'" th:object="${form}" autocomplete="off">
 

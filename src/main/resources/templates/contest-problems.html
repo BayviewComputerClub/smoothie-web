@@ -7,7 +7,7 @@
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
-    <link rel="stylesheet" th:href="@{/css/elevated/title.css}"/>
+    <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
     <link rel="stylesheet" th:href="@{/css/problems-shared.css}"/>
 </head>
 <body>
@@ -15,8 +15,8 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>Problems</h1>
-    <table style="width: 80%">
+    <h1 class="title">Problems</h1>
+    <table class="standard-table" style="width: 80%">
         <thead>
 
         <tr>
@@ -24,16 +24,13 @@
             <th>Name</th>
             <th>Points</th>
         </tr>
-        <tr>
-            <th colspan="3"><hr/></th>
-        </tr>
         </thead>
         <tbody>
 
         <tr th:each="problem: ${contest.getContestProblemsInOrder()}">
             <!-- todo do colour -->
             <td th:text="${problem.contestProblemNumber}+1"></td>
-            <td><a th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${problem.contestProblemNumber}}" th:text="${problem.customName}"></a></td>
+            <td><a class="link" th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${problem.contestProblemNumber}}" th:text="${problem.customName}"></a></td>
             <td th:text="${problem.totalPointsWorth}"></td>
         </tr>
 

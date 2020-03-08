@@ -7,7 +7,7 @@
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
-    <link rel="stylesheet" th:href="@{/css/elevated/title.css}"/>
+    <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
 
     <style>
         p {
@@ -43,8 +43,8 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>Contests</h1>
-    <table style="width: 80%">
+    <h1 class="title">Contests</h1>
+    <table class="standard-table" style="width: 80%">
         <thead>
 
         <tr>
@@ -53,14 +53,11 @@
             <th>End Time</th>
             <th>Submission Window</th>
         </tr>
-        <tr>
-            <th colspan="4"><hr/></th>
-        </tr>
         </thead>
         <tbody>
 
         <tr th:each="contest: ${contests}">
-            <td><a th:href="@{'/contest/' + ${contest.name}}" th:text="${contest.prettyName}"></a></td>
+            <td><a class="link" th:href="@{'/contest/' + ${contest.name}}" th:text="${contest.prettyName}"></a></td>
             <td th:text="${contest.timeStart}" class="date"></td>
             <td th:text="${contest.timeEnd}" class="date"></td>
             <td>[[${contest.submissionPeriod}]] minutes</td>

@@ -10,30 +10,14 @@
     <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
     <link rel="stylesheet" th:href="@{/css/elevated/form.css}"/>
     <link rel="stylesheet" th:href="@{/css/elevated/button.css}"/>
-    <link rel="stylesheet" th:href="@{/css/elevated/title.css}"/>
+    <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
 
-        h3 {
-            font-size: 24px;
-            font-family: Metropolis-bold, sans-serif;
-            line-height: 48px;
-        }
-
         .container {
             animation: header-fade-in 1s;
             line-height: 1.5;
-        }
-
-        a {
-            text-decoration: none;
-            color: #009688;
-            transition: text-shadow 0.3s;
-        }
-        a:hover {
-            text-shadow: 0 0 2px #00bcd4;
-            transition: text-shadow 0.3s;
         }
     </style>
 </head>
@@ -43,11 +27,11 @@
 <div th:replace="fragments/header-admin"></div>
 
 <div class="container">
-    <h1>Manage Problem <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a></h1>
+    <h1 class="title-d">Manage Problem <a class="link" th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a></h1>
 
-    <h3><a th:href="@{'/problem/' + ${problem.name} + '/edit'}">Edit Problem</a></h3>
-    <h3><a th:href="@{'/problem/' + ${problem.name} + '/edit/testdata'}">Edit Problem Test Data</a></h3>
-    <h3><a th:href="@{'/problem/' + ${problem.name} + '/delete'}">Delete Problem</a></h3>
+    <h3 class="title-d"><a class="link" th:href="@{'/problem/' + ${problem.name} + '/edit'}">Edit Problem</a></h3>
+    <h3 class="title-d"><a class="link" th:href="@{'/problem/' + ${problem.name} + '/edit/testdata'}">Edit Problem Test Data</a></h3>
+    <h3 class="title-d"><a class="link" th:href="@{'/problem/' + ${problem.name} + '/delete'}">Delete Problem</a></h3>
 </div>
 
 </body>

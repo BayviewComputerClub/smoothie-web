@@ -8,15 +8,15 @@
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/submissions.css}"/>
-    <link rel="stylesheet" th:href="@{/css/elevated/title.css}"/>
+    <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
 </head>
 <body>
 
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>Submissions for <a th:href="@{'/contest/' + ${contest.name}}">[[${contest.prettyName}]]</a></h1>
-    <table style="width: 80%">
+    <h1 class="title">Submissions for <a class="link" th:href="@{'/contest/' + ${contest.name}}">[[${contest.prettyName}]]</a></h1>
+    <table class="standard-table" style="width: 80%">
         <thead>
         <tr>
             <th>Submission Id</th>
@@ -26,14 +26,13 @@
             <th>Date</th>
             <th>Verdict</th>
         </tr>
-        <tr><th colspan="6"><hr/></th></tr>
         </thead>
         <tbody>
 
         <tr th:each="submission: ${submissions}">
-            <td><a th:href="@{'/submission/' + ${submission.id}}" th:text="${submission.id}"></a></td>
-            <td th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${problems.get(submission.problemId).contestProblemNumber}}" th:text="${problems.get(submission.problemId).customName}"></td>
-            <td><a th:href="@{'/user/' + ${users.get(submission.userId)}}" th:text="${users.get(submission.userId)}"></a></td>
+            <td><a class="link" th:href="@{'/submission/' + ${submission.id}}" th:text="${submission.id}"></a></td>
+            <td><a class="link" th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${problems.get(submission.problemId).contestProblemNumber}}" th:text="${problems.get(submission.problemId).customName}"></a></td>
+            <td><a class="link" th:href="@{'/user/' + ${users.get(submission.userId)}}" th:text="${users.get(submission.userId)}"></a></td>
             <td th:text="${submission.lang}"></td>
             <td th:text="${submission.timeSubmitted}" class="timeSubmitted"></td>
             <td th:text="${submission.verdict}"></td>

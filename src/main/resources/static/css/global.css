@@ -52,7 +52,6 @@
     src: local('Red Hat Text'), local('RedHatText-Regular'), url(/fonts/RedHatText-Regular.woff2) format('woff2');
 }
 
-
 .container {
     margin: 100px;
     font-family: 'Red Hat Text', sans-serif;

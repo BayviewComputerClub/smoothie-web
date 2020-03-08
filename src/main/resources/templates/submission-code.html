@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
-    <link rel="stylesheet" th:href="@{/css/elevated/title.css}"/>
+    <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
     <link rel="stylesheet" th:href="@{/css/elevated/button.css}"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Fira+Code&display=swap" rel="stylesheet">
@@ -69,9 +69,9 @@
 
 <div th:replace="fragments/header :: header"></div>
 
-<div class="container" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <h1 th:if="${contestProblem}">Code for <a th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber}}">[[${contestProblem.customName}]]</a> submission in [[${submission.lang}]] by [[${user.handle}]]</h1>
-    <h1 th:unless="${contestProblem}">Code for <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a> submission in [[${submission.lang}]] by [[${user.handle}]]</h1>
+<div class="container">
+    <h1 class="title" th:if="${contestProblem}">Code for <a class="link" th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber}}">[[${contestProblem.customName}]]</a> submission in [[${submission.lang}]] by [[${user.handle}]]</h1>
+    <h1 class="title" th:unless="${contestProblem}">Code for <a class="link" th:href="@{'/problem/' + ${problem.name}}">[[${problem.prettyName}]]</a> submission in [[${submission.lang}]] by [[${user.handle}]]</h1>
 
     <div class="topbar">
         <div class="topbar-item">

@@ -8,15 +8,15 @@
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/submissions.css}"/>
-    <link rel="stylesheet" th:href="@{/css/elevated/title.css}"/>
+    <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
 </head>
 <body>
 
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1><a th:href="@{'/user/' + ${user.handle}}">[[${user.handle}]]</a>'s submissions </h1>
-    <table style="width: 80%">
+    <h1 class="title"><a class="link" th:href="@{'/user/' + ${user.handle}}">[[${user.handle}]]</a>'s submissions </h1>
+    <table class="standard-table" style="width: 80%">
         <thead>
         <tr>
             <th>Problem Id</th>
@@ -25,13 +25,12 @@
             <th>Language</th>
             <th>Date</th>
         </tr>
-        <tr><th colspan="5"><hr/></th></tr>
         </thead>
         <tbody>
 
         <tr th:each="submission: ${submissions}">
-            <td><a th:href="@{'/problem/' + ${problems.get(submission.problemId)?.name}}" th:text="${problems.get(submission.problemId)?.prettyName}"></a></td>
-            <td><a th:href="@{'/submission/' + ${submission.id}}" th:text="${submission.id}"></a></td>
+            <td><a class="link" th:href="@{'/problem/' + ${problems.get(submission.problemId)?.name}}" th:text="${problems.get(submission.problemId)?.prettyName}"></a></td>
+            <td><a class="link" th:href="@{'/submission/' + ${submission.id}}" th:text="${submission.id}"></a></td>
             <td th:text="${submission.verdict}"></td>
             <td th:text="${submission.lang}"></td>
             <td th:text="${submission.timeSubmitted}" class="timeSubmitted"></td>
