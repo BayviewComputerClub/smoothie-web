@@ -7,7 +7,7 @@
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
-    <link rel="stylesheet" th:href="@{/css/title.css}"/>
+    <link rel="stylesheet" th:href="@{/css/elevated/title.css}"/>
     <link rel="stylesheet" th:href="@{/css/fluent-elevation.css}"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -53,7 +53,7 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1>[[${contest.prettyName}]] Standings</h1>
+    <h1><a th:href="@{'/contest/' + ${contest.name}}">[[${contest.prettyName}]]</a> Standings</h1>
     <table class="leaderboard">
         <thead class="leaderboard-head">
         <tr>

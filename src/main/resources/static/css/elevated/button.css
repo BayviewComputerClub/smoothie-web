@@ -11,13 +11,13 @@
     border-width: 1px;
     color: #757575;
     text-decoration: none;
-    display: inline-block;
     transform: translateY(0);
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
 a.button-link {
-    padding: 6px 16px 6px 16px !important;
+    display: inline-block;
+    line-height: normal;
 }
 
 .button-link:focus {
