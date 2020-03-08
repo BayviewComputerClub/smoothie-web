@@ -5,18 +5,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.http.server.ServerHttpRequest;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.server.ServerWebExchange;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.regex.Pattern;
 
