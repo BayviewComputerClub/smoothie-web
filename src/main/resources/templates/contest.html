@@ -55,8 +55,8 @@
         </div>
         <div class="topbar-item">
             <span class="material-icons" style="vertical-align: middle;">timer</span> Submission Window
-            <br/><span th:if="${contest.submissionPeriod} == 0" th:text="${contest.submissionPeriod}" id="submission-window" class="topbar-bottom-text"></span>
-            <span th:unless="${contest.submissionPeriod} == 0" class="topbar-bottom-text">full contest</span>
+            <br/><span th:unless="${contest.submissionPeriod} == 0" th:text="${contest.submissionPeriod}" id="submission-window" class="topbar-bottom-text"></span>
+            <span th:if="${contest.submissionPeriod} == 0" class="topbar-bottom-text">full contest</span>
         </div>
         <div class="topbar-item">
             <span class="material-icons" style="vertical-align: middle;">grade</span> Status
