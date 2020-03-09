@@ -1,29 +1,44 @@
 .header-admin {
-    overflow: hidden;
-    background-color: #e91e63;
-    padding: 5px 10px;
-    border-radius: 15px;
-    box-shadow: 1px 1px 5px 0 #e91e63;
-    margin: 10px 10px 10px 10px;
+    font-family: 'Red Hat Display', sans-serif;
+    line-height: 18px;
+    background: rgb(63, 67, 71);
+    color: white;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    z-index: 300;
+    box-shadow: 0 6px 8px -1px gray;
 }
 
 .header-admin a {
-    font-family: Metropolis, sans-serif;
-    float: left;
-    color: white;
-    text-align: center;
-    padding: 12px;
-    text-decoration: none;
-    font-size: 16px;
-    line-height: 12px;
+    border-top: rgb(63, 67, 71) 3px solid;
+    font-family: 'Red Hat Display', sans-serif;
+    font-size: 18px;
+    position: relative;
+    box-sizing: border-box;
+    cursor: pointer;
     outline: none;
+    text-decoration: none;
+    padding: 10px 16px 13px 16px;
+    white-space: nowrap;
+    text-align: left;
+    color: white;
+    display: inline-block;
+    transition: color, background-color 0.3s, text-shadow 0.3s, box-shadow 0.3s, border-top;
 }
 
 .header-admin a:hover {
-    text-shadow: 0 0 5px #FFFFFF;
-    transition: text-shadow 0.5s;
+    text-shadow: 0 0 5px #e0e0e0;
+    color: rgb(21, 21, 21);
+    border-top: #737679 3px solid;
+    background-color: white;
+    box-shadow: 0 4px 8px -1px white;
+    transition: color 0.3s, background-color 0.3s, text-shadow 0.3s, box-shadow 0.3s;
 }
 
 .header-admin-title {
     margin-right: 10px;
+    padding-left: 24px;
+    padding-right: 32px;
+    text-align: left;
 }

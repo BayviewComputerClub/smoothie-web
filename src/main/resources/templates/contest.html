@@ -14,27 +14,10 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
-        p {
-            font-size: 18px;
-            /*line-height: 1.5;*/
-            font-family: Metropolis, sans-serif;
-        }
-
         .container {
             animation: header-fade-in 1s;
             line-height: 1.5;
         }
-
-        hr {
-            color: #9e9e9e;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            font-size: 48px !important;
-        }
-
     </style>
 </head>
 <body>
@@ -76,7 +59,7 @@
         </div>
     </div>
 
-    <p id="contest-description" th:text="${contest.description}" style="white-space: pre;">
+    <p id="contest-description" class="content" th:text="${contest.description}" style="white-space: pre;">
     </p>
 </div>
 

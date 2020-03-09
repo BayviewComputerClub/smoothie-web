@@ -66,10 +66,7 @@
             /*border-radius: 15px;*/
             /*padding: 20px;*/
             /*animation: box-in 2s;*/
-
             font-size: 18px;
-            font-family: 'Red Hat Display', sans-serif;
-            line-height: 1.5;
         }
 
         p {
@@ -104,8 +101,8 @@
     <h1 th:utext="${siteName}"></h1>
     <div class="tagLine" th:utext="${information.tagLine}"></div>
 
-    <div class="main-box">
-        <p id="information" style="white-space: pre;" th:text="${information.homeContent}"></p>
+    <div class="main-box content">
+        <p id="information" class="content" style="white-space: pre;" th:text="${information.homeContent}"></p>
         <span sec:authorize="isAnonymous()">
             You are not logged in.
         </span>
