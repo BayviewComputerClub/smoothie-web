@@ -38,6 +38,10 @@ This optional file should to be in the directory where you run the JAR/WAR from.
 
 ```
 # These are useful to change
+
+# Domain that the instance is accessible from
+smoothieweb.domain=localhost
+
 # Port
 server.port=8080
 
