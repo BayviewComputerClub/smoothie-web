@@ -13,7 +13,6 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000") // todo move to config file
 public class APIMainController {
     @Autowired
     private SmoothieSettingsService settingsService;

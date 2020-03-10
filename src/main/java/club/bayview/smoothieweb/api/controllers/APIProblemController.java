@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class APIProblemController {
     SmoothieContestService contestService;
 
     @RequestMapping("/api/v1/problems")
-    public List<Problem> getProblems() {
-        return problemService.findProblemsAlphaDesc().collectList().block();
+    public Mono<List<Problem>> getProblems() {
+        return problemService.findProblemsAlphaDesc().collectList();
     }
 }
