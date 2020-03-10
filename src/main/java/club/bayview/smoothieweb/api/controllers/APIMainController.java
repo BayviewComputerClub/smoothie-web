@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class APIMainController {
     }
 
     @RequestMapping("/api/v1/ranking")
-    public List<User> getUserRanking() {
-        return userService.findUsers().collectList().block();
+    public Mono<List<User>> getUserRanking() {
+        return userService.findUsers().collectList();
     }
 }
