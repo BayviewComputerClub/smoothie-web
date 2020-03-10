@@ -22,9 +22,6 @@ import org.springframework.web.cors.reactive.CorsWebFilter;
 @EnableReactiveMethodSecurity
 public class WebSecurityConfig {
 
-    @Value("${smoothieweb.domain:'localhost'}")
-    String corsDomain;
-
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
         http
@@ -43,20 +40,6 @@ public class WebSecurityConfig {
                 ;
 
         return http.build();
-    }
-
-    @Bean
-    CorsWebFilter corsFilter() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin(corsDomain);
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-
-        return new CorsWebFilter((CorsConfigurationSource) source);
     }
 
     @Bean

@@ -1,10 +1,12 @@
 package club.bayview.smoothieweb.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.multipart.MultipartHttpMessageReader;
 import org.springframework.http.codec.multipart.SynchronossPartHttpMessageReader;
+import org.springframework.web.reactive.config.CorsRegistry;
 import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 
@@ -12,6 +14,9 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class WebFluxConfig implements WebFluxConfigurer {
+
+    @Value("${smoothieweb.domain:'localhost'}")
+    String corsDomain;
 
     @Override
     public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
@@ -30,5 +35,15 @@ public class WebFluxConfig implements WebFluxConfigurer {
         registry.addResourceHandler("/fonts/**")
                 .addResourceLocations("classpath:/static/fonts/")
                 .setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+
+        registry.addMapping("/api/**")
+                .allowedOrigins(corsDomain)
+                .allowedMethods("*")
+                .allowedHeaders("*")
+                .allowCredentials(true).maxAge(3600);
     }
 }
