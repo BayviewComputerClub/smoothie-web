@@ -111,9 +111,9 @@
         <div id="code-box" style="height: 500px; width: 100%;"></div>
 
         <div class="bottom">
-            <select form="submit-form" th:field="*{language}">
+            <select form="submit-form" id="dropdown" th:field="*{language}">
                 <option th:each="lang : ${languages}" th:value="${lang.getPrettyName()}"
-                        th:text="${lang.getPrettyName()}"></option>
+                        th:text="${lang.getPrettyName()}" ></option>
             </select>
 
             <textarea form="submit-form" id="code" th:field="*{code}" style="display:none"></textarea>
@@ -134,6 +134,21 @@
         fontFamily: '"Fira Code", sans-serif',
         mode: "ace/mode/c_cpp",
     });
+
+    let languages = /*[[${languages}]]*/
+
+    function getCurrentLang() {
+        let $ = document.getElementById("dropdown"), v = $.options[$.selectedIndex].value;
+        let ans = "ace/mode/c_cpp";
+        languages.forEach(l => {
+            if (v === l.prettyName) {
+                ans = l.aceEditorLang;
+            }
+        });
+        return ans;
+    }
+
+    document.getElementById('dropdown').addEventListener('change', () => editor.setOption("mode", getCurrentLang()));
 
     let code = /*[[${submitRequest.code}]]*/;
     if (code != null) {
