@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Controller
 public class AuthController {
@@ -37,9 +38,11 @@ public class AuthController {
     @NoArgsConstructor
     public static class RegisterForm {
         @NotNull
+        @Size(min = 2, max = 15)
         private String username;
 
         @NotNull
+        @Size(min = 3)
         private String password;
 
         @NotNull

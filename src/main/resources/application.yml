@@ -1,0 +1,50 @@
+# -=-=- Smoothie Web Config -=-=-
+
+# Manually specify this is reactive
+spring.main.web-application-type: reactive
+
+# CORS
+smoothieweb.domains: localhost, 127.0.0.1
+
+# Prevents custom checkboxes from breaking
+spring.thymeleaf.render-hidden-markers-before-checkboxes: true
+
+# Session defaults
+spring.session.store-type: redis
+spring.session.redis.flush-mode: on_save
+spring.session.redis.namespace: "spring:session"
+
+# Redis defaults
+spring.redis.host: localhost
+spring.redis.password:
+spring.redis.port: 6379
+
+# Mail
+spring.mail.host: localhost
+spring.mail.port: 587
+spring.mail.username: username
+spring.mail.password: password
+spring.mail.properties.mail.smtp.starttls.enable: true
+spring.mail.properties.mail.smtp.auth: true
+spring.mail.properties.mail.smtp.connectiontimeout: 5000
+spring.mail.properties.mail.smtp.timeout: 5000
+spring.mail.properties.mail.smtp.writetimeout: 5000
+
+spring.main.allow-bean-definition-overriding: true
+
+# Default admin password
+smoothieweb.admin.password: password
+
+spring.thymeleaf.reactive.max-chunk-size: 8192
+
+# Do not log every single mongo transaction
+logging.level.org.springframework.data.mongodb.core.mapping.event.LoggingEventListener: ERROR
+
+# More live reload paths
+spring.devtools.restart.additional-paths: /resources
+
+# No debug stack traces by default on error page
+smoothieweb.error.debug: false
+
+# HTTP response compression
+server.compression.enabled: true

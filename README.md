@@ -33,46 +33,53 @@ The compiled JAR file will be in `build/libs/`.
 ## Configuration
 [Wiki](https://github.com/BayviewComputerClub/smoothie-web/wiki/Configuration)
 
-### application.properties
+### application.yml
 This optional file should to be in the directory where you run the JAR/WAR from.
 
 ```
 # These are useful to change
+# Feel free to change into conventional YML format, they are listed
+# on separate lines for easy pasting.
 
-# Domain that the instance is accessible from
-smoothieweb.domain=localhost
+# Domains that the instance is accessible from (for CORS)
+smoothieweb.domains: "localhost", "127.0.0.1"
 
 # Port
-server.port=8080
+server.port: 8080
 
 # Mongo
-spring.data.mongodb.port=27017
-spring.data.mongodb.host=localhost
-spring.data.mongodb.database=main
+spring.data.mongodb:
+    host: localhost
+    port: 27017
+    database: main
 
 # Redis
-spring.redis.host=localhost
-spring.redis.password=
-spring.redis.port=6379
+spring.redis:
+    host: localhost
+    port: 6379
+    password: 
 
 # SMTP
-spring.mail.host=
-spring.mail.port=587
-spring.mail.username=
-spring.mail.password=
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail:
+    host: 
+    port: 587
+    username:
+    password:
+    properties.mail.smtp:
+        auth: true
+        starttls.enable: true
 
 # Captcha
-google.recaptcha.key.site=
-google.recaptcha.key.secret=
+google.recaptcha.key:
+    site:
+    secret:
 
-# Default admin password
-smoothieweb.admin.password=password
+# Default admin password when database is created
+smoothieweb.admin.password: password
 
 # Whether or not to show stack traces on error pages
-smoothieweb.error.debug=true
+smoothieweb.error.debug: true
 
 # Spring boot admin server
-spring.boot.admin.client.url=http://localhost:8081
+spring.boot.admin.client.url: "http://localhost:8081"
 ```
