@@ -4,7 +4,7 @@
 spring.main.web-application-type: reactive
 
 # CORS
-smoothieweb.domains: localhost, 127.0.0.1
+smoothieweb.domains: "http://localhost:8080, https://localhost:8080, http://localhost:3000, https://localhost:3000"
 
 # Prevents custom checkboxes from breaking
 spring.thymeleaf.render-hidden-markers-before-checkboxes: true

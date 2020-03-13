@@ -42,7 +42,7 @@ This optional file should to be in the directory where you run the JAR/WAR from.
 # on separate lines for easy pasting.
 
 # Domains that the instance is accessible from (for CORS)
-smoothieweb.domains: "localhost", "127.0.0.1"
+smoothieweb.domains: "http://localhost:80, https://localhost:443, https://localhost:3000, http://localhost:3000"
 
 # Port
 server.port: 8080
