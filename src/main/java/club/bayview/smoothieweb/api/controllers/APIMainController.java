@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.api.controllers;
 
+import club.bayview.smoothieweb.api.models.APIUser;
 import club.bayview.smoothieweb.models.GeneralSettings;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.SmoothieSettingsService;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -26,7 +28,8 @@ public class APIMainController {
     }
 
     @RequestMapping("/api/v1/ranking")
-    public Mono<List<User>> getUserRanking() {
-        return userService.findUsers().collectList();
+    public Flux<APIUser> getUserRanking() {
+        return userService.findUsers()
+                .map(APIUser::fromUser);
     }
 }
