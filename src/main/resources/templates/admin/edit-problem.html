@@ -8,7 +8,6 @@
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
-    <link rel="stylesheet" th:href="@{/css/elevated/form.css}"/>
     <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
     <link rel="stylesheet" th:href="@{/css/lib/simplemde-1.11.2.min.css}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -18,36 +17,19 @@
 
     <style>
 
-        body {
-            font-size: 20px;
-            line-height: 1.5;
-            font-family: Metropolis, sans-serif;
-        }
-
         .container {
             animation: header-fade-in 1s;
         }
 
+        .control {
+            width: 20rem;
+        }
+
         /*-=-=-=-=-=-=-=-=- form -=-=-=-=-=-=-=-=-=-=-=-*/
-
-        input[type="file"] {
-            display: none;
-        }
-
-        label {
-            font-size: 20px;
-            font-family: Nunito, sans-serif;
-            line-height: 1.5;
-            color: #424242;
-        }
-
-        .input-container {
-            margin-top: 40px;
-        }
 
         .problem-editor {
             margin-top: 20px;
-            width: 100%;
+            width: 80%;
         }
 
         .checkbox-switch {
@@ -55,19 +37,33 @@
         }
 
         input[type="number"] {
-            width: 80px;
+            width: 60px;
             text-align: center;
         }
 
-        table {
-            margin-top: 10px;
+        .standard-table {
+            font-size: 14px;
             color: #424242;
+            width: 80%;
+        }
+
+        tr {
+            animation: table-row-in 0.5s;
+        }
+
+        .standard-table td, .standard-table th {
+            text-align: center !important;
+            font-size: 14px !important;
+        }
+
+        .material-icons {
+            font-size: 18px;
         }
 
         .round-button {
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             box-shadow: 1px 1px 5px 0 #9e9e9e;
             cursor: pointer;
             border-style: none;
@@ -85,10 +81,6 @@
             transition: box-shadow 0.3s;
         }
 
-        td {
-            text-align: center;
-        }
-
         @keyframes table-row-in {
             0% {
                 transform: translateX(-100px) scale(0.95);
@@ -99,10 +91,6 @@
                 transform: translateX(0) scale(1);
                 opacity: 1;
             }
-        }
-
-        tr {
-            animation: table-row-in 0.5s;
         }
 
         #problem-points {
@@ -121,40 +109,52 @@
     <h1 class="title" th:unless="${newProblem}">Edit Problem <a class="link" th:href="@{'/problem/' + ${problem.name}}">[[${problem.name}]]</a>
     </h1>
 
-    <form method="POST" id="problem-form" th:action="'?'" th:object="${problem}"
+    <form method="POST" id="problem-form" class="standard-form" th:action="'?'" th:object="${problem}"
           onsubmit="modifyTablesOnSubmit()">
 
-        <div class="input-container">
-            <label for="problem-id">Problem ID</label>
+        <div class="form-group">
+            <label for="problem-id" class="label">
+                <span class="text">Problem ID</span>
+                <span class="required">*</span>
+            </label>
             <br/>
-            <input type="text" id="problem-id" th:field="*{name}" placeholder="ex. ccc19s3"
+            <input type="text" id="problem-id" th:field="*{name}" class="control" placeholder="ex. ccc19s3"
                    required>
         </div>
 
-        <div class="input-container">
-            <label for="problem-name">Problem Name</label>
+        <div class="form-group">
+            <label for="problem-name" class="label">
+                <span class="text">Problem Name</span>
+                <span class="required">*</span>
+            </label>
             <br/>
-            <input type="text" id="problem-name" th:field="*{prettyName}" placeholder="ex. CCC19S3 - Arithmetic Square"
+            <input type="text" id="problem-name" th:field="*{prettyName}" class="control" placeholder="ex. CCC19S3 - Arithmetic Square"
                    required>
         </div>
 
-        <div class="input-container">
-            <label for="problem-statement">Problem Statement</label>
+        <div class="form-group">
+            <label for="problem-statement" class="label">
+                <span class="text">Problem Statement</span>
+            </label>
             <br/>
             <div class="problem-editor">
                 <textarea id="problem-statement" th:field="*{problemStatement}" form="problem-form"></textarea>
             </div>
         </div>
 
-        <div class="input-container">
-            <label for="problem-name">Total Points</label>
+        <div class="form-group">
+            <label for="problem-points" class="label">
+                <span class="text">Total Points</span>
+            </label>
             <br/>
-            <input type="number" id="problem-points" th:field="*{totalScoreWorth}" min="0"
+            <input type="number" id="problem-points" class="control" th:field="*{totalScoreWorth}" min="0"
                    required>
         </div>
 
-        <div class="input-container">
-            <label for="allow-partial">Allow Partial Points</label>
+        <div class="form-group">
+            <label for="allow-partial" class="label">
+                <span class="text">Allow Partial Points</span>
+            </label>
             <br/>
             <label class="checkbox-switch">
                 <input type="checkbox" id="allow-partial" th:field="*{allowPartial}">
@@ -164,9 +164,9 @@
 
         <!-- Limit Table -->
 
-        <div class="input-container">
-            <label>Limits (per test case)</label>
-            <table style="width: 100%" id="limit-table">
+        <div class="form-group">
+            <label class="label"><span class="text">Limits (per test case)</span></label>
+            <table id="limit-table" class="standard-table compact">
                 <thead>
                 <tr>
                     <th style="width: 50px"></th> <!-- button -->
@@ -177,7 +177,6 @@
                 </thead>
 
                 <tbody>
-                <tr><td colspan="4"><hr/></td></tr>
 
                 <tr th:each="limit : ${problem.limits}" class="limit">
                     <td style="width: 50px; text-align: left;">
@@ -185,23 +184,23 @@
                         </button>
                     </td>
                     <td>
-                        <select form="problem-form">
+                        <select form="problem-form" class="control">
                             <option th:each="lang : ${languages}" th:value="${lang.getPrettyName()}"
                                     th:text="${lang.getPrettyName()}"
                                     th:selected="${lang.getPrettyName() == limit.lang}"></option>
                         </select>
                     </td>
-                    <td><input type="number" th:value="${limit.timeLimit}" step="0.1" min="0">s</td>
-                    <td><input type="number" th:value="${limit.memoryLimit}" min="0">MB</td>
+                    <td><input type="number" class="control" th:value="${limit.timeLimit}" step="0.1" min="0">s</td>
+                    <td><input type="number" class="control" th:value="${limit.memoryLimit}" min="0">MB</td>
                 </tr>
 
                 </tbody>
             </table>
-            <button class="round-button" type="button" onclick="addLimitRow()" style="margin-left: 3px; margin-top: 10px;"><i
+            <button class="round-button" type="button" onclick="addLimitRow()" style="margin-left: 38px; margin-top: 10px;"><i
                     class="material-icons">add</i></button>
         </div>
 
-        <div class="input-container"><input type="submit" value="Save"></div>
+        <div class="form-group"><input type="submit" class="st-button" value="Save"></div>
 
     </form>
 
@@ -247,9 +246,9 @@
                     <td style="width: 50px; text-align: left;">
                         <button class="round-button" type="button" onclick="removeLimitRow(this)"><i class="material-icons">close</i></button>
                     </td>
-                    <td><select>` + langOptions + `</select></td>
-                    <td><input type="number" value="1.0" step="0.1" min="0">s</td>
-                    <td><input type="number" value="256.0" min="0">MB</td>
+                    <td><select class="control">` + langOptions + `</select></td>
+                    <td><input type="number" class="control" value="1.0" step="0.1" min="0">s</td>
+                    <td><input type="number" class="control" value="256.0" min="0">MB</td>
                 </tr>
             `);
         }

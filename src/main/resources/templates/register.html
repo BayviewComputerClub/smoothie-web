@@ -17,7 +17,7 @@
         }
 
         .width {
-            width: 15rem;
+            width: calc(18rem - 3px);
         }
 
         .st-button {
@@ -40,7 +40,7 @@
     <form method="POST" th:action="'?'" class="standard-form">
 
         <div class="form-group">
-            <label for="username">
+            <label for="username" class="label">
                 <span class="text">Username</span>
                 <span class="required">*</span>
             </label>
@@ -49,7 +49,7 @@
         </div>
 
         <div class="form-group">
-            <label for="emailBox">
+            <label for="emailBox" class="label">
                 <span class="text">Email</span>
                 <span class="required">*</span>
             </label>
@@ -58,7 +58,7 @@
         </div>
 
         <div class="form-group">
-            <label for="confirmPassword">
+            <label for="confirmPassword" class="label">
                 <span class="text">Password</span>
                 <span class="required">*</span>
             </label>
@@ -67,7 +67,7 @@
         </div>
 
         <div class="form-group">
-            <label for="passwordBox">
+            <label for="passwordBox" class="label">
                 <span class="text">Confirm Password</span>
                 <span class="required">*</span>
             </label>
