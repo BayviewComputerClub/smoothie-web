@@ -8,7 +8,6 @@
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/header-admin.css}"/>
-    <link rel="stylesheet" th:href="@{/css/elevated/form.css}"/>
     <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -21,60 +20,12 @@
 
     <style>
 
-        body {
-            font-size: 20px;
-            line-height: 1.5;
-            font-family: Metropolis, sans-serif;
+        .control {
+            width: 20rem;
         }
 
         .container {
             animation: header-fade-in 1s;
-        }
-
-        label {
-            font-size: 20px;
-            font-family: Nunito, sans-serif;
-            line-height: 1.5;
-            color: #424242;
-        }
-
-
-        .input-container {
-            margin-top: 40px;
-        }
-
-        input[type="number"] {
-            width: 80px;
-            text-align: center;
-        }
-
-        table {
-            margin-top: 10px;
-            color: #424242;
-        }
-
-        button {
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            box-shadow: 1px 1px 5px 0 #9e9e9e;
-            cursor: pointer;
-            border-style: none;
-            background-color: white;
-            transition: box-shadow 0.3s;
-        }
-
-        button:focus {
-            outline: 0;
-        }
-
-        button:hover {
-            box-shadow: 1px 1px 15px 0 #9e9e9e;
-            transition: box-shadow 0.3s;
-        }
-
-        tr {
-            animation: table-row-in 0.5s;
         }
 
     </style>
@@ -85,41 +36,51 @@
 <div th:replace="fragments/header-admin"></div>
 
 <div class="container">
-    <h1 class="title" th:if="${newRunner}">New Runner</h1>
-    <h1 class="title" th:unless="${newRunner}">Edit Runner</h1>
+    <h1 class="content" th:if="${newRunner}">New Runner</h1>
+    <h1 class="content" th:unless="${newRunner}">Edit Runner</h1>
 
-    <form method="POST" id="runner-form" th:action="'?'" th:object="${runner}">
+    <form method="POST" class="standard-form" id="runner-form" th:action="'?'" th:object="${runner}">
 
-        <div class="input-container">
-            <label for="runner-name">Runner Name</label>
+        <div class="form-group">
+            <label for="runner-name" class="label">
+                <span class="text">Runner Name</span>
+                <span class="required">*</span>
+            </label>
             <br/>
-            <input type="text" id="runner-name" th:field="*{name}" placeholder="ex. basement-server"
+            <input type="text" class="control" id="runner-name" th:field="*{name}" placeholder="ex. basement-server"
                    required>
         </div>
 
-        <div class="input-container">
-            <label for="runner-description">Description</label>
+        <div class="form-group">
+            <label for="runner-description" class="label">
+                <span class="text">Description</span>
+            </label>
             <br/>
-            <input type="text" id="runner-description" th:field="*{description}"
-                   placeholder="ex. Server in the basement"
+            <input type="text" class="control" id="runner-description" th:field="*{description}"
+                   placeholder="ex. Server in the basement">
+        </div>
+
+        <div class="form-group">
+            <label for="runner-host" class="label">
+                <span class="text">Host</span>
+                <span class="required">*</span>
+            </label>
+            <br/>
+            <input type="text" class="control" id="runner-host" th:field="*{host}" placeholder="ex. 127.0.0.1"
                    required>
         </div>
 
-        <div class="input-container">
-            <label for="runner-host">Host</label>
+        <div class="form-group">
+            <label for="runner-port" class="label">
+                <span class="text">Port</span>
+                <span class="required">*</span>
+            </label>
             <br/>
-            <input type="text" id="runner-host" th:field="*{host}" placeholder="ex. 127.0.0.1"
+            <input type="number" class="control" min="0" max="65535" id="runner-port" th:field="*{port}" placeholder="6821"
                    required>
         </div>
 
-        <div class="input-container">
-            <label for="runner-port">Port</label>
-            <br/>
-            <input type="number" min="0" max="65535" id="runner-port" th:field="*{port}" placeholder="6821"
-                   required>
-        </div>
-
-        <div class="input-container"><input type="submit" value="Save"></div>
+        <div class="form-group"><input class="st-button" type="submit" value="Save"></div>
 
     </form>
 

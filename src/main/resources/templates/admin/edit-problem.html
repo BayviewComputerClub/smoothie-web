@@ -105,8 +105,8 @@
 <div th:replace="fragments/header-admin"></div>
 
 <div class="container">
-    <h1 class="title" th:if="${newProblem}">New Problem</h1>
-    <h1 class="title" th:unless="${newProblem}">Edit Problem <a class="link" th:href="@{'/problem/' + ${problem.name}}">[[${problem.name}]]</a>
+    <h1 class="content" th:if="${newProblem}">New Problem</h1>
+    <h1 class="content" th:unless="${newProblem}">Edit Problem <a th:href="@{'/problem/' + ${problem.name}}">[[${problem.name}]]</a>
     </h1>
 
     <form method="POST" id="problem-form" class="standard-form" th:action="'?'" th:object="${problem}"

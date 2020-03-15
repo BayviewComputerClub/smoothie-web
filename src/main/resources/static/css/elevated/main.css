@@ -281,14 +281,14 @@ form.standard-form .control {
     display: inline-block;
     outline: none;
 
-    font-size: 1rem;
+    font-size: 16px;
     color: #151515;
 
     padding: calc(0.375rem - 1px) calc(0.5rem + 3px) calc(0.375rem - 1px) 0.5rem;
     /*height: calc(1rem*1.5 + 1px*2 + calc(0.375rem - 1px) + calc(0.375rem - 1px));*/
 
     line-height: 1.5;
-    transition: box-shadow 0.3s, border-bottom-color 0.1s;
+    transition: box-shadow 0.3s, border-bottom-color 0.2s;
 }
 
 form.standard-form .control:hover {
