@@ -149,7 +149,7 @@ public class Submission {
 
     public void determinePoints(Problem p) {
         if (p.isAllowPartial()) {
-            if (batchCases.size() == p.getProblemBatches().size()) {
+            if (p.getProblemBatches() != null && batchCases.size() == p.getProblemBatches().size()) {
                 boolean perfect = true;
 
                 // loop over each batch

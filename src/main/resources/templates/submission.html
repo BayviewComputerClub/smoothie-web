@@ -103,7 +103,7 @@
     $(() => {
         // properly format time
         let timeSubmitted = $("#time-submitted");
-        let date = new Date(timeSubmitted.text());
+        let date = new Date(timeSubmitted.text()*1);
         timeSubmitted.text(("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear() + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2));
 
         // connect to websocket

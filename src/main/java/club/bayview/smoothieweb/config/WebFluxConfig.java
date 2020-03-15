@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.config;
 
+import org.jolokia.util.HttpMethod;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +44,8 @@ public class WebFluxConfig implements WebFluxConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins(corsDomains)
+                //.allowedOrigins(corsDomains) TODO, unable to post
+                .allowedOrigins("*")
                 .allowedMethods("*")
                 .allowedHeaders("*")
                 .allowCredentials(true).maxAge(3600);

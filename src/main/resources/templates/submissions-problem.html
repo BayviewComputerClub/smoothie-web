@@ -48,7 +48,7 @@
     $(() => {
         $(".timeSubmitted").each((i, obj) => {
             // properly format time
-            obj.innerText = moment(obj.innerText).format('LLL');
+            obj.innerText = moment(obj.innerText*1).format('LLL');
         });
     })
 </script>
