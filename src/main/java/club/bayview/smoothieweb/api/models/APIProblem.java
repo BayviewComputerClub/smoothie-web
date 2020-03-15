@@ -3,6 +3,7 @@ package club.bayview.smoothieweb.api.models;
 import club.bayview.smoothieweb.models.Problem;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -18,6 +19,11 @@ public class APIProblem {
     int rateOfAC;
     int usersSolved;
     List<String> editorIds;
+    long timeCreated;
+
+    public boolean hasPermissionToView(Authentication auth) {
+        return true;
+    }
 
     public static APIProblem fromProblem(Problem p) {
         APIProblem np = new APIProblem();
@@ -30,6 +36,7 @@ public class APIProblem {
         np.setRateOfAC(p.getRateOfAC());
         np.setUsersSolved(p.getUsersSolved());
         np.setEditorIds(p.getEditorIds());
+        np.setTimeCreated(p.getTimeCreated());
         return np;
     }
 }
