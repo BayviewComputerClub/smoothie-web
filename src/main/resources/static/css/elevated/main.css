@@ -18,7 +18,7 @@ a.link, .content a {
     position: relative;
 }
 
-a.link:before, .content a {
+a.link:before, .content a:before {
     content: "";
     position: absolute;
     width: 100%;
@@ -31,12 +31,12 @@ a.link:before, .content a {
     transition: all 0.3s ease-in-out;
 }
 
-a.link:hover:before, .content a {
+a.link:hover:before, .content a:hover:before {
     visibility: visible;
     transform: scaleX(1);
 }
 
-a.link:hover, .content a {
+a.link:hover, .content a:hover {
     text-shadow: 0 0 1px #00bcd4;
     transition: text-shadow 0.3s;
 }
@@ -229,28 +229,123 @@ table.compact > tbody > tr > td{
     padding: 14px 8px 12px 24px;
 }
 
-/* -=-=-=-=-=-=-=- Text Box -=-=-=-=-=-=-=- */
+/* -=-=-=-=-=-=-=- Form Related Items -=-=-=-=-=-=-=- */
 
-input[type="text"], input[type="number"], input[type="password"], input[type="time"], input[type="date"] {
-    margin: 3px 3px 3px 0;
-    width: 400px;
-    padding: 10px;
+/* -=-=-=-=-=-=-=- Labels -=-=-=-=-=-=-=- */
+
+form.standard-form label {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.3;
+    color: #151515;
+    padding: 0.5rem 0 0.5rem 0;
+    display: inline-block;
+}
+
+form.standard-form label .text {
+    font-weight: 700;
+}
+
+form.standard-form label .required {
+    color: #c9190b;
+}
+
+/* -=-=-=-=-=-=-=- Form Misc. -=-=-=-=-=-=-=- */
+
+form.standard-form .helper {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+form.standard-form .error {
+    color: #c9190b;
+}
+
+form.standard-form .form-group {
+    margin-top: 2rem;
+}
+
+/* -=-=-=-=-=-=-=- Input Elements -=-=-=-=-=-=-=- */
+
+form.standard-form .control {
+    font-family: 'Red Hat Text', sans-serif;
+
+    border-width: 1px 1px 1px 1px;
+    border-style: solid;
+    border-top-color: #ededed;
+    border-right-color: #ededed;
+    border-bottom-color: #737679;
+    border-left-color: #ededed;
+    border-radius: 0;
+    display: inline-block;
     outline: none;
-    font-family: 'Nunito', sans-serif;
-    border-style: none none solid none;
-    border-color: #9E9E9E;
-    font-size: 20px;
-    color: #424242;
-    transition: box-shadow 0.3s, background 0.5s;
+
+    font-size: 1rem;
+    color: #151515;
+
+    padding: calc(0.375rem - 1px) calc(0.5rem + 3rem) calc(0.375rem - 1px) 0.5rem;
+    /*height: calc(1rem*1.5 + 1px*2 + calc(0.375rem - 1px) + calc(0.375rem - 1px));*/
+
+    line-height: 1.5;
+    transition: box-shadow 0.3s, border-bottom-color 0.1s;
 }
 
-input[type="text"]:hover, input[type="number"]:hover, input[type="password"]:hover, input[type="time"]:hover, input[type="date"]:hover {
-    box-shadow: 1px 4px 2px -2px #9E9E9E;
-    border-color: #757575;
-    transition: border-color 0.5s, box-shadow 0.3s, background 0.5s;
+form.standard-form .control:hover {
+    box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, .132), 0 1.2px 3.6px 0 rgba(0, 0, 0, .108);
+    border-bottom-color: rgb(0, 102, 204);
+    border-bottom-width: 1px;
+    transition: box-shadow 0.3s, border-bottom-color 0.3s;
+}
+form.standard-form .control:focus {
+    box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, .132), 0 1.2px 3.6px 0 rgba(0, 0, 0, .108);
+    border-color: #ededed;
+    border-bottom-color: rgb(0, 102, 204);
+    border-bottom-width: 2px;
+    padding-bottom: calc(0.375rem - 2px);
+    transition: box-shadow 0.3s, border-bottom-color 0.3s;
 }
 
-input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, input[type="time"]:focus, input[type="date"]:focus {
-    border-color: #424242;
-    box-shadow: 1px 4px 2px -2px #9E9E9E;
+form.standard-form .control.invalid {
+    background: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23c9190b' d='M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z'/%3E%3C/svg%3E") calc(100% - 0.5rem) 0.5rem/1rem 1rem no-repeat;
+    background-size: 1rem 1rem;
+    border-bottom-color: #c9190b;
+    border-bottom-width: 2px;
+}
+
+form.standard-form .control.success {
+    background: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%2392d400' d='M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z'/%3E%3C/svg%3E") calc(100% - 0.5rem) 0.5rem/1rem 1rem no-repeat;
+    background-size: 1rem 1rem;
+    border-bottom-color: #92d400;
+    border-bottom-width: 2px;
+}
+
+/* -=-=-=-=-=-=-=- Buttons -=-=-=-=-=-=-=- */
+.st-button {
+    border-color: transparent;
+    line-height: 1.5;
+    font-size: 1rem;
+    border-radius: 3px;
+    display: inline-block;
+
+    background-color: #06c;
+    color: #ffffff;
+    font-family: 'Red Hat Text', sans-serif;
+
+    padding: 0.375rem 1rem 0.375rem 1rem;
+    cursor: pointer;
+
+    box-shadow: 0 3px 14.4px 0 rgba(0, 0, 0, .20), 0 1.2px 3.6px 0 rgba(0, 0, 0, .108);
+    transform: translateY(0);
+    transition: box-shadow 0.3s, transform 0.3s, background-color 0.3s;
+}
+
+.st-button:hover {
+    background-color: #004080;
+    box-shadow: 0 3px 14.4px 0 rgba(0, 102, 204, 0.22), 0 1.2px 3.6px 0 rgba(0, 102, 204, 0.15);
+    transform: translateY(-5px);
+    transition: box-shadow 0.3s, transform 0.3s, background-color 0.3s;
+}
+
+.st-button:active {
+    background-color: #004080;
 }

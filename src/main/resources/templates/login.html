@@ -7,112 +7,24 @@
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
-    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
-        .material-icons {
-            font-family: 'Material Icons';
-            font-weight: normal;
-            font-style: normal;
-            font-size: 24px;
-            line-height: 1;
-            letter-spacing: normal;
-            text-transform: none;
-            display: inline-block;
-            white-space: nowrap;
-            word-wrap: normal;
-            direction: ltr;
-            -webkit-font-feature-settings: 'liga';
-            -webkit-font-smoothing: antialiased;
-        }
 
         .container {
-            margin: 100px;
-            display: block;
-            float: left;
-            font-family: Metropolis-asset, sans-serif;
-            font-size: 24px;
-            animation: 2s words-in;
-        }
-        .inputbox {
-            padding: 10px;
-            font-family: 'Nunito', sans-serif;
-            font-size: 20px;
-            border-style: none;
-            border-left-style: solid;
-            border-width: 5px;
-            border-color: #18ffff;
-            animation-name: fadeIn;
-            animation-duration: 1.5s;
-            width: 270px;
-        }
-        .inputbox:focus {
-            outline: 0;
+            animation: header-fade-in 1s;
+            line-height: 1.5;
         }
 
-        h1 {
-            font-family: 'Metropolis', sans-serif;
+        .width {
+            width: 15rem;
         }
 
-        #login {
-            padding: 10px;
-            border-radius: 50px;
-            font-family: 'Nunito', sans-serif;
-            font-size: 18px;
-            border-style: solid;
-            border-color: #FFFFFF;
-            border-width: 2px;
-            animation: 1.5s fadeIn, 1s button-unhover;
-            color: #FFFFFF;
-            background-color: #424242;
-            position: absolute;
-            width: 270px;
-            cursor: pointer;
-            box-shadow: 1px 1px 5px 0 #424242;
-            transition: box-shadow 0.5s;
-            box-sizing: content-box;
-            outline: none;
+        .st-button {
+            width: 19rem;
         }
-        #login:hover {
-            box-shadow: 1px 1px 15px 0 #424242;
-            transition: box-shadow 0.5s;
-        }
-        .boxes {
-            box-shadow: 1px 1px 7px 0 #424242;
-            border-radius: 7px;
-            transition: box-shadow 0.5s;
-        }
-        .boxes:hover {
-            box-shadow: 1px 1px 20px 0 #424242;
-            transition: box-shadow 0.5s;
-        }
-        #usernameBox {
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-        #passwordBox {
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-        }
-        #login:focus {
-            outline: 0;
-        }
-        body {
-            -webkit-background-size: cover;
-            -moz-background-size: cover;
-            -o-background-size: cover;
-            background-size: cover;
-        }
-        @keyframes words-in {
-            0% {
-                transform: translateY(40px);
-                opacity: 0
-            }
-            100% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
+
     </style>
 </head>
 <body>
@@ -120,26 +32,37 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <div th:if="${param.error}" class="error">
-        Wrong username or password
+    <div th:if="${param.error}" style="color: #c9190b">
+        Wrong username or password.
     </div>
-    <div th:if="${param.logout}">
-        You have been logged out.
-    </div>
-    <form method="POST">
-        <div>
-        <h1 class="title">login <i class="material-icons">sync</i></h1>
-        <div class="boxes">
-            <input type="text" id="usernameBox" name="username" placeholder="username" required class="inputbox">
+    <h1 class="content">Log in your account <i class="material-icons">sync</i></h1>
+    <h3 class="content">Have a lot of fun...</h3>
+    <form method="POST" class="standard-form">
+        <div class="form-group">
+            <label for="username">
+                <span class="text">Username</span>
+                <span class="required">*</span>
+            </label>
             <br/>
-            <input type="password" id="passwordBox" name="password" placeholder="password" required class="inputbox">
+            <input type="text" id="username" name="username" class="control width" required>
         </div>
+        <div class="form-group">
+            <label for="password">
+                <span class="text">Password</span>
+                <span class="required">*</span>
+            </label>
+            <br/>
+            <input type="password" id="password" name="password" class="control width" required>
+        </div>
+
         <br/>
         <br/>
-        <input type="submit" id="login" value="Login">
-        </div>
+        <input type="submit" class="st-button" id="login" value="Log in">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
     </form>
+    <br/>
+    <h5 class="content"><a th:href="@{/register}">Sign up for an account.</a></h5>
+    <h5 class="content"><a th:href="@{/register}">Forgot username or password?</a></h5>
 </div>
 
 </body>

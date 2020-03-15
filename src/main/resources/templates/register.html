@@ -7,123 +7,23 @@
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
-
-    <title>smoothie-web</title>
+    <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
-        .material-icons {
-            font-family: 'Material Icons';
-            font-weight: normal;
-            font-style: normal;
-            font-size: 24px;
-            line-height: 1;
-            letter-spacing: normal;
-            text-transform: none;
-            display: inline-block;
-            white-space: nowrap;
-            word-wrap: normal;
-            direction: ltr;
-            -webkit-font-feature-settings: 'liga';
-            -webkit-font-smoothing: antialiased;
-        }
-
         .container {
-            margin: 100px;
-            display: block;
-            float: left;
-            font-family: Metropolis-asset, sans-serif;
-            font-size: 24px;
-            animation: 2s words-in;
+            animation: header-fade-in 1s;
+            line-height: 1.5;
         }
 
-        .inputbox {
-            padding: 10px;
-            font-family: 'Nunito', sans-serif;
-            font-size: 20px;
-            border-style: none;
-            border-left-style: solid;
-            border-width: 5px;
-            border-color: #18ffff;
-            animation-name: fadeIn;
-            animation-duration: 1.5s;
-            width: 270px;
+        .width {
+            width: 15rem;
         }
 
-        .inputbox:focus {
-            outline: 0;
+        .st-button {
+            width: 19rem;
         }
 
-        h1 {
-            font-family: 'Metropolis', sans-serif;
-        }
-
-        #register {
-            padding: 10px;
-            border-radius: 50px;
-            font-family: 'Nunito', sans-serif;
-            font-size: 18px;
-            border-style: solid;
-            border-color: #FFFFFF;
-            border-width: 2px;
-            animation: 1.5s fadeIn, 1s button-unhover;
-            color: #FFFFFF;
-            background-color: #424242;
-            position: absolute;
-            width: 270px;
-            cursor: pointer;
-            box-shadow: 1px 1px 5px 0 #424242;
-            transition: box-shadow 0.5s;
-            box-sizing: content-box;
-            outline: none;
-        }
-
-        #register:hover {
-            box-shadow: 1px 1px 15px 0 #424242;
-            transition: box-shadow 0.5s;
-        }
-
-        .boxes {
-            box-shadow: 1px 1px 7px 0 #424242;
-            border-radius: 7px;
-            transition: box-shadow 0.5s;
-        }
-
-        .boxes:hover {
-            box-shadow: 1px 1px 20px 0 #424242;
-            transition: box-shadow 0.5s;
-        }
-
-        #usernameBox {
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-
-        #passwordBox {
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-        }
-
-        #register:focus {
-            outline: 0;
-        }
-
-        body {
-            -webkit-background-size: cover;
-            -moz-background-size: cover;
-            -o-background-size: cover;
-            background-size: cover;
-        }
-
-        @keyframes words-in {
-            0% {
-                transform: translateY(40px);
-                opacity: 0
-            }
-            100% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
     </style>
 </head>
 <body>
@@ -135,30 +35,53 @@
     <div th:if="${param.error}">
         Invalid email and/or password.
     </div>
-    <div th:if="${param.logout}">
-        You have been logged out.
-    </div>
 
-    <form method="POST" th:action="'?'">
+    <h1 class="content">Register for an account <i class="material-icons">sync</i></h1>
+    <form method="POST" th:action="'?'" class="standard-form">
 
-        <h1>register <i class="material-icons">sync</i></h1>
-        <div class="boxes">
-            <input type="text" id="usernameBox" name="username" placeholder="username" required class="inputbox">
+        <div class="form-group">
+            <label for="username">
+                <span class="text">Username</span>
+                <span class="required">*</span>
+            </label>
             <br/>
-            <input type="text" id="emailBox" name="email" placeholder="email" required class="inputbox">
-            <br/>
-            <input type="password" id="confirmPassword" placeholder="password" required class="inputbox">
-            <br/>
-            <input type="password" id="passwordBox" name="password" placeholder="confirm password" required
-                   class="inputbox">
+            <input type="text" id="username" name="username" class="control width" required>
         </div>
+
+        <div class="form-group">
+            <label for="emailBox">
+                <span class="text">Email</span>
+                <span class="required">*</span>
+            </label>
+            <br/>
+            <input type="email" id="emailBox" name="email" class="control width" required>
+        </div>
+
+        <div class="form-group">
+            <label for="confirmPassword">
+                <span class="text">Password</span>
+                <span class="required">*</span>
+            </label>
+            <br/>
+            <input type="password" id="confirmPassword" class="control width" required>
+        </div>
+
+        <div class="form-group">
+            <label for="passwordBox">
+                <span class="text">Confirm Password</span>
+                <span class="required">*</span>
+            </label>
+            <br/>
+            <input type="password" id="passwordBox" class="control width" required>
+        </div>
+
         <br/>
         <div class="g-recaptcha col-sm-5"
              th:attr="data-sitekey=${@captchaSettings.getSite()}"></div>
         <span id="captchaError" class="alert alert-danger col-sm-4"
               style="display:none"></span>
         <br/>
-        <input type="submit" id="register" value="Register">
+        <input type="submit" id="register" class="st-button" value="Register">
     </form>
 </div>
 
@@ -170,14 +93,6 @@
     let email = document.getElementById("emailBox"), password = document.getElementById("confirmPassword"),
         confirmPassword = document.getElementById("passwordBox");
 
-    function validateEmail() {
-        const emailRegexValidator = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-        if (emailRegexValidator.test(String(email.value).toLowerCase())) {
-            email.setCustomValidity('');
-        } else {
-            email.setCustomValidity("Valid email required");
-        }
-    }
 
     function validatePassword() {
         if (password.value != confirmPassword.value) {
@@ -187,7 +102,6 @@
         }
     }
 
-    email.onchange = validateEmail;
     password.onchange = validatePassword;
     confirmPassword.onkeyup = validatePassword;
 

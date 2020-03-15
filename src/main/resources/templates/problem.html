@@ -19,6 +19,13 @@
             animation: header-fade-in 1s;
             line-height: 1.5;
         }
+
+        @media (min-width: 1161px) {
+            #problem-statement {
+                padding-right: 30%;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -54,14 +61,14 @@
         </div>
 
         <!-- Contest -->
-        <div th:if="${contestProblem}" style="margin-left: auto;">
+        <div class="topbar-right" th:if="${contestProblem}">
             <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber} + '/submissions'}">Submissions</a>
             <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber} + '/submit'}">Submit</a>
             <a class="button-link" th:if="${isAdmin}" th:href="@{'/problem/' + ${problem.name} + '/manage'}">Manage</a>
         </div>
 
         <!-- Regular -->
-        <div th:unless="${contestProblem}" style="margin-left: auto;">
+        <div class="topbar-right" th:unless="${contestProblem}">
             <a class="button-link" th:href="@{'/problem/' + ${problem.name} + '/submissions'}">Submissions</a>
             <a class="button-link" th:href="@{'/problem/' + ${problem.name} + '/submit'}">Submit</a>
             <a class="button-link" th:if="${isAdmin}" th:href="@{'/problem/' + ${problem.name} + '/manage'}">Manage</a>
