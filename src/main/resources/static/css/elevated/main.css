@@ -267,7 +267,7 @@ form.standard-form .form-group {
 
 /* -=-=-=-=-=-=-=- Input Elements -=-=-=-=-=-=-=- */
 
-form.standard-form .control {
+form.standard-form .control, .st-control {
     font-family: 'Red Hat Text', sans-serif;
 
     background-color: #ffffff;
@@ -291,13 +291,13 @@ form.standard-form .control {
     transition: box-shadow 0.3s, border-bottom-color 0.2s;
 }
 
-form.standard-form .control:hover {
+form.standard-form .control:hover, .st-control:hover {
     box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, .132), 0 1.2px 3.6px 0 rgba(0, 0, 0, .108);
     border-bottom-color: rgb(0, 102, 204);
     border-bottom-width: 1px;
     transition: box-shadow 0.3s, border-bottom-color 0.3s;
 }
-form.standard-form .control:focus {
+form.standard-form .control:focus, .st-control:focus {
     box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, .132), 0 1.2px 3.6px 0 rgba(0, 0, 0, .108);
     border-color: #ededed;
     border-bottom-color: rgb(0, 102, 204);
@@ -306,14 +306,14 @@ form.standard-form .control:focus {
     transition: box-shadow 0.3s, border-bottom-color 0.3s;
 }
 
-form.standard-form .control.invalid {
+form.standard-form .control.invalid, .st-control.invalid {
     background: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23c9190b' d='M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z'/%3E%3C/svg%3E") calc(100% - 0.5rem) 0.5rem/1rem 1rem no-repeat;
     background-size: 1rem 1rem;
     border-bottom-color: #c9190b;
     border-bottom-width: 2px;
 }
 
-form.standard-form .control.success {
+form.standard-form .control.success, .st-control.success {
     background: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%2392d400' d='M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z'/%3E%3C/svg%3E") calc(100% - 0.5rem) 0.5rem/1rem 1rem no-repeat;
     background-size: 1rem 1rem;
     border-bottom-color: #92d400;
@@ -417,4 +417,50 @@ input:checked + .checkbox-slider:before {
     background-color: rgba(255, 255, 255, 1);
     box-shadow: 1px 1px 10px 0 #f48fb1;
     transition: .4s;
+}
+
+/* -=-=-=-=-=-=-=- Pagination -=-=-=-=-=-=-=- */
+.pagination {
+    margin-top: 2rem;
+}
+.pagination .st-control {
+    width: 2rem;
+}
+
+.pagination .right-span {
+    margin-left: 1rem;
+}
+.pagination .right-span a {
+    font-weight: 800;
+    font-family: "Red Hat Text", sans-serif;
+    padding: 0.375rem 0.5rem 0.375rem 0.5rem;
+    border: 1px solid #ededed;
+    border-bottom-color: #737679;
+    text-decoration: none;
+    display: inline-block;
+    color: #9e9e9e;
+    cursor: default;
+    transition: box-shadow 0.3s, border-bottom-color 0.3s, color 0.3s, transform 0.3s;
+}
+
+.pagination .right-span a.active {
+    cursor: pointer;
+    color: #737679;
+}
+
+.pagination .right-span a.active:hover {
+    color: #151515;
+    box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, .132), 0 1.2px 3.6px 0 rgba(0, 0, 0, .108);
+    transform: translateY(-3px);
+    border-bottom-color: rgb(0, 102, 204);
+    transition: box-shadow 0.3s, border-bottom-color 0.3s, color 0.3s, transform 0.3s;
+}
+
+.pagination .right-span a.active:active {
+    color: #151515;
+    box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, .132), 0 1.2px 3.6px 0 rgba(0, 0, 0, .108);
+    border-bottom-color: rgb(0, 102, 204);
+    border-bottom-width: 2px;
+    transform: translateY(-3px);
+    transition: box-shadow 0.3s, border-bottom-color 0.3s, color 0.3s, transform 0.3s;
 }

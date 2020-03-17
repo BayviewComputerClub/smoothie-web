@@ -11,21 +11,24 @@ import club.bayview.smoothieweb.services.SmoothieUserService;
 import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NoPermissionException;
 import club.bayview.smoothieweb.util.NotFoundException;
+import club.bayview.smoothieweb.util.PageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class SubmissionController {
@@ -33,16 +36,16 @@ public class SubmissionController {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private SmoothieSubmissionService submissionService;
+    SmoothieSubmissionService submissionService;
 
     @Autowired
-    private SmoothieUserService userService;
+    SmoothieUserService userService;
 
     @Autowired
-    private SmoothieProblemService problemService;
+    SmoothieProblemService problemService;
 
     @Autowired
-    private SmoothieContestService contestService;
+    SmoothieContestService contestService;
 
     private Mono<String> getSubmissionHelper(String submissionId, Model model, Authentication auth, String submissionPageTemplate) {
         return submissionService.findSubmissionById(submissionId)
@@ -61,9 +64,8 @@ public class SubmissionController {
                 })
                 .flatMap(tuple -> {
                     // has permission to view submission
-                    if (!tuple.getT3().hasPermissionToView(auth, tuple.getT2())) {
+                    if (!tuple.getT3().hasPermissionToView(auth, tuple.getT2()))
                         return Mono.error(new NoPermissionException());
-                    }
 
                     // if this submission is associated with a contest
                     if (tuple.getT3().getContestId() != null) {
@@ -90,25 +92,34 @@ public class SubmissionController {
         return getSubmissionHelper(submissionId, model, auth, "submission-code");
     }
 
+    private Pageable pageHelper(int page, int pageSize, boolean descending, Model model) {
+        Pageable pageable = PageRequest.of(page-1, pageSize, descending ? Sort.Direction.DESC : Sort.Direction.ASC, "timeSubmitted");
+        model.addAttribute("paramPage", (long) page);
+        model.addAttribute("paramPageSize", (long) pageSize);
+        model.addAttribute("paramDescending", descending);
+
+        return pageable;
+    }
+
     @GetMapping("/user/{handle}/submissions")
-    // TODO remove problems that don't exit
-    public Mono<String> getUserSubmissionsRoute(@PathVariable String handle, Model model) {
+    public Mono<String> getUserSubmissionsRoute(@PathVariable String handle,
+                                                Model model,
+                                                @RequestParam(defaultValue = "1") int page,
+                                                @RequestParam(defaultValue = PageUtil.DEFAULT_PAGE_SIZE) int pageSize,
+                                                @RequestParam(defaultValue = "true") boolean descending) {
+        Pageable pageable = pageHelper(page, pageSize, descending, model);
+
         return userService.findUserByHandle(handle)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(user -> {
                     model.addAttribute("user", user);
-                    return submissionService.findSubmissionsByUser(user.getId()).collectList();
-                }).flatMap(submissions -> {
-                    List<String> ids = new ArrayList<>();
-                    submissions.forEach(s -> ids.add(s.getProblemId()));
-
-                    Collections.reverse(ids);
-
-                    model.addAttribute("submissions", submissions);
-                    return problemService.findProblemsWithIds(ids).collectList();
-                }).flatMap(problems -> {
-                    HashMap<String, Problem> problemsMap = new HashMap<>();
-                    problems.forEach(problem -> problemsMap.put(problem.getId(), problem));
+                    return Mono.zip(submissionService.countSubmissionsByUser(user.getId()),
+                            submissionService.findSubmissionsByUser(user.getId(), pageable).collectList());
+                }).flatMap(t -> {
+                    model.addAttribute("submissions", t.getT2());
+                    model.addAttribute("numOfEntries", t.getT1());
+                    return problemService.getProblemIdToProblemMap(Flux.fromIterable(t.getT2()).map(Submission::getProblemId));
+                }).flatMap(problemsMap -> {
                     model.addAttribute("problems", problemsMap);
                     return Mono.just("submissions-user");
                 })
@@ -116,24 +127,28 @@ public class SubmissionController {
     }
 
     @GetMapping("/problem/{name}/submissions")
-    // TODO remove users that don't exist
-    public Mono<String> getProblemSubmissionsRoute(@PathVariable String name, Model model) {
+    public Mono<String> getProblemSubmissionsRoute(@PathVariable String name,
+                                                   Model model,
+                                                   Authentication auth,
+                                                   @RequestParam(defaultValue = "1") int page,
+                                                   @RequestParam(defaultValue = PageUtil.DEFAULT_PAGE_SIZE) int pageSize,
+                                                   @RequestParam(defaultValue = "true") boolean descending) {
+        Pageable pageable = pageHelper(page, pageSize, descending, model);
+
         return problemService.findProblemByName(name)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(p -> {
+                    if (!p.hasPermissionToView(auth))
+                        return Mono.error(new NoPermissionException());
+
                     model.addAttribute("problem", p);
-                    return submissionService.findSubmissionsByProblem(p.getId()).collectList();
-                }).flatMap(submissions -> {
-                    List<String> ids = new ArrayList<>();
-                    submissions.forEach(s -> ids.add(s.getUserId()));
-
-                    Collections.reverse(ids);
-
-                    model.addAttribute("submissions", submissions);
-                    return userService.findUsersWithIds(ids).collectList();
-                }).flatMap(users -> {
-                    HashMap<String, String> usersMap = new HashMap<>();
-                    users.forEach(user -> usersMap.put(user.getId(), user.getHandle()));
+                    return Mono.zip(submissionService.countSubmissionsByProblem(p.getId()),
+                            submissionService.findSubmissionsByProblem(p.getId(), pageable).collectList());
+                }).flatMap(t -> {
+                    model.addAttribute("submissions", t.getT2());
+                    model.addAttribute("numOfEntries", t.getT1());
+                    return userService.getUserIdToUserMap(Flux.fromIterable(t.getT2()).map(Submission::getUserId));
+                }).flatMap(usersMap -> {
                     model.addAttribute("users", usersMap);
                     return Mono.just("submissions-problem");
                 })
@@ -141,7 +156,14 @@ public class SubmissionController {
     }
 
     @GetMapping("/contest/{contestName}/submissions")
-    public Mono<String> getContestSubmissionsRoute(@PathVariable String contestName, Model model, Authentication auth) {
+    public Mono<String> getContestSubmissionsRoute(@PathVariable String contestName,
+                                                   Model model,
+                                                   Authentication auth,
+                                                   @RequestParam(defaultValue = "1") int page,
+                                                   @RequestParam(defaultValue = PageUtil.DEFAULT_PAGE_SIZE) int pageSize,
+                                                   @RequestParam(defaultValue = "true") boolean descending) {
+        Pageable pageable = pageHelper(page, pageSize, descending, model);
+
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .doOnNext(c -> model.addAttribute("contest", c))
@@ -154,30 +176,35 @@ public class SubmissionController {
                     User u = (User) auth.getPrincipal();
                     // check if user can see all submissions, or only submissions by itself
                     if (System.currentTimeMillis() > c.getTimeEnd() || u.isAdmin() || c.getJuryUserIds().contains(u.getId())) {
-                        return submissionService.findSubmissionsForContest(c.getId()).collectList();
+                        return Mono.zip(submissionService.countSubmissionsForContest(c.getId()),
+                                submissionService.findSubmissionsForContest(c.getId(), pageable).collectList());
                     } else {
-                        return submissionService.findSubmissionsByUserForContest(u.getId(), c.getId()).collectList();
+                        return Mono.zip(submissionService.countSubmissionsByUserForContest(u.getId(), c.getId()),
+                                submissionService.findSubmissionsByUserForContest(u.getId(), c.getId(), pageable).collectList());
                     }
                 })
-                .flatMap(submissions -> {
-                    model.addAttribute("submissions", submissions);
-
-                    List<String> userIds = new ArrayList<>();
-                    submissions.forEach(s -> userIds.add(s.getUserId()));
-                    return userService.findUsersWithIds(userIds).collectList();
+                .flatMap(t -> {
+                    model.addAttribute("submissions", t.getT2());
+                    model.addAttribute("numOfEntries", t.getT1());
+                    return userService.getUserIdToUserMap(Flux.fromIterable(t.getT2()).map(Submission::getUserId));
                 })
-                .flatMap(users -> {
-                    HashMap<String, String> usersMap = new HashMap<>();
-                    users.forEach(user -> usersMap.put(user.getId(), user.getHandle()));
+                .flatMap(usersMap -> {
                     model.addAttribute("users", usersMap);
-
                     return Mono.just("submissions-contest");
                 })
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{contestName}/submissions route exception: "));
     }
 
     @GetMapping("/contest/{contestName}/problem/{problemNum}/submissions")
-    public Mono<String> getContestProblemSubmissionsRoute(@PathVariable String contestName, @PathVariable int problemNum, Model model, Authentication auth) {
+    public Mono<String> getContestProblemSubmissionsRoute(@PathVariable String contestName,
+                                                          @PathVariable int problemNum,
+                                                          Model model,
+                                                          Authentication auth,
+                                                          @RequestParam(defaultValue = "1") int page,
+                                                          @RequestParam(defaultValue = PageUtil.DEFAULT_PAGE_SIZE) int pageSize,
+                                                          @RequestParam(defaultValue = "true") boolean descending) {
+        Pageable pageable = pageHelper(page, pageSize, descending, model);
+
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(c -> {
@@ -192,23 +219,20 @@ public class SubmissionController {
                     Contest.ContestProblem cp = c.getContestProblemsInOrder().get(problemNum);
                     model.addAttribute("contestProblem", cp);
 
-                    return Mono.zip(submissionService.findSubmissionsForContestAndProblem(c.getId(), cp.getProblemId()).collectList(), problemService.findProblemById(cp.getProblemId()));
+                    return Mono.zip(submissionService.findSubmissionsForContestAndProblem(c.getId(), cp.getProblemId(), pageable).collectList(),
+                            problemService.findProblemById(cp.getProblemId()),
+                            submissionService.countSubmissionsForContestAndProblem(c.getId(), cp.getProblemId()));
                 })
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(t -> {
-                    List<Submission> submissions = t.getT1();
-                    model.addAttribute("submissions", submissions);
+                    model.addAttribute("submissions", t.getT1());
                     model.addAttribute("problem", t.getT2());
+                    model.addAttribute("numOfEntries", t.getT3());
 
-                    List<String> ids = new ArrayList<>();
-                    submissions.forEach(s -> ids.add(s.getUserId()));
-                    return userService.findUsersWithIds(ids).collectList();
+                    return userService.getUserIdToUserMap(Flux.fromIterable(t.getT1()).map(Submission::getUserId));
                 })
-                .flatMap(users -> {
-                    HashMap<String, String> userMap = new HashMap<>();
-                    users.forEach(user -> userMap.put(user.getId(), user.getHandle()));
+                .flatMap(userMap -> {
                     model.addAttribute("users", userMap);
-
                     return Mono.just("submissions-problem");
                 })
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{contestName}/problem/{problemNum}/submissions route exception: "));

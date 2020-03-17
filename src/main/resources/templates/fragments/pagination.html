@@ -1,0 +1,30 @@
+<!--
+paramPage - index of current page (1 indexed)
+paramPageSize - size of each page
+numOfEntries - number of total entries
+-->
+
+<div class="pagination" xmlns:th="http://www.thymeleaf.org">
+    <form id="pagination-sub" method="get"></form>
+
+    <span class="left-span"><b>[[${T(Math).min((paramPage-1)*paramPageSize+1, numOfEntries)}]] - [[${T(Math).min((paramPage)*paramPageSize, numOfEntries)}]]</b> of <b>[[${numOfEntries}]]</b></span>
+    <span class="right-span">
+            <span th:if="${paramPage == 1}">
+                <a><<</a>
+                <a><</a>
+            </span>
+            <span th:unless="${paramPage == 1}">
+                <a class="active" th:href="@{${''}(page=1, pageSize=${paramPageSize})}"><<</a>
+                <a class="active" th:href="@{${''}(page=${paramPage}-1, pageSize=${paramPageSize})}"><</a>
+            </span>
+            <span><input form="pagination-sub" name="page" type="number" min="1" th:max="${numOfEntries/paramPageSize+1}" class="st-control" th:value="${paramPage}"> of [[${numOfEntries/paramPageSize+1}]]</span>
+            <span th:if="${paramPage == numOfEntries/paramPageSize+1}">
+                <a>></a>
+                <a>>></a>
+            </span>
+            <span th:unless="${paramPage == numOfEntries/paramPageSize+1}">
+                <a class="active" th:href="@{${''}(page=${paramPage}+1, pageSize=${paramPageSize})}">></a>
+                <a class="active" th:href="@{${''}(page=${numOfEntries/paramPageSize+1}, pageSize=${paramPageSize})}">>></a>
+            </span>
+        </span>
+</div>

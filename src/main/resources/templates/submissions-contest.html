@@ -31,8 +31,8 @@
 
         <tr th:each="submission: ${submissions}">
             <td><a class="link" th:href="@{'/submission/' + ${submission.id}}" th:text="${submission.id}"></a></td>
-            <td><a class="link" th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${problems.get(submission.problemId).contestProblemNumber}}" th:text="${problems.get(submission.problemId).customName}"></a></td>
-            <td><a class="link" th:href="@{'/user/' + ${users.get(submission.userId)}}" th:text="${users.get(submission.userId)}"></a></td>
+            <td><a class="link" th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${problems.get(submission.problemId)?.contestProblemNumber}}" th:text="${problems.get(submission.problemId)?.customName}"></a></td>
+            <td><a class="link" th:href="@{'/user/' + ${users.get(submission.userId)?.name}}" th:text="${users.get(submission.userId)?.name}"></a></td>
             <td th:text="${submission.lang}"></td>
             <td th:text="${submission.timeSubmitted}" class="timeSubmitted"></td>
             <td th:text="${submission.verdict}"></td>
@@ -40,6 +40,8 @@
 
         </tbody>
     </table>
+
+    <div th:if="${numOfEntries >= paramPageSize}" th:include="fragments/pagination"></div>
 </div>
 
 <script th:src="@{/js/jquery-3.4.1.min.js}"></script>

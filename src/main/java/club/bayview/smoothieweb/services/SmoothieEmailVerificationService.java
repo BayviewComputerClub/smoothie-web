@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.*;
 import com.auth0.jwt.exceptions.*;
 import com.auth0.jwt.interfaces.*;
 import com.auth0.jwt.JWTVerifier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

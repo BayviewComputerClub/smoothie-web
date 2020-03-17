@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.Authentication;
@@ -242,7 +243,7 @@ public class Contest {
         HashMap<String, Submission> m = new HashMap<>();
 
         return SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class)
-                .findSubmissionsByUserForContest(userId, this.getId())
+                .findSubmissionsByUserForContest(userId, this.getId(), Pageable.unpaged())
                 .collectList() // can't use flux directly because the order of the comparisons may become messed up
                 .doOnNext(submissions -> {
 

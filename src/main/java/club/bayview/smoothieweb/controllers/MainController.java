@@ -12,10 +12,10 @@ import reactor.core.publisher.Mono;
 public class MainController {
 
     @Autowired
-    private SmoothieUserService userService;
+    SmoothieUserService userService;
 
     @Autowired
-    private SmoothieSettingsService settingsService;
+    SmoothieSettingsService settingsService;
 
     @RequestMapping("/ranking")
     public Mono<String> getRankingRoute(Model model) {

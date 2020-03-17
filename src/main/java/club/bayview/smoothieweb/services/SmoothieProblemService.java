@@ -1,6 +1,7 @@
 package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.models.Problem;
+import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.repositories.ProblemRepository;
 import club.bayview.smoothieweb.repositories.TestDataRepository;
 import club.bayview.smoothieweb.models.testdata.StoredTestData;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -43,6 +45,17 @@ public class SmoothieProblemService {
 
     public Flux<Problem> findProblemsWithIds(List<String> ids) {
         return problemRepository.findAllByIdIn(ids);
+    }
+
+    public Flux<Problem> findProblemsWithIds(Flux<String> ids) {
+        return problemRepository.findAllByIdIn(ids);
+    }
+
+    public Mono<HashMap<String, Problem>> getProblemIdToProblemMap(Flux<String> ids) {
+        HashMap<String, Problem> h = new HashMap<>();
+        return findProblemsWithIds(ids)
+                .doOnNext(p -> h.put(p.getId(), p))
+                .then(Mono.just(h));
     }
 
     public Mono<String> findProblemTestDataHash(String id) throws Exception {

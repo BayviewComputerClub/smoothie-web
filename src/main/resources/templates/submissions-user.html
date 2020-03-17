@@ -38,6 +38,8 @@
 
         </tbody>
     </table>
+
+    <div th:if="${numOfEntries >= paramPageSize}" th:include="fragments/pagination"></div>
 </div>
 
 <script th:src="@{/js/jquery-3.4.1.min.js}"></script>

@@ -19,16 +19,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class SmoothieUserService implements ReactiveUserDetailsService {
 
     @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
 
     public Mono<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -62,6 +59,13 @@ public class SmoothieUserService implements ReactiveUserDetailsService {
 
     public Flux<String> resolveIdsToHandles(List<String> ids) {
         return findUsersWithIds(ids).map(User::getHandle);
+    }
+
+    public Mono<HashMap<String, User>> getUserIdToUserMap(Flux<String> ids) {
+        HashMap<String, User> h = new HashMap<>();
+        return findUsersWithIds(ids)
+                .doOnNext(u -> h.put(u.getId(), u))
+                .then(Mono.just(h));
     }
 
     @Override
