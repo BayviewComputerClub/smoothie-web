@@ -3,6 +3,7 @@ package club.bayview.smoothieweb.controllers;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.security.SmoothieAuthenticationProvider;
 import club.bayview.smoothieweb.security.captcha.CaptchaService;
+import club.bayview.smoothieweb.services.SmoothieEmailService;
 import club.bayview.smoothieweb.services.SmoothieUserService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,18 +26,22 @@ import javax.validation.constraints.Size;
 public class AuthController {
 
     @Autowired
-    private SmoothieUserService userService;
-
-    @Autowired
     SmoothieAuthenticationProvider authenticationProvider;
 
     @Autowired
-    private CaptchaService captchaService;
+    SmoothieUserService userService;
+
+    @Autowired
+    CaptchaService captchaService;
+
+    @Autowired
+    SmoothieEmailService emailService;
 
     @Getter
     @Setter
     @NoArgsConstructor
     public static class RegisterForm {
+
         @NotNull
         @Size(min = 2, max = 15)
         private String username;
@@ -47,10 +52,7 @@ public class AuthController {
 
         @NotNull
         private String email;
-
     }
-
-    // ~~~~~~~~~~
 
     @GetMapping("/logout")
     public Mono<String> logoutGetRoute() {
@@ -58,7 +60,7 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    @CrossOrigin(origins = "http://localhost:3000") // todo move to config file
+    @CrossOrigin(origins = "http://localhost:3000") // TODO move to config file
     public Mono<String> loginGetRoute() {
         return Mono.just("login");
     }
@@ -68,36 +70,49 @@ public class AuthController {
         return Mono.just("register");
     }
 
+    @GetMapping("/verify-email")
+    public Mono<String> verifyEmailGetRoute() {
+        return Mono.just("verify-email");
+    }
+
+    @GetMapping("/welcome")
+    public Mono<String> welcomeGetRoute() {
+        return Mono.just("welcome");
+    }
+
+    @GetMapping("/verify-error")
+    public Mono<String> verifyErrorGetRoute() {
+        return Mono.just("verify-error");
+    }
+
     @PostMapping("/register")
-    public Mono<String> registerPostRoute(@Valid RegisterForm form, BindingResult result, ServerWebExchange req, Model model) {
+    public Mono<String> registerPostRoute(@Valid RegisterForm form, BindingResult result, ServerWebExchange req) {
 
-        return req.getFormData()
-                .flatMap(formData -> {
-                    String captchaRes = formData.getFirst("g-recaptcha-response");
-                    try {
-                        captchaService.processResponse(captchaRes, req);
-                    } catch (Exception e) {
-                        result.reject("captcha", "Captcha failed! Try again and prove you're not a robot.");
-                        return Mono.error(e);
-                    }
+        return req.getFormData().flatMap(formData -> {
+            String captchaRes = formData.getFirst("g-recaptcha-response");
+            try {
+                captchaService.processResponse(captchaRes, req);
+            } catch (Exception e) {
+                result.reject("captcha", "Captcha failed! Try again and prove you're not a robot.");
+                return Mono.error(e);
+            }
 
-                    if (userService.findUserByHandle(form.username).block() != null) {
-                        result.rejectValue("username", "error.user", "The username has already been taken!");
-                    } else if (userService.findUserByEmail(form.email).block() != null) {
-                        result.rejectValue("email", "error.user", "The email has already been used!");
-                    }
+            if (userService.findUserByHandle(form.username).block() != null) {
+                result.rejectValue("username", "error.user", "That username is taken!");
+            } else if (userService.findUserByEmail(form.email).block() != null) {
+                result.rejectValue("email", "error.user", "That email has already been used!");
+            }
 
-                    if (result.hasErrors()) {
-                        return Mono.error(new Exception());
-                    } else {
-                        User user = new User(form.username, form.email, form.password);
-                        user.encodePassword();
-                        userService.saveUser(user).block();
-                        return Mono.just("redirect:/login");
-                        // TODO "Conf email sent" message
-                    }
-                })
-                .onErrorResume(e -> Mono.just("register"));
+            if (result.hasErrors()) {
+                return Mono.error(new Exception());
+            } else {
+                User user = new User(form.username, form.email, form.password);
+                user.encodePassword();
+                userService.saveUser(user).block();
+                emailService.sendVerificationEmail(user);
+                return Mono.just("redirect:/verify-email");
+            }
+        }).onErrorResume(e -> Mono.just("register"));
     }
 
 }

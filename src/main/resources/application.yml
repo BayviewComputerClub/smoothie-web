@@ -3,8 +3,9 @@
 # Manually specify this is reactive
 spring.main.web-application-type: reactive
 
-# Name of smoothie-web site
-smoothieweb.siteName: smoothie-web
+# Site Info
+smoothieweb.URL: https://localhost:8080
+smoothieweb.contactEmail: bayviewcompclub@gmail.com
 
 # CORS
 smoothieweb.domains: "http://localhost:8080, https://localhost:8080, http://localhost:3000, https://localhost:3000"

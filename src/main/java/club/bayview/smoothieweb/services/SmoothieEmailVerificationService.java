@@ -15,11 +15,11 @@ import java.util.Calendar;
 @Service
 public class SmoothieEmailVerificationService {
 
+    @Autowired
+    SmoothieSettingsService settingsService;
+
     @Value("${smoothieweb.emailVerification.secret}")
     String secret;
-
-    @Value("${smoothieweb.siteName}")
-    String siteName;
 
     /**
      * Create a new JWT for a user to send via email to verify
@@ -33,7 +33,7 @@ public class SmoothieEmailVerificationService {
             Calendar exp = Calendar.getInstance();
             exp.add(Calendar.DATE, 1);
             return JWT.create()
-                    .withIssuer(siteName)
+                    .withIssuer(settingsService.getGeneralSettings().getSiteName())
                     .withSubject(user.getUsername())
                     .withExpiresAt(exp.getTime())
                     .withIssuedAt(Calendar.getInstance().getTime())
@@ -53,7 +53,7 @@ public class SmoothieEmailVerificationService {
         try {
             Algorithm alg = Algorithm.HMAC512(secret);
             JWTVerifier verifier = JWT.require(alg)
-                    .withIssuer(siteName)
+                    .withIssuer(settingsService.getGeneralSettings().getSiteName())
                     .acceptLeeway(1)
                     .build();
             DecodedJWT jwt = verifier.verify(token);
