@@ -43,7 +43,8 @@
             <span class="material-icons" style="vertical-align: middle;">data_usage</span> Points
             <br/>
             <!-- Contest -->
-            <span th:if="${contestProblem}" th:text="${contestProblem.totalPointsWorth}" class="topbar-bottom-text"></span>
+            <span th:if="${contestProblem}" th:text="${contestProblem.totalPointsWorth}"
+                  class="topbar-bottom-text"></span>
             <!-- Regular -->
             <span th:unless="${contestProblem}" th:text="${problem.totalPointsWorth}" class="topbar-bottom-text"></span>
         </div>
@@ -62,8 +63,10 @@
 
         <!-- Contest -->
         <div class="topbar-right" th:if="${contestProblem}">
-            <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber} + '/submissions'}">Submissions</a>
-            <a class="button-link" th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber} + '/submit'}">Submit</a>
+            <a class="button-link"
+               th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber} + '/submissions'}">Submissions</a>
+            <a class="button-link"
+               th:href="@{'/contest/' + ${contest.name} + '/problem/' + ${contestProblem.contestProblemNumber} + '/submit'}">Submit</a>
             <a class="button-link" th:if="${isAdmin}" th:href="@{'/problem/' + ${problem.name} + '/manage'}">Manage</a>
         </div>
 
@@ -110,15 +113,15 @@
     }
 
     let timeCreated = $("#time-created");
-    let date = new Date(timeCreated.text()*1);
-    timeCreated.text(("0" + (date.getMonth()+1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear());
+    let date = new Date(timeCreated.text() * 1);
+    timeCreated.text(("0" + (date.getMonth() + 1)).slice(-2) + "/" + date.getDate() + "/" + date.getFullYear());
 
     // load problem statement
-    $('document').ready(() => {
-        let statement = $('#problem-statement');
-        statement.html(renderMdLatex(statement.text()));
-        statement.css('white-space', 'normal')
-    });
+    // use javascript for text because minify strips whitespace
+    let statementText = /*[[${problem.problemStatement}]]*/;
+    let statement = $('#problem-statement');
+    statement.html(renderMdLatex(statementText));
+    statement.css('white-space', 'normal');
 </script>
 </body>
 </html>

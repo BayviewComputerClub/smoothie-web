@@ -76,12 +76,12 @@
     $end.text(moment(parseInt($end.text(), 10)).format('LLL'));
     $subPeriod.text($subPeriod.text() + " minutes");
 
-    // load problem statement
-    $('document').ready(() => {
-        let statement = $('#contest-description');
-        statement.html(renderMdLatex(statement.text()));
-        statement.css('white-space', 'normal')
-    });
+    // load contest statement
+    // use javascript for text because minify strips whitespace
+    let statementText = /*[[${contest.description}]]*/;
+    let statement = $('#contest-description');
+    statement.html(renderMdLatex(statement.text()));
+    statement.css('white-space', 'normal')
 </script>
 </body>
 </html>

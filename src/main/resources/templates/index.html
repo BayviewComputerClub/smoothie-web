@@ -118,11 +118,11 @@
 <script th:src="@{/js/markdown-it-9.1.0.min.js}"></script>
 <script th:src="@{/js/render-md-latex.js}"></script>
 
-<script>
-    $(() => {
-        let $info = $("#information");
-        $info.html(renderMdLatex($info.html()));
-    })
+<script th:inline="javascript">
+    // use javascript for text because minify strips whitespace
+    let infoText = /*[[${information.homeContent}]]*/;
+    let $info = $("#information");
+    $info.html(renderMdLatex($info.html()));
 </script>
 
 </html>
