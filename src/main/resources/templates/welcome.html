@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- ignore tag name "script", it will be replaced by favicon fragment -->
+    <script th:replace="fragments/favicon"></script>
+    <title>Welcome to [[${siteName}]]</title>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
+
+    <style>
+        p {
+            font-size: 32px;
+        }
+
+        .container {
+            animation: header-fade-in 1s;
+        }
+
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <h1 class="title-d">Welcome to [[${siteName}]]!</h1>
+    <p>
+        Your email has been verified, and your account has been created.<br>
+        If you have any questions, don't hesitate to contact us. <!-- TODO link to contact-->
+    </p>
+</div>
+</body>
+</html>
