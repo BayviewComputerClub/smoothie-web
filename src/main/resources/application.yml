@@ -3,6 +3,9 @@
 # Manually specify this is reactive
 spring.main.web-application-type: reactive
 
+# Name of smoothie-web site
+smoothieweb.siteName: smoothie-web
+
 # CORS
 smoothieweb.domains: "http://localhost:8080, https://localhost:8080, http://localhost:3000, https://localhost:3000"
 
@@ -36,6 +39,9 @@ spring.main.allow-bean-definition-overriding: true
 smoothieweb.admin.password: password
 
 spring.thymeleaf.reactive.max-chunk-size: 8192
+
+# Email verification JWT secret
+smoothieweb.emailVerification.secret: raymoIsAwesome
 
 # Do not log every single mongo transaction
 logging.level.org.springframework.data.mongodb.core.mapping.event.LoggingEventListener: ERROR
