@@ -30,7 +30,8 @@ public class SmoothieStartup implements ApplicationListener<ContextRefreshedEven
         try {
             // create default admin account
             if (userService.findByUsername("admin").block() == null) {
-                User admin = new User("admin", "", User.encodePassword(adminPassword));
+                User admin = new User("admin", "", adminPassword);
+                admin.encodePassword();
                 admin.setEnabled(true);
                 admin.getRoles().add(Role.ROLE_ADMIN);
                 admin.getRoles().add(Role.ROLE_EDITOR);

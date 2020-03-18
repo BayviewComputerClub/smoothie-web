@@ -2,6 +2,8 @@ package club.bayview.smoothieweb.models;
 
 import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.security.SmoothieAuthenticationProvider;
+import club.bayview.smoothieweb.services.SmoothieProblemService;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
  * Represents a user on the site.
  */
 
-@Document(collation = "{ 'locale' : 'en_US', 'strength': 2 }") // indexes case insensitive
+@Document(collation =  "{ 'locale' : 'en_US', 'strength': 2 }") // indexes case insensitive
 @Getter
 @Setter
 @ToString
@@ -52,6 +54,8 @@ public class User implements UserDetails, Serializable {
 
     private String contestId; // contest the user is currently in
 
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     public User(String handle, String email, String password) {
         super();
         this.handle = handle;
@@ -61,9 +65,11 @@ public class User implements UserDetails, Serializable {
         this.solved = new ArrayList<>();
         this.problemsAttempted = new HashMap<>();
         this.enabled = false;
-        this.description = "";
+        this.description = "(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ no description... ✧ﾟ･: *ヽ(◕ヮ◕ヽ)";
         roles = new HashSet<>(Arrays.asList(Role.ROLE_USER));
     }
+
+    // ~~~~~
 
     public boolean isPassword(String password) {
         return SmoothieWebApplication.context.getBean(SmoothieAuthenticationProvider.class).passwordEncoder.matches(password, getPassword());
@@ -71,12 +77,11 @@ public class User implements UserDetails, Serializable {
 
     /**
      * MUST be called when creating a user or update its password
-     *
-     * @param password plain-text password
-     * @return Password encoded with Argon2PasswordEncoder
      */
-    public static String encodePassword(String password) {
-        return new Argon2PasswordEncoder().encode(password);
+
+    public void encodePassword() {
+        //this.password = SmoothieWebApplication.context.getBean(SmoothieAuthenticationProvider.class).passwordEncoder.encode(this.password);
+        this.password =  new Argon2PasswordEncoder().encode(this.password);
     }
 
     public boolean isAdmin() {
