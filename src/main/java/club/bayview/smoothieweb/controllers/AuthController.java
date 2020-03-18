@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +40,7 @@ public class AuthController {
     @Getter
     @Setter
     @NoArgsConstructor
-    public class RegisterForm {
+    public static class RegisterForm {
 
         @NotNull
         @Size(min = 2, max = 15)
@@ -96,9 +97,9 @@ public class AuthController {
                 return Mono.error(e);
             }
 
-            if (userService.findUserByHandle(form.getUsername()).block() != null) {
+            if (userService.findUserByHandle(form.username).block() != null) {
                 result.rejectValue("username", "error.user", "That username is taken!");
-            } else if (userService.findUserByEmail(form.getEmail()).block() != null) {
+            } else if (userService.findUserByEmail(form.email).block() != null) {
                 result.rejectValue("email", "error.user", "That email has already been used!");
             }
 
@@ -106,7 +107,7 @@ public class AuthController {
                 System.out.println(result.getAllErrors().toString()); // TODO: 2020-03-17 For testing only
                 return Mono.error(new Exception());
             } else {
-                User user = new User(form.getUsername(), form.getEmail(), User.encodePassword(form.getPassword()));
+                User user = new User(form.username, form.email, User.encodePassword(form.password));
                 userService.saveUser(user).block();
                 emailService.sendVerificationEmail(user);
                 return Mono.just("redirect:/verify-email");
