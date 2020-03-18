@@ -7,6 +7,7 @@ import club.bayview.smoothieweb.services.SmoothieUserService;
 import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NoPermissionException;
 import club.bayview.smoothieweb.util.NotFoundException;
+import club.bayview.smoothieweb.util.PageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -35,14 +37,20 @@ public class ContestController {
     SmoothieUserService userService;
 
     @GetMapping("/contests")
-    public Mono<String> getContestsRoute(Model model, Authentication auth) {
-        return contestService.findAllContests()
-                .filter(c -> c.hasPermissionToView(auth))
-                .collectList()
-                .flatMap(cs -> {
-                    model.addAttribute("contests", cs);
-                    return Mono.just("contests");
-                });
+    public Mono<String> getContestsRoute(Model model,
+                                         Authentication auth,
+                                         @RequestParam(defaultValue = "1") int page,
+                                         @RequestParam(defaultValue = PageUtil.DEFAULT_PAGE_SIZE) int pageSize) {
+        return Mono.zip(
+                contestService.countAllContests(),
+                contestService.findAllContests(PageUtil.createPageable(page, pageSize, true, "timeCreated", model))
+                        .filter(c -> c.hasPermissionToView(auth))
+                        .collectList()
+        ).flatMap(t -> {
+            model.addAttribute(PageUtil.NUM_OF_ENTRIES, t.getT1());
+            model.addAttribute("contests", t.getT2());
+            return Mono.just("contests");
+        });
     }
 
     @GetMapping("/contest/{name}")

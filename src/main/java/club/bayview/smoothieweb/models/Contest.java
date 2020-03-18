@@ -130,7 +130,8 @@ public class Contest {
     // in unix time
     private long timeStart, // when the contest allows people to join and submit (millisecond epoch)
             timeEnd, // when the contest closes submissions (millisecond epoch)
-            submissionPeriod; // contest length (minutes) for when people can submit from when they first "join" the contest; set to 0 to allow submissions throughout the contest length
+            submissionPeriod, // contest length (minutes) for when people can submit from when they first "join" the contest; set to 0 to allow submissions throughout the contest length
+            timeCreated; // when the contest was created
 
     private boolean enabled,
             visibleToPublic,

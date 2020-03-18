@@ -37,6 +37,8 @@
 
         </tbody>
     </table>
+
+    <div th:if="${numOfEntries >= paramPageSize}" th:include="fragments/pagination"></div>
 </div>
 </body>
 </html>

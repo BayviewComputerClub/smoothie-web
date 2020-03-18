@@ -6,15 +6,18 @@ import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NoPermissionException;
 import club.bayview.smoothieweb.util.NotFoundException;
+import club.bayview.smoothieweb.util.PageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
 
 @Controller
@@ -29,12 +32,19 @@ public class ProblemController {
     SmoothieContestService contestService;
 
     @RequestMapping("/problems")
-    public Mono<String> getProblemsRoute(Model model) {
-        return problemService.findProblemsAlphaDesc().collectList().flatMap(problems -> {
-            model.addAttribute("problems", problems);
+    public Mono<String> getProblemsRoute(Model model,
+                                         Authentication auth,
+                                         @RequestParam(defaultValue = "1") int page,
+                                         @RequestParam(defaultValue = PageUtil.DEFAULT_PAGE_SIZE) int pageSize) {
+        Pageable p = PageUtil.createPageable(page, pageSize, true, "prettyName", model);
 
-            return Mono.just("problems");
-        });
+        return Mono.zip(problemService.countProblems(),
+                problemService.findProblems(p).filter(pp -> pp.hasPermissionToView(auth)).collectList())
+                .flatMap(t -> {
+                    model.addAttribute("problems", t.getT2());
+                    model.addAttribute(PageUtil.NUM_OF_ENTRIES, t.getT1());
+                    return Mono.just("problems");
+                });
     }
 
     @RequestMapping("/contest/{contestName}/problems")
@@ -58,7 +68,7 @@ public class ProblemController {
                 .flatMap(p -> {
                     if (!p.hasPermissionToView(auth))
                         return Mono.error(new NoPermissionException());
-                    
+
                     model.addAttribute("problem", p);
                     return Mono.just("problem");
                 })

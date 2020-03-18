@@ -10,6 +10,7 @@ import club.bayview.smoothieweb.util.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -55,7 +56,7 @@ public class AdminContestController {
     @GetMapping("/admin/contests")
     @PreAuthorize("hasRole('ROLE_EDITOR')")
     public Mono<String> getAdminContestsRoute(Model model) {
-        return contestService.findAllContests()
+        return contestService.findAllContests(Pageable.unpaged())
                 .collectList()
                 .doOnNext(cs -> model.addAttribute("contests", cs))
                 .flatMap(cs -> Mono.just("admin/contests"));

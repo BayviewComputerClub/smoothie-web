@@ -93,12 +93,8 @@ public class SubmissionController {
     }
 
     private Pageable pageHelper(int page, int pageSize, boolean descending, Model model) {
-        Pageable pageable = PageRequest.of(page-1, pageSize, descending ? Sort.Direction.DESC : Sort.Direction.ASC, "timeSubmitted");
-        model.addAttribute("paramPage", (long) page);
-        model.addAttribute("paramPageSize", (long) pageSize);
         model.addAttribute("paramDescending", descending);
-
-        return pageable;
+        return PageUtil.createPageable(page, pageSize, descending, "timeSubmitted", model);
     }
 
     @GetMapping("/user/{handle}/submissions")
@@ -117,7 +113,7 @@ public class SubmissionController {
                             submissionService.findSubmissionsByUser(user.getId(), pageable).collectList());
                 }).flatMap(t -> {
                     model.addAttribute("submissions", t.getT2());
-                    model.addAttribute("numOfEntries", t.getT1());
+                    model.addAttribute(PageUtil.NUM_OF_ENTRIES, t.getT1());
                     return problemService.getProblemIdToProblemMap(Flux.fromIterable(t.getT2()).map(Submission::getProblemId));
                 }).flatMap(problemsMap -> {
                     model.addAttribute("problems", problemsMap);
@@ -146,7 +142,7 @@ public class SubmissionController {
                             submissionService.findSubmissionsByProblem(p.getId(), pageable).collectList());
                 }).flatMap(t -> {
                     model.addAttribute("submissions", t.getT2());
-                    model.addAttribute("numOfEntries", t.getT1());
+                    model.addAttribute(PageUtil.NUM_OF_ENTRIES, t.getT1());
                     return userService.getUserIdToUserMap(Flux.fromIterable(t.getT2()).map(Submission::getUserId));
                 }).flatMap(usersMap -> {
                     model.addAttribute("users", usersMap);
@@ -185,7 +181,7 @@ public class SubmissionController {
                 })
                 .flatMap(t -> {
                     model.addAttribute("submissions", t.getT2());
-                    model.addAttribute("numOfEntries", t.getT1());
+                    model.addAttribute(PageUtil.NUM_OF_ENTRIES, t.getT1());
                     return userService.getUserIdToUserMap(Flux.fromIterable(t.getT2()).map(Submission::getUserId));
                 })
                 .flatMap(usersMap -> {
@@ -203,6 +199,7 @@ public class SubmissionController {
                                                           @RequestParam(defaultValue = "1") int page,
                                                           @RequestParam(defaultValue = PageUtil.DEFAULT_PAGE_SIZE) int pageSize,
                                                           @RequestParam(defaultValue = "true") boolean descending) {
+
         Pageable pageable = pageHelper(page, pageSize, descending, model);
 
         return contestService.findContestByName(contestName)
@@ -227,7 +224,7 @@ public class SubmissionController {
                 .flatMap(t -> {
                     model.addAttribute("submissions", t.getT1());
                     model.addAttribute("problem", t.getT2());
-                    model.addAttribute("numOfEntries", t.getT3());
+                    model.addAttribute(PageUtil.NUM_OF_ENTRIES, t.getT3());
 
                     return userService.getUserIdToUserMap(Flux.fromIterable(t.getT1()).map(Submission::getUserId));
                 })
@@ -237,6 +234,4 @@ public class SubmissionController {
                 })
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{contestName}/problem/{problemNum}/submissions route exception: "));
     }
-
-
 }

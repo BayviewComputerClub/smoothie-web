@@ -3,6 +3,7 @@ package club.bayview.smoothieweb.services;
 import club.bayview.smoothieweb.models.Contest;
 import club.bayview.smoothieweb.repositories.ContestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,8 +30,11 @@ public class SmoothieContestService {
         return contestRepository.deleteById(id);
     }
 
-    public Flux<Contest> findAllContests() {
-        return contestRepository.findAll();
+    public Flux<Contest> findAllContests(Pageable p) {
+        return contestRepository.findAllBy(p);
     }
 
+    public Mono<Long> countAllContests() {
+        return contestRepository.countAllBy();
+    }
 }

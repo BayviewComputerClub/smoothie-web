@@ -141,6 +141,7 @@ public class ContestForm {
         c.setTimeStart(timeStart);
         c.setTimeEnd(timeEnd);
         c.setSubmissionPeriod(submissionPeriod);
+        if (c.getTimeCreated() == 0) c.setTimeCreated(System.currentTimeMillis());
 
         c.setEnabled(enabled);
         c.setVisibleToPublic(visibleToPublic);

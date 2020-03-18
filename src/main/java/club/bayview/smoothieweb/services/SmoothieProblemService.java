@@ -31,16 +31,12 @@ public class SmoothieProblemService {
         return problemRepository.findByName(name);
     }
 
-    public Flux<Problem> findProblems() {
-        return problemRepository.findAll();
+    public Flux<Problem> findProblems(Pageable p) {
+        return problemRepository.findAllBy(p);
     }
 
-    public Flux<Problem> findProblemsAlphaDesc() {
-        return problemRepository.findAllByOrderByPrettyNameDesc();
-    }
-
-    public Flux<Problem> findProblemsAlphaDesc(Pageable p) {
-        return problemRepository.findAllByOrderByPrettyNameDesc(p);
+    public Mono<Long> countProblems() {
+        return problemRepository.countAllBy();
     }
 
     public Flux<Problem> findProblemsWithIds(List<String> ids) {

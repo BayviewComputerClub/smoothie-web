@@ -7,6 +7,7 @@ import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NoPermissionException;
 import club.bayview.smoothieweb.util.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class APIProblemController {
 
     @RequestMapping("/api/v1/problems")
     public Flux<APIProblem> getProblems() {
-        return problemService.findProblemsAlphaDesc()
+        return problemService.findProblems(Pageable.unpaged())
                 .map(APIProblem::fromProblem);
     }
 
