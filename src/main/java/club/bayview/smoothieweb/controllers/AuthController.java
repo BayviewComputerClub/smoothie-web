@@ -104,6 +104,7 @@ public class AuthController {
             }
 
             if (result.hasErrors()) {
+                System.out.println(result.getAllErrors().toString()); // TODO: 2020-03-17 For testing only 
                 return Mono.error(new Exception());
             } else {
                 User user = new User(form.username, form.email, form.password);
