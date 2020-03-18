@@ -125,8 +125,7 @@ public class UserController {
         String password, currentPassword;
 
         private User toUser(User user) {
-            user.setPassword(password);
-            user.encodePassword();
+            user.setPassword(User.encodePassword(password));
             return user;
         }
     }
