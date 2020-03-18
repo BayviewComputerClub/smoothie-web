@@ -13,6 +13,7 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -98,6 +99,15 @@ public class AdminProblemController {
                 .flatMap(p -> problemService.deleteProblemById(p.getId()))
                 .then(Mono.just("redirect:/problems")) // void mono MUST use then
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /problem/{name}/delete route exception: "));
+    }
+
+    @GetMapping("/admin/problems")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public Mono<String> getAdminProblemsRoute(Model model) {
+        return problemService.findProblems(Pageable.unpaged())
+                .collectList()
+                .doOnNext(problems -> model.addAttribute("problems", problems))
+                .then(Mono.just("admin/problems"));
     }
 
     @PostMapping("/admin/new-problem")

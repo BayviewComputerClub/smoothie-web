@@ -31,12 +31,6 @@ public class AdminController {
         return Mono.just("admin/admin");
     }
 
-    @GetMapping("/admin/problems")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Mono<String> getAdminProblemsRoute() {
-        return Mono.just("admin/problems");
-    }
-
     @NoArgsConstructor
     @Getter
     @Setter

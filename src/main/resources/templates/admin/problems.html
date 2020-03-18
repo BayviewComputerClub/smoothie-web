@@ -12,13 +12,6 @@
     <link rel="stylesheet" th:href="@{/css/elevated/button.css}"/>
 
     <style>
-        p {
-            font-size: 32px;
-            font-family: Metropolis, sans-serif;
-            line-height: 128px;
-
-        }
-
         .container {
             animation: header-fade-in 1s;
         }
@@ -31,11 +24,35 @@
 
 <div class="container">
     <h1 class="title-d">Manage Problems</h1>
-    <p>
-        Click on a thing to do a thing.
-        <br/>
-        <a style="margin-top: 20px;" class="button-link" th:href="@{'/admin/new-problem'}">New Problem</a>
-    </p>
+    <a class="button-link" th:href="@{'/admin/new-problem'}">New Problem</a>
+    <table class="standard-table compact" style="width: 80%; margin-top:40px;">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Users Solved</th>
+            <th>Time Created</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="problem : ${problems}">
+            <td><a class="link" th:href="@{'/problem/' + ${problem.name} + '/manage'}" th:text="${problem.name}"></a></td>
+            <td th:text="${problem.prettyName}"></td>
+            <td th:text="${problem.usersSolved}"></td>
+            <td th:text="${problem.timeCreated}" class="date"></td>
+        </tr>
+        </tbody>
+    </table>
 </div>
+
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+<script th:src="@{/js/moment.min.js}"></script>
+<script>
+    $(() => {
+        $('.date').each((i, e) => {
+            e.innerText = moment(parseInt(e.innerText, 10)).format('LLL');
+        });
+    });
+</script>
 </body>
 </html>
