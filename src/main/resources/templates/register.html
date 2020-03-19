@@ -37,75 +37,68 @@
     </div>
 
     <h1 class="content">Register for an account <i class="material-icons">sync</i></h1>
-    <form method="POST" th:action="'?'" class="standard-form">
+    <h4 class="content">You will be sent a verification email.</h4>
+
+    <form method="post" th:action="'?'" th:object="${registerForm}" class="standard-form">
 
         <div class="form-group">
-            <label for="username" class="label">
+            <label class="label">
                 <span class="text">Username</span>
                 <span class="required">*</span>
             </label>
             <br/>
-            <input type="text" id="username" name="username" class="control width" required>
+            <input type="text" th:field="*{username}" class="control width" th:errorclass="invalid" required>
+            <br/>
+            <span class="helper error" th:each="err : ${#fields.errors('username')}" th:text="${err}"></span>
         </div>
 
         <div class="form-group">
-            <label for="emailBox" class="label">
+            <label class="label">
                 <span class="text">Email</span>
                 <span class="required">*</span>
             </label>
             <br/>
-            <input type="email" id="emailBox" name="email" class="control width" required>
+            <input type="email" th:field="*{email}" name="email" class="control width" th:errorclass="invalid" required>
+            <br/>
+            <span class="helper error" th:each="err : ${#fields.errors('email')}" th:text="${err}"></span>
         </div>
 
         <div class="form-group">
-            <label for="confirmPassword" class="label">
+            <label class="label">
                 <span class="text">Password</span>
                 <span class="required">*</span>
             </label>
             <br/>
-            <input type="password" id="confirmPassword" class="control width" required>
+            <input type="password" th:field="*{password}" minlength="3" class="control width" th:errorclass="invalid" required>
+            <br/>
+            <span class="helper error" th:each="err : ${#fields.errors('password')}" th:text="${err}"></span>
         </div>
 
         <div class="form-group">
-            <label for="passwordBox" class="label">
+            <label class="label">
                 <span class="text">Confirm Password</span>
                 <span class="required">*</span>
             </label>
             <br/>
-            <input type="password" id="passwordBox" class="control width" required>
+            <input type="password" th:field="*{confirmPassword}" minlength="3" name="password" class="control width" th:errorclass="invalid" required>
+            <br/>
+            <span class="helper error" th:each="err : ${#fields.errors('confirmPassword')}" th:text="${err}"></span>
         </div>
 
-        <br/>
-        <div class="g-recaptcha col-sm-5"
-             th:attr="data-sitekey=${@captchaSettings.getSite()}"></div>
-        <span id="captchaError" class="alert alert-danger col-sm-4"
-              style="display:none"></span>
-        <br/>
-        <input type="submit" id="register" class="st-button" value="Register">
+        <div class="form-group">
+            <div class="g-recaptcha col-sm-5" th:attr="data-sitekey=${@captchaSettings.getSite()}"></div>
+            <span id="captchaError" class="alert alert-danger col-sm-4" style="display:none"></span>
+        </div>
+
+        <div class="form-group">
+            <input type="submit" id="register" class="st-button" value="Register">
+        </div>
+
     </form>
+    <br/>
+    <h5 class="content"><a th:href="@{/login}">Already have an account?</a></h5>
 </div>
 
-<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
 <script src='https://www.google.com/recaptcha/api.js'></script>
-
-<script>
-
-    let email = document.getElementById("emailBox"), password = document.getElementById("confirmPassword"),
-        confirmPassword = document.getElementById("passwordBox");
-
-
-    function validatePassword() {
-        if (password.value != confirmPassword.value) {
-            confirmPassword.setCustomValidity("Passwords must match");
-        } else {
-            confirmPassword.setCustomValidity('');
-        }
-    }
-
-    password.onchange = validatePassword;
-    confirmPassword.onkeyup = validatePassword;
-
-</script>
-
 </body>
 </html>
