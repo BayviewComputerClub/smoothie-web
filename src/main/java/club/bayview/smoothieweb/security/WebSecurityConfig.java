@@ -10,7 +10,9 @@ import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import reactor.core.publisher.Mono;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -32,6 +34,7 @@ public class WebSecurityConfig {
                     .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/logout"))
                 .and()
                 .csrf().tokenFromMultipartDataEnabled(true)
+                .requireCsrfProtectionMatcher(ex -> ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/**").matches(ex).flatMap(u -> ex.getRequest().getURI().getPath().startsWith("/api/") ? ServerWebExchangeMatcher.MatchResult.notMatch() : Mono.just(u)))
                 ;
 
         return http.build();
