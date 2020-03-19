@@ -33,8 +33,8 @@ public class WebSecurityConfig {
                     .logoutUrl("/logout")
                     .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/logout"))
                 .and()
-                .csrf()
-                    .tokenFromMultipartDataEnabled(true)
+                .csrf().tokenFromMultipartDataEnabled(true)
+                .requireCsrfProtectionMatcher(ex -> ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/**").matches(ex).flatMap(u -> ex.getRequest().getURI().getPath().startsWith("/api/") ? ServerWebExchangeMatcher.MatchResult.notMatch() : Mono.just(u)))
                 ;
 
         return http.build();
