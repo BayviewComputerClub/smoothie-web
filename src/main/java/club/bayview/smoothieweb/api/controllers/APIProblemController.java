@@ -58,14 +58,15 @@ public class APIProblemController {
 
     @PostMapping("/api/v1/problem/{name}/submit")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public Mono<String> postProblemSubmission(@PathVariable String name, Authentication auth, @RequestBody ProblemSubmission problemSubmission) {
+    public Mono<String> postProblemSubmission(@PathVariable String name, Authentication auth, @RequestBody Mono<ProblemSubmission> problemSubmission) {
+        System.out.println(problemSubmission.block().code);
         return Mono.zip(problemService.findProblemByName(name), userService.findUserByHandle(auth.getName()))
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(t -> {
                     if (!t.getT1().hasPermissionToView(auth))
                         return Mono.error(new NoPermissionException());
 
-                    return gradeSubmission(t.getT1(), t.getT2(), problemSubmission);
+                    return gradeSubmission(t.getT1(), t.getT2(), problemSubmission.block());
                 })
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /problem/{name}/submit route exception: "));
     }
