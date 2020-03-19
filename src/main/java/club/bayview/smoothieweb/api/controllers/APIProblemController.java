@@ -58,10 +58,7 @@ public class APIProblemController {
 
     @PostMapping("/api/v1/problem/{name}/submit")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public Mono<String> postProblemSubmission(@PathVariable String name, Authentication auth, @RequestBody ProblemSubmission problemSubmission, ServerHttpSecurity sec) {
-        //temp
-        sec.csrf().disable();
-
+    public Mono<String> postProblemSubmission(@PathVariable String name, Authentication auth, @RequestBody ProblemSubmission problemSubmission) {
         return Mono.zip(problemService.findProblemByName(name), userService.findUserByHandle(auth.getName()))
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(t -> {
