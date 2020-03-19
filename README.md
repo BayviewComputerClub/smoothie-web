@@ -74,6 +74,16 @@ google.recaptcha.key:
     site:
     secret:
 
+# Site info
+smoothieweb:
+    url: localhost:8080
+    contact-email: no-email@configured.com
+
+# Email verification
+smoothieweb.email-verification:
+    secret: PLEASECHANGE
+    enabled: false
+
 # Default admin password when database is created
 smoothieweb.admin.password: password
 
