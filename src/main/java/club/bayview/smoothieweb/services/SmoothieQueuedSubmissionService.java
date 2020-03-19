@@ -91,8 +91,8 @@ public class SmoothieQueuedSubmissionService {
                         .setCancelTesting(false)
                         .setProblem(grpcProblem)
                         .setSolution(club.bayview.smoothieweb.SmoothieRunner.Solution.newBuilder()
-                                .setCode(s.getCode())
-                                .setLanguage(s.getLang())
+                                .setCode(s.getCode() == null ? "": s.getCode())
+                                .setLanguage(s.getLang() == null ? "" : s.getLang())
                                 .build())
                         .build()));
     }

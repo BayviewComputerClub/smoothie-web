@@ -1,27 +1,27 @@
 package club.bayview.smoothieweb.api.controllers;
 
 import club.bayview.smoothieweb.api.models.APIProblem;
-import club.bayview.smoothieweb.controllers.JudgeController;
-import club.bayview.smoothieweb.models.*;
+import club.bayview.smoothieweb.models.Problem;
+import club.bayview.smoothieweb.models.QueuedSubmission;
+import club.bayview.smoothieweb.models.Submission;
+import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.*;
 import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NoPermissionException;
 import club.bayview.smoothieweb.util.NotFoundException;
-import com.google.gson.JsonObject;
+import lombok.Getter;
+import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @RestController
 public class APIProblemController {
@@ -57,21 +57,23 @@ public class APIProblemController {
     }
 
     @PostMapping("/api/v1/problem/{name}/submit")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     @PreAuthorize("hasRole('ROLE_USER')")
-    public Mono<String> postProblemSubmission(@PathVariable String name, Authentication auth, @RequestBody Mono<ProblemSubmission> problemSubmission) {
-        System.out.println(problemSubmission.block().code);
+    public Mono<String> postProblemSubmission(@PathVariable String name, Authentication auth, @RequestBody ProblemSubmission problemSubmission) {
         return Mono.zip(problemService.findProblemByName(name), userService.findUserByHandle(auth.getName()))
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(t -> {
                     if (!t.getT1().hasPermissionToView(auth))
                         return Mono.error(new NoPermissionException());
 
-                    return gradeSubmission(t.getT1(), t.getT2(), problemSubmission.block());
+                    return gradeSubmission(t.getT1(), t.getT2(), problemSubmission);
                 })
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /problem/{name}/submit route exception: "));
     }
 
-    private static class ProblemSubmission {
+    @Getter
+    @Setter
+    static class ProblemSubmission {
         String lang;
         String code;
     }
