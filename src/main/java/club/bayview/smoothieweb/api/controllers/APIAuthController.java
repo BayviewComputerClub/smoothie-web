@@ -9,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.WebSession;
@@ -50,5 +52,14 @@ public class APIAuthController {
                     res.setStatusCode(HttpStatus.UNAUTHORIZED);
                     return Mono.empty();
                 }).then();
+    }
+
+    @GetMapping("/api/v1/auth-status")
+    public boolean getAuthStatus(Authentication auth) {
+        return auth != null;
+    }
+    @GetMapping("/api/v1/auth-info")
+    public Authentication getAuthInfo(Authentication auth) {
+        return auth;
     }
 }
