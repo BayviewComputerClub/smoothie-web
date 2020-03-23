@@ -2,7 +2,6 @@ package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.SmoothieRunner;
 import club.bayview.smoothieweb.SmoothieWebApplication;
-import club.bayview.smoothieweb.controllers.LiveSubmissionController;
 import club.bayview.smoothieweb.models.Submission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,14 +19,14 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
     SmoothieQueuedSubmissionService queuedSubmissionService = SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class);
     SubmissionVerdictService verdictService = SmoothieWebApplication.context.getBean(SubmissionVerdictService.class);
 
-    private Submission submission;
+    private Submission submission; // TODO refresh from database for onNext
 
     private Logger logger = LoggerFactory.getLogger(GraderStreamObserver.class);
 
     private club.bayview.smoothieweb.services.SmoothieRunner runner;
     private SmoothieRunner.TestSolutionRequest req; // initial sending request
 
-    private boolean terminated = false;
+    private boolean terminatedEarly = false;
 
     ObjectMapper ob = new ObjectMapper();
 
@@ -41,7 +40,7 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
     public void onNext(club.bayview.smoothieweb.SmoothieRunner.TestSolutionResponse value) {
         // check if test data needs to be uploaded first
         if (value.getTestDataNeedUpload()) {
-            terminated = true; // prevent onCompleted from going through
+            terminatedEarly = true; // prevent onCompleted from going through
             runner.uploadTestData(req, submission); // upload test data, and then grade again
             return;
         }
@@ -79,15 +78,17 @@ public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestS
     public void onError(Throwable t) {
         t.printStackTrace();
         logger.error(t.getMessage());
+        // TODO add error to submission
     }
 
     @Override
     public void onCompleted() {
-        if (terminated) return;
+        if (terminatedEarly) return;
 
         logger.info("Judging has completed for submission " + submission.getId() + ".");
 
         // store verdict and update points if necessary
+        submission.setStatus(Submission.SubmissionStatus.COMPLETE);
         verdictService.applyVerdictToSubmission(submission).subscribe();
 
         // find next task to do

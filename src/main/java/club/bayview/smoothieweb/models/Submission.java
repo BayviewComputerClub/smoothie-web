@@ -25,6 +25,14 @@ import java.util.List;
 @NoArgsConstructor
 public class Submission {
 
+    public enum SubmissionStatus {
+        COMPLETE, // verdict was given
+        JUDGING, // currently judging
+        REJUDGE, // rejudge was requested (should wipe results)
+        CANCELLED, // submission judging was cancelled
+        AWAITING_RUNNER, // waiting for runner to pick up job
+    }
+
     @Getter
     @Setter
     public static class SubmissionBatchCase {
@@ -63,6 +71,8 @@ public class Submission {
     private String contestId;
 
     private String runnerId;
+
+    private SubmissionStatus status;
 
     private String code;
     private Long timeSubmitted;

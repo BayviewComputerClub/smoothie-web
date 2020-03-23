@@ -98,6 +98,7 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
         logger.info(String.format("Runner %s grading submission %s for problem %s.", getName(), submission.getId(), submission.getProblemId()));
 
         submission.setRunnerId(getId());
+        submission.setStatus(Submission.SubmissionStatus.JUDGING);
         SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class).saveSubmission(submission).subscribe();
 
         var observer = getAsyncStub().testSolution(new GraderStreamObserver(submission, this, req));

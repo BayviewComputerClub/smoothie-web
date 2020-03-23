@@ -1,15 +1,26 @@
 package club.bayview.smoothieweb.services;
 
-import org.springframework.core.io.buffer.*;
+import club.bayview.smoothieweb.util.NotFoundException;
+import club.bayview.smoothieweb.util.SessionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.session.ReactiveSessionRepository;
+import org.springframework.session.Session;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
+import reactor.core.publisher.Mono;
 import reactor.core.publisher.UnicastProcessor;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class WebSocketSessionService {
+
+    @Autowired
+    ReactiveSessionRepository sessionRepository;
 
     ConcurrentHashMap<String, ConcurrentHashMap<String, UnicastProcessor<WebSocketMessage>>> sessions = new ConcurrentHashMap<>();
 
@@ -34,4 +45,24 @@ public class WebSocketSessionService {
         sessions.get(route).put(session.getId(), messagePublisher);
     }
 
+    /**
+     * Given a WebSocketSession, obtain the authentication or empty if null.
+     * @param session the websocket session
+     * @return the authentication, or empty if it could not be found
+     */
+
+    public Mono<Authentication> getAuthentication(WebSocketSession session) {
+        return sessionRepository.findById(SessionUtils.getSessionIdFromHeader(session.getHandshakeInfo().getHeaders()))
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(s -> {
+                    Session sess = (Session) s;
+                    // get user session from websocket http headers
+                    SecurityContextImpl securityContext = sess.getAttribute("SPRING_SECURITY_CONTEXT");
+                    if (securityContext.getAuthentication() == null) {
+                        return Mono.empty();
+                    } else {
+                        return Mono.just(securityContext.getAuthentication());
+                    }
+                });
+    }
 }

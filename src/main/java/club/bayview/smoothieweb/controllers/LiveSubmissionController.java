@@ -12,6 +12,8 @@ import club.bayview.smoothieweb.util.NotFoundException;
 import club.bayview.smoothieweb.util.SessionUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
@@ -28,12 +30,18 @@ import java.util.List;
 
 public class LiveSubmissionController implements WebSocketHandler {
 
+    @Getter
+    @Setter
+    public static class LiveSubmissionData {
+        String compileError;
+
+    }
+
     @Override
     public Mono<Void> handle(WebSocketSession session) {
         SmoothieSubmissionService submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
         SmoothieProblemService problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
         WebSocketSessionService sessionService = SmoothieWebApplication.context.getBean(WebSocketSessionService.class);
-        ReactiveSessionRepository<Session> sessionRepository = SmoothieWebApplication.context.getBean(ReactiveSessionRepository.class);
 
         StringBuilder submissionId = new StringBuilder();
         UnicastProcessor<WebSocketMessage> inputStream = UnicastProcessor.create(); // multiplex all input into one publisher
@@ -42,19 +50,16 @@ public class LiveSubmissionController implements WebSocketHandler {
                 .and(session.receive()
                         .take(1) // only receive one websocket message
                         .doOnNext(m -> {
-                            String payload = m.getPayloadAsText(); // warning: getPayloadAsText actually takes the data from the buffer
+                            String payload = m.getPayloadAsText(); // warning: getPayloadAsText actually takes out the data from the buffer
                             submissionId.append(payload);
 
-                            sessionRepository.findById(SessionUtils.getSessionIdFromHeader(session.getHandshakeInfo().getHeaders()))
-                                    .switchIfEmpty(Mono.error(new NotFoundException()))
-                                    .flatMap(s -> {
+                            sessionService.getAuthentication(session)
+                                    .switchIfEmpty(Mono.error(new NoPermissionException()))
+                                    .flatMap(auth -> {
                                         // get user session from websocket http headers
-                                        SecurityContextImpl securityContext = s.getAttribute("SPRING_SECURITY_CONTEXT");
-                                        if (securityContext.getAuthentication() == null || !securityContext.getAuthentication().isAuthenticated() || !(securityContext.getAuthentication().getPrincipal() instanceof User)) {
+                                        if (!auth.isAuthenticated() || !(auth.getPrincipal() instanceof User))
                                             return Mono.error(new NoPermissionException());
-                                        }
-
-                                        return Mono.zip(Mono.just(securityContext.getAuthentication()), submissionService.findSubmissionById(submissionId.toString()));
+                                        return Mono.zip(Mono.just(auth), submissionService.findSubmissionById(submissionId.toString()));
                                     })
                                     .switchIfEmpty(Mono.error(new NotFoundException()))
                                     .flatMap(t -> Mono.zip(Mono.just(t.getT1()), Mono.just(t.getT2()), problemService.findProblemById(t.getT2().getProblemId())))

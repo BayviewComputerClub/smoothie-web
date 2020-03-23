@@ -174,11 +174,11 @@ public class JudgeController {
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{contestName}/problem/{problemNum} route exception: "));
     }
 
-    private Mono<String> gradeSubmission(Problem problem, User user, SubmitRequest form) {
+    public Mono<String> gradeSubmission(Problem problem, User user, SubmitRequest form) {
         return gradeSubmission(problem, user, null, form);
     }
 
-    private Mono<String> gradeSubmission(Problem problem, User user, Contest contest, SubmitRequest form) {
+    public Mono<String> gradeSubmission(Problem problem, User user, Contest contest, SubmitRequest form) {
 
         Submission sub = new Submission();
         sub.setId(ObjectId.get().toString());
@@ -190,6 +190,7 @@ public class JudgeController {
         sub.setJudgingCompleted(false);
         sub.setPoints(0);
         sub.setMaxPoints(problem.getTotalPointsWorth());
+        sub.setStatus(Submission.SubmissionStatus.AWAITING_RUNNER);
         if (contest != null) sub.setContestId(contest.getId());
 
         return problem.getSubmissionBatchCases()

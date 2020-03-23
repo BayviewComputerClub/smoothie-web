@@ -1,6 +1,7 @@
 package club.bayview.smoothieweb.api.controllers;
 
 import club.bayview.smoothieweb.api.models.APIProblem;
+import club.bayview.smoothieweb.controllers.JudgeController;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.QueuedSubmission;
 import club.bayview.smoothieweb.models.Submission;
@@ -35,13 +36,13 @@ public class APIProblemController {
     SmoothieContestService contestService;
 
     @Autowired
-    private SmoothieUserService userService;
+    SmoothieUserService userService;
 
     @Autowired
-    private SmoothieSubmissionService submissionService;
+    SmoothieSubmissionService submissionService;
 
     @Autowired
-    private SmoothieQueuedSubmissionService queuedSubmissionService;
+    SmoothieQueuedSubmissionService queuedSubmissionService;
 
     @RequestMapping("/api/v1/problems")
     public Flux<APIProblem> getProblems() {
@@ -89,6 +90,7 @@ public class APIProblemController {
         sub.setJudgingCompleted(false);
         sub.setPoints(0);
         sub.setMaxPoints(problem.getTotalPointsWorth());
+        sub.setStatus(Submission.SubmissionStatus.AWAITING_RUNNER);
 
         return problem.getSubmissionBatchCases()
                 .flatMap(batches -> {

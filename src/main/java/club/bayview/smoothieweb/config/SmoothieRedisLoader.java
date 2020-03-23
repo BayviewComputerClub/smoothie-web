@@ -12,7 +12,6 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
 
 @Configuration
-@EnableRedisWebSession
 public class SmoothieRedisLoader {
 
     @Value("${spring.redis.host}")
