@@ -26,7 +26,6 @@ public class WebSocketSessionService {
 
     public void sendToClients(String route, String jsonData) {
         if (sessions.containsKey(route)) {
-
             DefaultDataBufferFactory f  = new DefaultDataBufferFactory();
             sessions.get(route).forEach((id, session) -> session.onNext(new WebSocketMessage(WebSocketMessage.Type.TEXT, f.wrap(jsonData.getBytes()))));
         }

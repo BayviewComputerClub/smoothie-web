@@ -26,25 +26,23 @@ public class RunnerTaskContextProcessor implements Runnable {
     SmoothieProblemService problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
 
     UnicastProcessor<RunnerTaskProcessorEvent> taskQueue = UnicastProcessor.create();
+
     String currentSubmissionId, currentQueuedSubmissionId;
     club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest currentTestSolutionRequest;
     SmoothieRunner runner;
 
-    ObjectMapper om;
+    ObjectMapper om = new ObjectMapper();
 
     public RunnerTaskContextProcessor(SmoothieRunner runner) {
         this.runner = runner;
     }
 
-    // todo flag smoothierunner as "occupied" when judging
     // assumes that judge_submission would not be sent if a submission is ongoing
-
     @Override
     public void run() {
         logger.info("Started worker thread for runner {}.", runner.getName());
-
-        // todo
-        taskQueue.flatMap(this::processEvent).subscribe();
+        // todo error recover
+        taskQueue.concatMap(this::processEvent).subscribe();
     }
 
     public Mono<Void> processEvent(RunnerTaskProcessorEvent ev) {
@@ -74,6 +72,8 @@ public class RunnerTaskContextProcessor implements Runnable {
     }
 
     public Mono<Void> judgeSubmission(QueuedSubmission qs) {
+        runner.setOccupied(true);
+
         currentQueuedSubmissionId = qs.getId();
         currentSubmissionId = qs.getSubmissionId();
 
@@ -138,14 +138,14 @@ public class RunnerTaskContextProcessor implements Runnable {
 
                     // store verdict and update points if necessary
                     s.setStatus(Submission.SubmissionStatus.COMPLETE);
-                    return verdictService.applyVerdictToSubmission(s);
 
                     // todo find next task to do
+                    queuedSubmissionService.checkRunnersTask();
+                    return verdictService.applyVerdictToSubmission(s);
                 });
     }
 
     public Mono<Void> graderReceivedMessage(club.bayview.smoothieweb.SmoothieRunner.TestSolutionResponse res) {
-
         return submissionService.findSubmissionById(currentSubmissionId)
                 .flatMap(s -> {
                     // check if test data needs to be uploaded first

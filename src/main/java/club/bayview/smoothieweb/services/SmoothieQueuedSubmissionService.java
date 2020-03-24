@@ -1,9 +1,7 @@
 package club.bayview.smoothieweb.services;
 
-import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.QueuedSubmission;
 import club.bayview.smoothieweb.repositories.QueuedSubmissionRepository;
-import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.services.submissions.RunnerTaskContextProcessorService;
 import club.bayview.smoothieweb.services.submissions.RunnerTaskProcessorEvent;
 import io.grpc.ConnectivityState;
@@ -17,7 +15,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class SmoothieQueuedSubmissionService {
@@ -68,7 +65,7 @@ public class SmoothieQueuedSubmissionService {
             logger.debug("Looking at submission " + sub.getSubmissionId() + " for runners..");
             for (SmoothieRunner runner : smoothieRunners) {
                 // grade if there are no tasks in the queue
-                if (runner.getHealth().getNumOfTasksInQueue() == 0) {
+                if (!runner.isOccupied() && runner.getHealth().getNumOfTasksInQueue() == 0) {
                     deleteQueuedSubmissionById(sub.getId())
                             .doOnNext(t -> runnerTaskService.addTask(runner.getId(), RunnerTaskProcessorEvent.builder()
                                     .eventType(RunnerTaskProcessorEvent.EventType.JUDGE_SUBMISSION)
@@ -84,10 +81,12 @@ public class SmoothieQueuedSubmissionService {
     public ArrayList<SmoothieRunner> sortRunnersForSubmission(ArrayList<SmoothieRunner> runners, QueuedSubmission submission) {
         ArrayList<SmoothieRunner> order = new ArrayList<>();
         if (submission.getRequestedRunnerIds() == null || submission.getRequestedRunnerIds().isEmpty()) {
+            // if the submission has requested runners
             runners.stream()
                     .filter(runner -> runner.getStatus().equals(ConnectivityState.IDLE) || runner.getStatus().equals(ConnectivityState.READY))
                     .forEach(order::add);
         } else {
+            // if the submission allows for all runners
             for (var runner : runners) {
                 if (runner.getStatus().equals(ConnectivityState.IDLE) || runner.getStatus().equals(ConnectivityState.READY)) {
                     if (submission.getRequestedRunnerIds().contains(runner.getId())) {

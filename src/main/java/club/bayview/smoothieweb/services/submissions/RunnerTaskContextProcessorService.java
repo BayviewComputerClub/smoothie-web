@@ -15,8 +15,9 @@ public class RunnerTaskContextProcessorService {
         contextProcessorHashMap.get(runnerId).taskQueue.onNext(ev);
     }
 
-    // TODO
     public void initContextProcessorForRunner(SmoothieRunner runner) {
-        contextProcessorHashMap.put(runner.getId(), new RunnerTaskContextProcessor(runner));
+        var rtcp = new RunnerTaskContextProcessor(runner);
+        contextProcessorHashMap.put(runner.getId(), rtcp);
+        rtcp.run();
     }
 }

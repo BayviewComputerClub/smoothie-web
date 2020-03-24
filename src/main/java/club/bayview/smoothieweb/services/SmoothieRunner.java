@@ -5,6 +5,8 @@ import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.Runner;
 import club.bayview.smoothieweb.models.Submission;
+import club.bayview.smoothieweb.services.submissions.RunnerTaskContextProcessorService;
+import club.bayview.smoothieweb.services.submissions.RunnerTaskProcessorEvent;
 import com.google.protobuf.ByteString;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
@@ -59,7 +61,8 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
             logger.info(String.format("Runner %s changed state: READY", name));
             try {
                 SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class).checkRunnersTask(); // TODO
-            } catch (NullPointerException ignored) {} // if the bean has not initialized yet
+            } catch (NullPointerException ignored) {
+            } // if the bean has not initialized yet
         });
         channel.notifyWhenStateChanged(ConnectivityState.CONNECTING, () -> logger.info(String.format("Runner %s changed state: CONNECTING", name)));
         channel.notifyWhenStateChanged(ConnectivityState.IDLE, () -> logger.info(String.format("Runner %s changed state: IDLE", name)));
@@ -91,15 +94,14 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
         return getBlockingStub().health(club.bayview.smoothieweb.SmoothieRunner.Empty.getDefaultInstance());
     }
 
+    // clean shutdown, allowing threads to finish
     public void cleanStop() {
-        // clean shutdown, allowing threads to finish
         channel.shutdown();
+        SmoothieWebApplication.context.getBean(RunnerTaskContextProcessorService.class)
+                .addTask(getId(), RunnerTaskProcessorEvent.builder().eventType(RunnerTaskProcessorEvent.EventType.STOP).build());
     }
 
-    /**
-     * Run a full grader session asynchronously
-     */
-
+    // Run a full grader session asynchronously
     public StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> grade(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req, Submission submission) {
         logger.info(String.format("Runner %s grading submission %s for problem %s.", getName(), submission.getId(), submission.getProblemId()));
 
@@ -158,10 +160,12 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
         club.bayview.smoothieweb.SmoothieRunner.ServiceHealth s1 = null, s2 = null;
         try {
             s1 = this.getHealth();
-        } catch (StatusRuntimeException ignored) {}
+        } catch (StatusRuntimeException ignored) {
+        }
         try {
             s2 = runner.getHealth();
-        } catch (StatusRuntimeException ignored) {}
+        } catch (StatusRuntimeException ignored) {
+        }
 
         if (s1 == null && s2 == null) return 0;
         if (s1 == null) return 1;
