@@ -16,22 +16,28 @@ import reactor.core.publisher.UnicastProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A worker instance that processes runner tasks for a smoothie runner instance.
+ */
+
 public class RunnerTaskContextProcessor implements Runnable {
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    // services
     WebSocketSessionService webSocketSessionService = SmoothieWebApplication.context.getBean(WebSocketSessionService.class);
     SmoothieSubmissionService submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
     SmoothieQueuedSubmissionService queuedSubmissionService = SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class);
     SubmissionVerdictService verdictService = SmoothieWebApplication.context.getBean(SubmissionVerdictService.class);
     SmoothieProblemService problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
 
+    ObjectMapper om = new ObjectMapper();
+
+    // reactive queue
     UnicastProcessor<RunnerTaskProcessorEvent> taskQueue = UnicastProcessor.create();
 
     String currentSubmissionId, currentQueuedSubmissionId;
     club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest currentTestSolutionRequest;
     SmoothieRunner runner;
-
-    ObjectMapper om = new ObjectMapper();
 
     public RunnerTaskContextProcessor(SmoothieRunner runner) {
         this.runner = runner;
@@ -66,6 +72,7 @@ public class RunnerTaskContextProcessor implements Runnable {
             case JUDGE_SUBMISSION:
                 return judgeSubmission(ev.getQueuedSubmission());
             case STOP:
+                // TODO submission is not done but cleanstop is called
                 return Mono.error(new Exception());
         }
         return Mono.empty();
@@ -109,8 +116,9 @@ public class RunnerTaskContextProcessor implements Runnable {
     public Mono<Void> uploadReceivedMessage(club.bayview.smoothieweb.SmoothieRunner.UploadTestDataResponse res) {
         if (!res.getError().equals("")) {
             logger.error("Test Data Upload Error: " + res.getError());
+            return cancelSubmission();
         }
-        return cancelSubmission();
+        return Mono.empty();
     }
 
     public Mono<Void> uploadCompletedMessage() {

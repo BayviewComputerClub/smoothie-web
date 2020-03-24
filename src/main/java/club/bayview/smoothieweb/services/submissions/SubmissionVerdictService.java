@@ -1,8 +1,12 @@
-package club.bayview.smoothieweb.services;
+package club.bayview.smoothieweb.services.submissions;
 
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.models.User;
+import club.bayview.smoothieweb.services.SmoothieContestService;
+import club.bayview.smoothieweb.services.SmoothieProblemService;
+import club.bayview.smoothieweb.services.SmoothieSubmissionService;
+import club.bayview.smoothieweb.services.SmoothieUserService;
 import club.bayview.smoothieweb.util.NoPermissionException;
 import club.bayview.smoothieweb.util.NotFoundException;
 import club.bayview.smoothieweb.util.Verdict;
@@ -31,6 +35,7 @@ public class SubmissionVerdictService {
      * @param submission submission that finished judging
      * @return mono emitted when verdict is applied and saved to database
      */
+
     public Mono<Void> applyVerdictToSubmission(Submission submission) {
         // store verdict and update points if necessary
         return Mono.zip(userService.findUserById(submission.getUserId()), problemService.findProblemById(submission.getProblemId()))

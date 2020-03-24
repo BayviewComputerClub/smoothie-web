@@ -1,8 +1,7 @@
-package club.bayview.smoothieweb.services;
+package club.bayview.smoothieweb.services.submissions.observers;
 
 import club.bayview.smoothieweb.SmoothieRunner;
 import club.bayview.smoothieweb.SmoothieWebApplication;
-import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.services.submissions.RunnerTaskContextProcessorService;
 import club.bayview.smoothieweb.services.submissions.RunnerTaskProcessorEvent;
 import io.grpc.stub.StreamObserver;
@@ -14,9 +13,9 @@ public class UploadTestDataStreamObserver implements StreamObserver<SmoothieRunn
     RunnerTaskContextProcessorService taskProcessorService = SmoothieWebApplication.context.getBean(RunnerTaskContextProcessorService.class);
     private Logger logger = LoggerFactory.getLogger(UploadTestDataStreamObserver.class);
 
-    club.bayview.smoothieweb.services.SmoothieRunner runner;
+    club.bayview.smoothieweb.services.submissions.SmoothieRunner runner;
 
-    public UploadTestDataStreamObserver(club.bayview.smoothieweb.services.SmoothieRunner runner) {
+    public UploadTestDataStreamObserver(club.bayview.smoothieweb.services.submissions.SmoothieRunner runner) {
         this.runner = runner;
     }
 

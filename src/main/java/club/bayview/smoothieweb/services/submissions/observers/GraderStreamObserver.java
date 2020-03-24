@@ -1,25 +1,17 @@
-package club.bayview.smoothieweb.services;
+package club.bayview.smoothieweb.services.submissions.observers;
 
 import club.bayview.smoothieweb.SmoothieRunner;
 import club.bayview.smoothieweb.SmoothieWebApplication;
-import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.services.submissions.RunnerTaskContextProcessorService;
 import club.bayview.smoothieweb.services.submissions.RunnerTaskProcessorEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.grpc.stub.StreamObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GraderStreamObserver implements StreamObserver<SmoothieRunner.TestSolutionResponse> {
 
     RunnerTaskContextProcessorService taskProcessorService = SmoothieWebApplication.context.getBean(RunnerTaskContextProcessorService.class);
-    private club.bayview.smoothieweb.services.SmoothieRunner runner;
+    private club.bayview.smoothieweb.services.submissions.SmoothieRunner runner;
 
-    public GraderStreamObserver(club.bayview.smoothieweb.services.SmoothieRunner runner) {
+    public GraderStreamObserver(club.bayview.smoothieweb.services.submissions.SmoothieRunner runner) {
         this.runner = runner;
     }
 

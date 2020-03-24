@@ -1,9 +1,9 @@
-package club.bayview.smoothieweb.services;
+package club.bayview.smoothieweb.services.submissions;
 
 import club.bayview.smoothieweb.models.QueuedSubmission;
 import club.bayview.smoothieweb.repositories.QueuedSubmissionRepository;
-import club.bayview.smoothieweb.services.submissions.RunnerTaskContextProcessorService;
-import club.bayview.smoothieweb.services.submissions.RunnerTaskProcessorEvent;
+import club.bayview.smoothieweb.services.SmoothieProblemService;
+import club.bayview.smoothieweb.services.SmoothieSubmissionService;
 import io.grpc.ConnectivityState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

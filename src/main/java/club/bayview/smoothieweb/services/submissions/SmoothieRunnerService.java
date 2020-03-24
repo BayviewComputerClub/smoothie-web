@@ -1,12 +1,12 @@
-package club.bayview.smoothieweb.services;
+package club.bayview.smoothieweb.services.submissions;
 
 import club.bayview.smoothieweb.models.Runner;
 import club.bayview.smoothieweb.repositories.RunnerRepository;
 import club.bayview.smoothieweb.services.submissions.RunnerTaskContextProcessorService;
+import club.bayview.smoothieweb.services.submissions.SmoothieRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

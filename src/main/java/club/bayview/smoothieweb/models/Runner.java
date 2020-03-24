@@ -1,8 +1,8 @@
 package club.bayview.smoothieweb.models;
 
 import club.bayview.smoothieweb.SmoothieWebApplication;
-import club.bayview.smoothieweb.services.SmoothieRunner;
-import club.bayview.smoothieweb.services.SmoothieRunnerService;
+import club.bayview.smoothieweb.services.submissions.SmoothieRunner;
+import club.bayview.smoothieweb.services.submissions.SmoothieRunnerService;
 import io.grpc.ConnectivityState;
 import lombok.Getter;
 import lombok.Setter;

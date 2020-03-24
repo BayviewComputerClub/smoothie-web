@@ -1,7 +1,7 @@
 package club.bayview.smoothieweb.controllers.admin;
 
 import club.bayview.smoothieweb.models.Runner;
-import club.bayview.smoothieweb.services.SmoothieRunnerService;
+import club.bayview.smoothieweb.services.submissions.SmoothieRunnerService;
 import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.Getter;

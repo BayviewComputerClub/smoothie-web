@@ -1,12 +1,12 @@
 package club.bayview.smoothieweb.api.controllers;
 
 import club.bayview.smoothieweb.api.models.APIProblem;
-import club.bayview.smoothieweb.controllers.JudgeController;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.QueuedSubmission;
 import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.*;
+import club.bayview.smoothieweb.services.submissions.SmoothieQueuedSubmissionService;
 import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NoPermissionException;
 import club.bayview.smoothieweb.util.NotFoundException;
