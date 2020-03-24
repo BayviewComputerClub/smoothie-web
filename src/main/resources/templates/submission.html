@@ -95,7 +95,7 @@
         socket.addEventListener('message', e => {
             console.log(e.data);
             JSON.parse(e.data).forEach(sub => {
-                $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber + 1) + ": " + sub.resultCode + " (" + (Math.round(sub.time * 100) / 100).toFixed(3) + "s) (" + sub.memUsage + "MB)");
+                $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber + 1) + ": " + sub.resultCode + " (" + (Math.round(sub.time * 1000) / 1000).toFixed(3) + "s) (" + sub.memUsage + "MB)");
             });
         });
     }
@@ -110,7 +110,7 @@
         connect();
 
         $(".case-time").each((i, obj) => {
-            obj.innerText = (Math.round(obj.innerText*100)/100).toFixed(3);
+            obj.innerText = (Math.round(obj.innerText*1000)/1000).toFixed(3);
         })
     })
 

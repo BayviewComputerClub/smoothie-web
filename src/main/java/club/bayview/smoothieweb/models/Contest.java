@@ -375,11 +375,14 @@ public class Contest {
         long currentTime = System.currentTimeMillis();
 
         User u = (User) auth.getPrincipal();
-        // todo check if user's contestId is this contest
 
         // is admin
         if (u.getRoles().contains(Role.ROLE_ADMIN))
             return true;
+
+        // check if user is in the contest mode
+        if (!u.getContestId().equals(getId()))
+            return false;
 
         // if user is not a contest participant
         if (!participants.containsKey(u.getId()))

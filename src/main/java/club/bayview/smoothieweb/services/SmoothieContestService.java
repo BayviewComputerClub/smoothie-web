@@ -14,6 +14,8 @@ public class SmoothieContestService {
     @Autowired
     ContestRepository contestRepository;
 
+    // TODO queue contest edits per contest in a webflux way
+
     public Mono<Contest> findContestByName(String name) {
         return contestRepository.findByName(name);
     }
