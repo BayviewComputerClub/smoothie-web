@@ -140,6 +140,8 @@ public class RunnerTaskContextProcessor implements Runnable {
     public Mono<Void> graderCompletedMessage() {
         if (graderTerminatedEarly) return Mono.empty();
 
+        runner.setOccupied(false);
+
         return submissionService.findSubmissionById(currentSubmissionId)
                 .flatMap(s -> {
                     logger.info("Judging has completed for submission " + s.getId() + ".");
