@@ -1,41 +1,45 @@
 package club.bayview.smoothieweb.services;
 
 import club.bayview.smoothieweb.SmoothieRunner;
+import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.models.Submission;
+import club.bayview.smoothieweb.services.submissions.RunnerTaskContextProcessorService;
+import club.bayview.smoothieweb.services.submissions.RunnerTaskProcessorEvent;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UploadTestDataStreamObserver implements StreamObserver<SmoothieRunner.UploadTestDataResponse> {
 
+    RunnerTaskContextProcessorService taskProcessorService = SmoothieWebApplication.context.getBean(RunnerTaskContextProcessorService.class);
     private Logger logger = LoggerFactory.getLogger(UploadTestDataStreamObserver.class);
 
     club.bayview.smoothieweb.services.SmoothieRunner runner;
-    Submission submission;
-    SmoothieRunner.TestSolutionRequest req;
 
-    public UploadTestDataStreamObserver(Submission submission, club.bayview.smoothieweb.services.SmoothieRunner runner, SmoothieRunner.TestSolutionRequest req) {
-        this.submission = submission;
+    public UploadTestDataStreamObserver(club.bayview.smoothieweb.services.SmoothieRunner runner) {
         this.runner = runner;
-        this.req = req;
     }
 
     @Override
     public void onNext(SmoothieRunner.UploadTestDataResponse value) { // will only be called once
-        // TODO better error handling
-        if (!value.getError().equals("")) {
-            logger.info("UPLOAD TEST DATA ERROR: " + value.getError());
-        }
+        taskProcessorService.addTask(runner.getId(), RunnerTaskProcessorEvent.builder()
+                .eventType(RunnerTaskProcessorEvent.EventType.RUNNER_UPLOAD_RECV_MSG)
+                .uploadTestDataResponse(value)
+                .build());
     }
 
     @Override
     public void onError(Throwable t) {
-        // TODO oh
+        taskProcessorService.addTask(runner.getId(), RunnerTaskProcessorEvent.builder()
+                .eventType(RunnerTaskProcessorEvent.EventType.RUNNER_UPLOAD_ERR)
+                .error(t)
+                .build());
     }
 
     @Override
     public void onCompleted() {
-        // go back to grading
-        runner.grade(req, submission);
+        taskProcessorService.addTask(runner.getId(), RunnerTaskProcessorEvent.builder()
+                .eventType(RunnerTaskProcessorEvent.EventType.RUNNER_UPLOAD_COMPLETE)
+                .build());
     }
 }

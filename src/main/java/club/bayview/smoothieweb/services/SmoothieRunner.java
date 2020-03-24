@@ -10,7 +10,9 @@ import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
 import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
@@ -24,6 +26,10 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
 
     @Getter
     private String id, name;
+
+    @Getter
+    @Setter
+    private boolean occupied = false; // whether or not the runner is occupied with a task (from runnertaskcontextprocessor)
 
     private SmoothieRunnerAPIGrpc.SmoothieRunnerAPIBlockingStub blockingStub;
     private SmoothieRunnerAPIGrpc.SmoothieRunnerAPIStub asyncStub;
@@ -42,7 +48,7 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
     public SmoothieRunner(String id, String name, ManagedChannelBuilder<?> channelBuilder) {
         this.id = id;
         this.name = name;
-        channel = channelBuilder.build();
+        this.channel = channelBuilder.build();
 
         blockingStub = SmoothieRunnerAPIGrpc.newBlockingStub(channel);
         asyncStub = SmoothieRunnerAPIGrpc.newStub(channel);
@@ -94,33 +100,36 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
      * Run a full grader session asynchronously
      */
 
-    public void grade(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req, Submission submission) {
+    public StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> grade(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req, Submission submission) {
         logger.info(String.format("Runner %s grading submission %s for problem %s.", getName(), submission.getId(), submission.getProblemId()));
 
-        var observer = getAsyncStub().testSolution(new GraderStreamObserver(submission, this, req));
+        var observer = getAsyncStub().testSolution(new GraderStreamObserver(this));
         // send request
         observer.onNext(req);
-        // mark end of requests TODO
+        // mark end of requests TODO allow cancellation of submissions
         observer.onCompleted();
+        return observer;
     }
 
-    public void uploadTestData(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req, Submission submission) {
+    public void uploadTestData(Submission submission) {
         logger.info(String.format("Uploading test data to runner %s for problem %s.", getName(), submission.getProblemId()));
 
-        var observer = asyncStub.uploadProblemTestData(new UploadTestDataStreamObserver(submission, this, req));
-        var problemBean = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
+        var observer = asyncStub.uploadProblemTestData(new UploadTestDataStreamObserver(this));
+        var problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
 
         AtomicReference<String> hash = new AtomicReference<>(), testDataId = new AtomicReference<>();
 
-        problemBean.findProblemById(submission.getProblemId())
-                .flatMap(p -> { // get problem
+        problemService.findProblemById(submission.getProblemId())
+                // get problem
+                .flatMap(p -> {
                     testDataId.set(p.getTestDataId());
                     return p.getTestDataHash();
                 })
-                .flatMapMany(h -> { // get test data hash
+                // get test data hash
+                .flatMapMany(h -> {
                     hash.set(h);
                     try {
-                        return problemBean.findRawProblemTestDataFlux(testDataId.get());
+                        return problemService.findRawProblemTestDataFlux(testDataId.get());
                     } catch (Exception e) {
                         e.printStackTrace();
                         return Flux.error(e);
@@ -143,6 +152,7 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
                 .subscribe();
     }
 
+    // for sorting algorithm
     @Override
     public int compareTo(SmoothieRunner runner) {
         club.bayview.smoothieweb.SmoothieRunner.ServiceHealth s1 = null, s2 = null;

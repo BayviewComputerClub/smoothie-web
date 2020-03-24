@@ -5,21 +5,32 @@ import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.QueuedSubmission;
 import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.services.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.UnicastProcessor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RunnerTaskContextProcessor implements Runnable {
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    WebSocketSessionService webSocketSessionService = SmoothieWebApplication.context.getBean(WebSocketSessionService.class);
     SmoothieSubmissionService submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
     SmoothieQueuedSubmissionService queuedSubmissionService = SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class);
+    SubmissionVerdictService verdictService = SmoothieWebApplication.context.getBean(SubmissionVerdictService.class);
     SmoothieProblemService problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
 
     UnicastProcessor<RunnerTaskProcessorEvent> taskQueue = UnicastProcessor.create();
     String currentSubmissionId, currentQueuedSubmissionId;
+    club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest currentTestSolutionRequest;
     SmoothieRunner runner;
+
+    ObjectMapper om;
 
     public RunnerTaskContextProcessor(SmoothieRunner runner) {
         this.runner = runner;
@@ -32,25 +43,26 @@ public class RunnerTaskContextProcessor implements Runnable {
     public void run() {
         logger.info("Started worker thread for runner {}.", runner.getName());
 
-        taskQueue.subscribe(this::processEvent);
+        // todo
+        taskQueue.flatMap(this::processEvent).subscribe();
     }
 
     public Mono<Void> processEvent(RunnerTaskProcessorEvent ev) {
         switch (ev.eventType) {
             case RUNNER_GRADER_RECV_MSG:
-                break;
+                return graderReceivedMessage(ev.testSolutionResponse);
             case RUNNER_GRADER_COMPLETE:
-                break;
+                return graderCompletedMessage();
             case RUNNER_GRADER_ERR:
-                break;
+                return graderErrorMessage(ev.error);
             case RUNNER_UPLOAD_RECV_MSG:
-                break;
+                return uploadReceivedMessage(ev.uploadTestDataResponse);
             case RUNNER_UPLOAD_COMPLETE:
-                break;
+                return uploadCompletedMessage();
             case RUNNER_UPLOAD_ERR:
-                break;
+                return uploadErrorMessage(ev.error);
             case RUNNER_TRANSIENT_FAILURE:
-                break;
+                break; // TODO
             case CANCEL_SUBMISSION:
                 return cancelSubmission();
             case JUDGE_SUBMISSION:
@@ -72,12 +84,105 @@ public class RunnerTaskContextProcessor implements Runnable {
                 })
                 .flatMap(s -> Mono.zip(submissionService.saveSubmission(s), problemService.findProblemById(s.getProblemId())))
                 .flatMap(t -> Mono.zip(Mono.just(t.getT1()), toTestSolutionRequest(t.getT2(), t.getT1())))
-                .doOnNext(t -> runner.grade(t.getT2(), t.getT1()))
+                .doOnNext(t -> graderStreamObserver = runner.grade(t.getT2(), t.getT1()))
+                .doOnNext(t -> currentTestSolutionRequest = t.getT2())
                 .then();
     }
 
     public Mono<Void> cancelSubmission() {
+        runner.setOccupied(false);
+        graderStreamObserver.onError(new Exception());
+        return submissionService.findSubmissionById(currentSubmissionId)
+                .flatMap(s -> {
+                    s.setStatus(Submission.SubmissionStatus.CANCELLED);
+                    s.setJudgingCompleted(true);
+                    return submissionService.saveSubmission(s);
+                }).then();
+    }
 
+    public Mono<Void> uploadErrorMessage(Throwable t) {
+        t.printStackTrace();
+        logger.error(t.getMessage());
+        return cancelSubmission();
+    }
+
+    public Mono<Void> uploadReceivedMessage(club.bayview.smoothieweb.SmoothieRunner.UploadTestDataResponse res) {
+        if (!res.getError().equals("")) {
+            logger.error("Test Data Upload Error: " + res.getError());
+        }
+        return cancelSubmission();
+    }
+
+    public Mono<Void> uploadCompletedMessage() {
+        // go back to grading
+        return submissionService.findSubmissionById(currentSubmissionId)
+                .doOnNext(s -> graderStreamObserver = runner.grade(currentTestSolutionRequest, s))
+                .then();
+    }
+
+    boolean graderTerminatedEarly = false;
+    StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> graderStreamObserver;
+
+    public Mono<Void> graderErrorMessage(Throwable t) {
+        t.printStackTrace();
+        logger.error(t.getMessage());
+        return cancelSubmission();
+    }
+
+    public Mono<Void> graderCompletedMessage() {
+        if (graderTerminatedEarly) return Mono.empty();
+
+        return submissionService.findSubmissionById(currentSubmissionId)
+                .flatMap(s -> {
+                    logger.info("Judging has completed for submission " + s.getId() + ".");
+
+                    // store verdict and update points if necessary
+                    s.setStatus(Submission.SubmissionStatus.COMPLETE);
+                    return verdictService.applyVerdictToSubmission(s);
+
+                    // todo find next task to do
+                });
+    }
+
+    public Mono<Void> graderReceivedMessage(club.bayview.smoothieweb.SmoothieRunner.TestSolutionResponse res) {
+
+        return submissionService.findSubmissionById(currentSubmissionId)
+                .flatMap(s -> {
+                    // check if test data needs to be uploaded first
+                    if (res.getTestDataNeedUpload()) {
+                        graderTerminatedEarly = true; // prevent onCompleted from going through
+                        runner.uploadTestData(s); // upload test data, and then grade again
+                        return Mono.empty();
+                    }
+
+                    if (!res.getCompileError().equals("")) { // compile error
+                        s.setCompileError(res.getCompileError());
+                    } else if (res.getCompletedTesting()) { // testing has completed
+                        s.setJudgingCompleted(true);
+                    } else {
+                        // TODO refactor
+                        List<Submission.SubmissionBatchCase> socketSend = new ArrayList<>();
+                        for (var cases : s.getBatchCases()) {
+                            for (var c : cases) {
+                                if (c.getBatchNumber() == res.getTestCaseResult().getBatchNumber() && c.getCaseNumber() == res.getTestCaseResult().getCaseNumber()) {
+                                    c.setError(res.getTestCaseResult().getResultInfo());
+                                    c.setMemUsage(res.getTestCaseResult().getMemUsage());
+                                    c.setTime(res.getTestCaseResult().getTime());
+                                    c.setResultCode(res.getTestCaseResult().getResult());
+                                    socketSend.add(c);
+                                }
+                            }
+                        }
+                        // send to websocket
+                        try {
+                            webSocketSessionService.sendToClients("/live-submission/" + s.getId(), om.writeValueAsString(socketSend));
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    return submissionService.saveSubmission(s);
+                }).then();
     }
 
     // create grpc object to send
