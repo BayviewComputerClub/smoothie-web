@@ -11,6 +11,7 @@ import org.springframework.session.Session;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.UnicastProcessor;
 
@@ -63,5 +64,15 @@ public class WebSocketSessionService {
                         return Mono.just(securityContext.getAuthentication());
                     }
                 });
+    }
+
+    // helper function to take a single message from a websocket session
+    public Flux<WebSocketMessage> takeOneMsg(WebSocketSession session) {
+        return session.receive().take(1);
+    }
+
+    // helper function to set a unicastprocessor for websocket session input
+    public Mono<Void> setupInput(WebSocketSession session, UnicastProcessor<WebSocketMessage> inputStream, Flux<?> c) {
+        return session.send(inputStream).and(c).then();
     }
 }
