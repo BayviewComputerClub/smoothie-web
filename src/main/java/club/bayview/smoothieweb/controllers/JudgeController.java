@@ -42,9 +42,6 @@ public class JudgeController {
     private SmoothieUserService userService;
 
     @Autowired
-    private SmoothieQueuedSubmissionService queuedSubmissionService;
-
-    @Autowired
     private SmoothieContestService contestService;
 
     @Getter
@@ -144,8 +141,9 @@ public class JudgeController {
                     if (!t.getT1().hasPermissionToView(auth))
                         return Mono.error(new NoPermissionException());
 
-                    return gradeSubmission(t.getT1(), t.getT2(), form);
+                    return submissionService.createSubmissionAndJudge(t.getT1(), t.getT2(), null, form.getLanguage(), form.getCode());
                 })
+                .map(QueuedSubmission::getId)
                 .flatMap(id -> Mono.just("redirect:/submission/" + id))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /problem/{name}/submit route exception: "));
     }
@@ -170,39 +168,8 @@ public class JudgeController {
                     return Mono.zip(problemService.findProblemById(cp.getProblemId()), userService.findUserByHandle(auth.getName()), Mono.just(c));
                 })
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(t -> gradeSubmission(t.getT1(), t.getT2(), t.getT3(), form))
+                .flatMap(t -> submissionService.createSubmissionAndJudge(t.getT1(), t.getT2(), t.getT3(), form.getLanguage(), form.getCode()))
                 .flatMap(id -> Mono.just("redirect:/submission/" + id))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{contestName}/problem/{problemNum} route exception: "));
-    }
-
-    public Mono<String> gradeSubmission(Problem problem, User user, SubmitRequest form) {
-        return gradeSubmission(problem, user, null, form);
-    }
-
-    public Mono<String> gradeSubmission(Problem problem, User user, Contest contest, SubmitRequest form) {
-
-        Submission sub = new Submission();
-        sub.setId(ObjectId.get().toString());
-        sub.setLang(form.language);
-        sub.setUserId(user.getId());
-        sub.setProblemId(problem.getId());
-        sub.setCode(form.code);
-        sub.setTimeSubmitted(System.currentTimeMillis());
-        sub.setJudgingCompleted(false);
-        sub.setPoints(0);
-        sub.setMaxPoints(problem.getTotalPointsWorth());
-        sub.setStatus(Submission.SubmissionStatus.AWAITING_RUNNER);
-        if (contest != null) sub.setContestId(contest.getId());
-
-        return problem.getSubmissionBatchCases()
-                .flatMap(batches -> {
-                    sub.setBatchCases(batches);
-                    return submissionService.saveSubmission(sub);
-                })
-                .flatMap(s -> queuedSubmissionService.saveQueuedSubmission(new QueuedSubmission(s.getId(), problem.getId())))
-                .flatMap(q -> {
-                    queuedSubmissionService.checkRunnersTask();
-                    return Mono.just(q.getSubmissionId());
-                });
     }
 }

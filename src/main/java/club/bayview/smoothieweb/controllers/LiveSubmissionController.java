@@ -12,8 +12,7 @@ import club.bayview.smoothieweb.util.NotFoundException;
 import club.bayview.smoothieweb.util.SessionUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
@@ -24,23 +23,41 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.UnicastProcessor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-// stomp over websocket
 
 public class LiveSubmissionController implements WebSocketHandler {
 
-//    @Getter
-//    @Setter
-//    public static class LiveSubmissionData {
-//        String compileError;
-//        Submission.SubmissionStatus status;
-//        List<Submission.SubmissionBatchCase> batchCases;
-//
-//        public static LiveSubmissionData fromSubmission(Submission s) {
-//
-//        }
-//    }
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LiveSubmissionData {
+        String compileError;
+        Submission.SubmissionStatus status;
+        List<Submission.SubmissionBatchCase> batchCases;
+
+        public static LiveSubmissionData fromSubmission(Submission s) {
+            LiveSubmissionData lsd = new LiveSubmissionData();
+            lsd.setCompileError(s.getCompileError());
+            lsd.setStatus(s.getStatus());
+            lsd.setBatchCases(new ArrayList<>());
+            for (var l : s.getBatchCases()) {
+                for (var ss : l) lsd.getBatchCases().add(ss);
+            }
+            return lsd;
+        }
+
+        public static LiveSubmissionData fromSubmissionCase(Submission s, Submission.SubmissionBatchCase c) {
+            return LiveSubmissionData.builder()
+                    .status(s.getStatus())
+                    .batchCases(Arrays.asList(c))
+                    .build();
+        }
+    }
+
+    ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public Mono<Void> handle(WebSocketSession session) {
@@ -66,19 +83,14 @@ public class LiveSubmissionController implements WebSocketHandler {
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(t -> {
                     Submission s = t.getT2();
-
                     // check session permission for submission
                     if (!s.hasPermissionToView(t.getT1(), t.getT3()))
                         return Mono.error(new NoPermissionException());
 
                     sessionService.addSession("/live-submission/" + submissionId.toString(), session, inputStream);
-
-                    List<Submission.SubmissionBatchCase> l = new ArrayList<>();
-                    for (var nl : s.getBatchCases()) l.addAll(nl);
-
-                    ObjectMapper mapper = new ObjectMapper();
+                    // send initial batches
                     try {
-                        inputStream.onNext(session.textMessage(mapper.writeValueAsString(l)));
+                        inputStream.onNext(session.textMessage(mapper.writeValueAsString(LiveSubmissionData.fromSubmission(s))));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }

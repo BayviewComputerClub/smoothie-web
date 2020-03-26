@@ -1,18 +1,17 @@
 package club.bayview.smoothieweb.api.controllers;
 
 import club.bayview.smoothieweb.api.models.APIProblem;
-import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.QueuedSubmission;
-import club.bayview.smoothieweb.models.Submission;
-import club.bayview.smoothieweb.models.User;
-import club.bayview.smoothieweb.services.*;
+import club.bayview.smoothieweb.services.SmoothieContestService;
+import club.bayview.smoothieweb.services.SmoothieProblemService;
+import club.bayview.smoothieweb.services.SmoothieSubmissionService;
+import club.bayview.smoothieweb.services.SmoothieUserService;
 import club.bayview.smoothieweb.services.submissions.SmoothieQueuedSubmissionService;
 import club.bayview.smoothieweb.util.ErrorCommon;
 import club.bayview.smoothieweb.util.NoPermissionException;
 import club.bayview.smoothieweb.util.NotFoundException;
 import lombok.Getter;
 import lombok.Setter;
-import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,8 +66,9 @@ public class APIProblemController {
                     if (!t.getT1().hasPermissionToView(auth))
                         return Mono.error(new NoPermissionException());
 
-                    return gradeSubmission(t.getT1(), t.getT2(), problemSubmission);
+                    return submissionService.createSubmissionAndJudge(t.getT1(), t.getT2(), null, problemSubmission.getLang(), problemSubmission.getCode());
                 })
+                .map(QueuedSubmission::getId)
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /problem/{name}/submit route exception: "));
     }
 
@@ -77,30 +77,5 @@ public class APIProblemController {
     static class ProblemSubmission {
         String lang;
         String code;
-    }
-
-    private Mono<String> gradeSubmission(Problem problem, User user, ProblemSubmission problemSubmission) {
-        Submission sub = new Submission();
-        sub.setId(ObjectId.get().toString());
-        sub.setLang(problemSubmission.lang);
-        sub.setUserId(user.getId());
-        sub.setProblemId(problem.getId());
-        sub.setCode(problemSubmission.code);
-        sub.setTimeSubmitted(System.currentTimeMillis());
-        sub.setJudgingCompleted(false);
-        sub.setPoints(0);
-        sub.setMaxPoints(problem.getTotalPointsWorth());
-        sub.setStatus(Submission.SubmissionStatus.AWAITING_RUNNER);
-
-        return problem.getSubmissionBatchCases()
-                .flatMap(batches -> {
-                    sub.setBatchCases(batches);
-                    return submissionService.saveSubmission(sub);
-                })
-                .flatMap(s -> queuedSubmissionService.saveQueuedSubmission(new QueuedSubmission(s.getId(), problem.getId())))
-                .flatMap(q -> {
-                    queuedSubmissionService.checkRunnersTask();
-                    return Mono.just(q.getSubmissionId());
-                });
     }
 }

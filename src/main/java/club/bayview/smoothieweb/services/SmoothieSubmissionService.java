@@ -1,7 +1,9 @@
 package club.bayview.smoothieweb.services;
 
-import club.bayview.smoothieweb.models.Submission;
+import club.bayview.smoothieweb.models.*;
 import club.bayview.smoothieweb.repositories.SubmissionRepository;
+import club.bayview.smoothieweb.services.submissions.SmoothieQueuedSubmissionService;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,9 @@ public class SmoothieSubmissionService {
 
     @Autowired
     private SubmissionRepository submissionRepository;
+
+    @Autowired
+    private SmoothieQueuedSubmissionService queuedSubmissionService;
 
     public Mono<Submission> findSubmissionById(String id) {
         return submissionRepository.findById(id);
@@ -70,4 +75,27 @@ public class SmoothieSubmissionService {
         return submissionRepository.save(submission);
     }
 
+    public Mono<QueuedSubmission> createSubmissionAndJudge(Problem problem, User user, Contest contest, String language, String code) {
+        Submission sub = new Submission();
+        sub.setId(ObjectId.get().toString());
+        sub.setLang(language);
+        sub.setUserId(user.getId());
+        sub.setProblemId(problem.getId());
+        sub.setCode(code);
+        sub.setTimeSubmitted(System.currentTimeMillis());
+        sub.setJudgingCompleted(false);
+        sub.setPoints(0);
+        sub.setMaxPoints(problem.getTotalPointsWorth());
+        sub.setStatus(Submission.SubmissionStatus.AWAITING_RUNNER);
+        if (contest != null) sub.setContestId(contest.getId());
+
+        return problem.getSubmissionBatchCases()
+                .doOnNext(sub::setBatchCases)
+                .flatMap(batches -> saveSubmission(sub))
+                .flatMap(s -> queuedSubmissionService.saveQueuedSubmission(new QueuedSubmission(s.getId(), problem.getId())))
+                .flatMap(q -> {
+                    queuedSubmissionService.checkRunnersTask();
+                    return Mono.just(q);
+                });
+    }
 }

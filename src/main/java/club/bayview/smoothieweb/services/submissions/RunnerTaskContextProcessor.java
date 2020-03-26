@@ -1,6 +1,7 @@
 package club.bayview.smoothieweb.services.submissions;
 
 import club.bayview.smoothieweb.SmoothieWebApplication;
+import club.bayview.smoothieweb.controllers.LiveSubmissionController;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.QueuedSubmission;
 import club.bayview.smoothieweb.models.Submission;
@@ -167,8 +168,24 @@ public class RunnerTaskContextProcessor implements Runnable {
 
                     if (!res.getCompileError().equals("")) { // compile error
                         s.setCompileError(res.getCompileError());
+                        s.setStatus(Submission.SubmissionStatus.COMPLETE);
+
+                        // send to websocket
+                        try {
+                            webSocketSessionService.sendToClients("/live-submission/" + s.getId(), om.writeValueAsString(LiveSubmissionController.LiveSubmissionData.builder().compileError(s.getCompileError()).status(s.getStatus()).build()));
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
                     } else if (res.getCompletedTesting()) { // testing has completed
                         s.setJudgingCompleted(true);
+                        s.setStatus(Submission.SubmissionStatus.COMPLETE);
+
+                        // send to websocket
+                        try {
+                            webSocketSessionService.sendToClients("/live-submission/" + s.getId(), om.writeValueAsString(LiveSubmissionController.LiveSubmissionData.builder().status(s.getStatus()).build()));
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
                     } else {
                         // TODO refactor
                         List<Submission.SubmissionBatchCase> socketSend = new ArrayList<>();
@@ -185,7 +202,7 @@ public class RunnerTaskContextProcessor implements Runnable {
                         }
                         // send to websocket
                         try {
-                            webSocketSessionService.sendToClients("/live-submission/" + s.getId(), om.writeValueAsString(socketSend));
+                            webSocketSessionService.sendToClients("/live-submission/" + s.getId(), om.writeValueAsString(LiveSubmissionController.LiveSubmissionData.builder().batchCases(socketSend).status(s.getStatus()).build()));
                         } catch (JsonProcessingException e) {
                             e.printStackTrace();
                         }
