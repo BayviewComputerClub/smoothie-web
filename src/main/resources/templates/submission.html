@@ -52,26 +52,32 @@
             <br/> <span th:text="${submission.lang}" class="topbar-bottom-text"></span>
         </div>
         <div class="topbar-item">
+            Status
+            <br/> <span th:text="${submission.status}" id="submission-status" class="topbar-bottom-text"></span>
+        </div>
+        <div class="topbar-item">
             <a class="button-link" th:href="@{'/submission/' + ${submission.id} + '/code'}">Code</a>
             <a class="button-link" th:href="@{'/submission/' + ${submission.id} + '/resubmit'}" sec:authorize="isAuthenticated()" th:if="${user.handle} == ${#authentication.getPrincipal().getUsername()}">Resubmit</a>
         </div>
     </div>
 
-    <div th:unless="${submission.compileError} == null">
-        <h3 class="title">Compile Error</h3>
-        <p th:text="${submission.compileError}"></p>
-    </div>
+    <div id="submission-content">
+        <div th:unless="${submission.compileError} == null">
+            <h3 class="title">Compile Error</h3>
+            <p th:text="${submission.compileError}"></p>
+        </div>
 
-    <ul th:if="${submission.compileError} == null">
-        <li th:each="batch, iter : ${submission.batchCases}">
-            Batch #[[${iter.index}+1]]:
-            <ul>
-                <li th:each="case, iter2 : ${batch}" th:id="'batch-' + ${iter.index} + '-case-' + ${iter2.index}">
-                    Case #[[${iter2.index}+1]]: [[${case.resultCode}]] (<span class="case-time">[[${case.time}]]</span>s) ([[${case.memUsage}]]MB)
-                </li>
-            </ul>
-        </li>
-    </ul>
+        <ul th:if="${submission.compileError} == null">
+            <li th:each="batch, iter : ${submission.batchCases}">
+                Batch #[[${iter.index}+1]]:
+                <ul>
+                    <li th:each="case, iter2 : ${batch}" th:id="'batch-' + ${iter.index} + '-case-' + ${iter2.index}">
+                        Case #[[${iter2.index}+1]]: [[${case.resultCode}]] (<span class="case-time">[[${case.time}]]</span>s) ([[${case.memUsage}]]MB)
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
 
 </div>
 
@@ -94,9 +100,15 @@
         });
         socket.addEventListener('message', e => {
             console.log(e.data);
-            JSON.parse(e.data).forEach(sub => {
-                $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber + 1) + ": " + sub.resultCode + " (" + (Math.round(sub.time * 1000) / 1000).toFixed(3) + "s) (" + sub.memUsage + "MB)");
-            });
+            let parsed = JSON.parse(e.data);
+            $('#submission-status').text(parsed.status);
+            if (parsed.compileError != null) {
+                $('#submission-content').html("<h3 class='title'>Compile Error</h3><p>" + parsed.compileError + "</p>");
+            } else if (parsed.batchCases != null) {
+                parsed.batchCases.forEach(sub => {
+                    $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber + 1) + ": " + sub.resultCode + " (" + (Math.round(sub.time * 1000) / 1000).toFixed(3) + "s) (" + sub.memUsage + "MB)");
+                });
+            }
         });
     }
 

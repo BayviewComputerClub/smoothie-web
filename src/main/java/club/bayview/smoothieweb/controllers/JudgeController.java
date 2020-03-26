@@ -143,7 +143,7 @@ public class JudgeController {
 
                     return submissionService.createSubmissionAndJudge(t.getT1(), t.getT2(), null, form.getLanguage(), form.getCode());
                 })
-                .map(QueuedSubmission::getId)
+                .map(QueuedSubmission::getSubmissionId)
                 .flatMap(id -> Mono.just("redirect:/submission/" + id))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /problem/{name}/submit route exception: "));
     }

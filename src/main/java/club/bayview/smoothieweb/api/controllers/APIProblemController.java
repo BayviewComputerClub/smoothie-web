@@ -68,7 +68,7 @@ public class APIProblemController {
 
                     return submissionService.createSubmissionAndJudge(t.getT1(), t.getT2(), null, problemSubmission.getLang(), problemSubmission.getCode());
                 })
-                .map(QueuedSubmission::getId)
+                .map(QueuedSubmission::getSubmissionId)
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /problem/{name}/submit route exception: "));
     }
 
