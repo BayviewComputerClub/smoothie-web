@@ -3,6 +3,7 @@ package club.bayview.smoothieweb.services;
 import club.bayview.smoothieweb.models.*;
 import club.bayview.smoothieweb.repositories.SubmissionRepository;
 import club.bayview.smoothieweb.services.submissions.SmoothieQueuedSubmissionService;
+import club.bayview.smoothieweb.services.submissions.SubmissionWebSocketService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -14,10 +15,13 @@ import reactor.core.publisher.Mono;
 public class SmoothieSubmissionService {
 
     @Autowired
-    private SubmissionRepository submissionRepository;
+    SubmissionRepository submissionRepository;
 
     @Autowired
-    private SmoothieQueuedSubmissionService queuedSubmissionService;
+    SmoothieQueuedSubmissionService queuedSubmissionService;
+
+    @Autowired
+    SubmissionWebSocketService submissionWebSocketService;
 
     public Mono<Submission> findSubmissionById(String id) {
         return submissionRepository.findById(id);
@@ -89,17 +93,15 @@ public class SmoothieSubmissionService {
         sub.setTimeSubmitted(System.currentTimeMillis());
         sub.setJudgingCompleted(false);
         sub.setPoints(0);
-        sub.setMaxPoints(problem.getTotalPointsWorth());
+        sub.setMaxPoints(problem.getBatchPointsSum());
         sub.setStatus(Submission.SubmissionStatus.AWAITING_RUNNER);
         if (contest != null) sub.setContestId(contest.getId());
+        sub.setBatchCases(problem.getSubmissionBatchCases());
 
-        return problem.getSubmissionBatchCases()
-                .doOnNext(sub::setBatchCases)
-                .flatMap(batches -> saveSubmission(sub))
+        return saveSubmission(sub)
+                .doOnNext(s -> submissionWebSocketService.sendLiveSubmissionListEntry(s).subscribe())
                 .flatMap(s -> queuedSubmissionService.saveQueuedSubmission(new QueuedSubmission(s.getId(), problem.getId())))
-                .flatMap(q -> {
-                    queuedSubmissionService.checkRunnersTask();
-                    return Mono.just(q);
-                });
+                .doOnNext(q -> queuedSubmissionService.checkRunnersTask())
+                .flatMap(Mono::just);
     }
 }

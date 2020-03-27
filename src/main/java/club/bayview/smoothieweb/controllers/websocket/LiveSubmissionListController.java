@@ -28,6 +28,7 @@ import reactor.core.publisher.UnicastProcessor;
  * <p>
  * Must send a {@link LiveSubmissionListWSRequest} to the route first.
  * Sends a stream of messages, where each message is an array of {@link LiveSubmissionListWSResponse} in JSON.
+ * </p>
  */
 
 public class LiveSubmissionListController implements WebSocketHandler {
@@ -54,13 +55,13 @@ public class LiveSubmissionListController implements WebSocketHandler {
         Contest contest = null;
 
         public Mono<Void> fill() {
-            return Mono.zip(SmoothieWebApplication.context.getBean(SmoothieUserService.class)
+            return Mono.zip(getUsername() == null ? Mono.just("") : SmoothieWebApplication.context.getBean(SmoothieUserService.class)
                             .findUserByHandle(getUsername())
                             .doOnNext(this::setUser),
-                    SmoothieWebApplication.context.getBean(SmoothieProblemService.class)
+                    getProblemName() == null ? Mono.just("") : SmoothieWebApplication.context.getBean(SmoothieProblemService.class)
                             .findProblemByName(getProblemName())
                             .doOnNext(this::setProblem),
-                    SmoothieWebApplication.context.getBean(SmoothieContestService.class)
+                    getContestName() == null ? Mono.just("") : SmoothieWebApplication.context.getBean(SmoothieContestService.class)
                             .findContestByName(getContestName())
                             .doOnNext(this::setContest)
             ).then();
@@ -74,6 +75,7 @@ public class LiveSubmissionListController implements WebSocketHandler {
         Submission.SubmissionStatus submissionStatus;
         String verdict;
         long time;
+        int pointsAwarded, pointsMax;
 
         public static Mono<LiveSubmissionListWSResponse> fromSubmission(Submission s) {
             LiveSubmissionListWSResponse res = new LiveSubmissionListWSResponse();
@@ -82,15 +84,17 @@ public class LiveSubmissionListController implements WebSocketHandler {
             res.setSubmissionStatus(s.getStatus());
             res.setVerdict(s.getVerdict());
             res.setTime(s.getTimeSubmitted());
+            res.setPointsAwarded(s.getPoints());
+            res.setPointsMax(s.getMaxPoints());
 
             // resolve ids
-            return Mono.zip(SmoothieWebApplication.context.getBean(SmoothieUserService.class)
+            return Mono.zip(s.getUserId() == null ? Mono.just("") : SmoothieWebApplication.context.getBean(SmoothieUserService.class)
                             .findUserById(s.getUserId())
                             .doOnNext(u -> res.setUserName(u.getHandle())),
-                    SmoothieWebApplication.context.getBean(SmoothieProblemService.class)
+                    s.getProblemId() == null ? Mono.just("") : SmoothieWebApplication.context.getBean(SmoothieProblemService.class)
                             .findProblemById(s.getProblemId())
                             .doOnNext(p -> res.setProblemName(p.getPrettyName())),
-                    SmoothieWebApplication.context.getBean(SmoothieContestService.class)
+                    s.getContestId() == null ? Mono.just("") : SmoothieWebApplication.context.getBean(SmoothieContestService.class)
                             .findContestById(s.getContestId())
                             .doOnNext(c -> res.setContestName(c.getPrettyName()))
             ).then(Mono.just(res));

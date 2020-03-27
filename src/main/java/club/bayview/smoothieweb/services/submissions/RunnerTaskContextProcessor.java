@@ -6,7 +6,6 @@ import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.QueuedSubmission;
 import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.services.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,7 +182,7 @@ public class RunnerTaskContextProcessor implements Runnable {
                         // update submission
                         List<Submission.SubmissionBatchCase> socketSend = new ArrayList<>();
                         for (var cases : s.getBatchCases()) {
-                            for (var c : cases) {
+                            for (var c : cases.getCases()) {
                                 if (c.getBatchNumber() == res.getTestCaseResult().getBatchNumber() && c.getCaseNumber() == res.getTestCaseResult().getCaseNumber()) {
                                     c.setError(res.getTestCaseResult().getResultInfo());
                                     c.setMemUsage(res.getTestCaseResult().getMemUsage());

@@ -18,7 +18,7 @@ public class SubmissionWebSocketService {
     @Autowired
     WebSocketSessionService webSocketSessionService;
 
-    ObjectMapper om;
+    ObjectMapper om = new ObjectMapper();
 
     public void sendLiveSubmission(String route, LiveSubmissionController.LiveSubmissionData data) {
         try {

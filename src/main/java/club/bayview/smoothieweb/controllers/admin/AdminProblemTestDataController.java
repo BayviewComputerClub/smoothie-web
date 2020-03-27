@@ -104,7 +104,7 @@ public class AdminProblemTestDataController {
                         Problem.TestDataWrapper w = new Problem.TestDataWrapper(new ArrayList<>(), testData);
 
                         for (var b : testData.getBatchList()) {
-                            w.getBatches().add(new Problem.ProblemBatch(b.getBatchNum(), 0)); // TODO partial
+                            w.getBatches().add(new Problem.ProblemBatch((int)b.getBatchNum(), b.getCaseCount(), b.getCaseCount())); // TODO partial
                         }
 
                         return problemService.saveTestDataForProblem(w, p)

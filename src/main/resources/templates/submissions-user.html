@@ -15,7 +15,7 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1 class="title"><a class="link" th:href="@{'/user/' + ${user.handle}}">[[${user.handle}]]</a>'s submissions </h1>
+    <h1 class="title"><a class="link" th:href="@{'/user/' + ${user.handle}}">[[${user.handle}]]</a>'s submissions</h1>
     <table class="standard-table" style="width: 80%">
         <thead>
         <tr>
@@ -44,11 +44,30 @@
 
 <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
 <script th:src="@{/js/moment.min.js}"></script>
-<script>
+<script th:inline="javascript">
+
+    function connect() {
+        let prefix = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/ws";
+        let socket = new WebSocket(prefix + '/live-submission-list');
+        socket.addEventListener('open', e => {
+            console.log('Connected to websocket.');
+            socket.send(/* [[${user.handle}]] */);
+        });
+        socket.addEventListener('close', e => {
+            console.log('Disconnected from websocket.');
+        });
+        socket.addEventListener('message', e => {
+            console.log(e.data);
+            let parsed = JSON.parse(e.data);
+        });
+    }
+
     $(() => {
         $(".timeSubmitted").each((i, obj) => {
             // properly format time
             obj.innerText = moment(obj.innerText*1).format('LLL');
+
+            connect();
         });
     })
 </script>

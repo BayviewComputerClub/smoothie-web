@@ -46,7 +46,7 @@
             <span th:if="${contestProblem}" th:text="${contestProblem.totalPointsWorth}"
                   class="topbar-bottom-text"></span>
             <!-- Regular -->
-            <span th:unless="${contestProblem}" th:text="${problem.totalPointsWorth}" class="topbar-bottom-text"></span>
+            <span th:unless="${contestProblem}" th:text="${problem.scoreMultiplier}" class="topbar-bottom-text"></span>
         </div>
         <div class="topbar-item">
             <span class="material-icons" style="vertical-align: middle;">timer</span> Time Limit

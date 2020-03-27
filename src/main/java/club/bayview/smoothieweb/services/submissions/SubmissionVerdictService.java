@@ -44,6 +44,7 @@ public class SubmissionVerdictService {
                     User user = tuple.getT1();
                     Problem problem = tuple.getT2();
 
+                    // determine submission verdict and points awarded
                     submission.determineVerdict();
                     submission.determinePoints(problem);
 
@@ -55,14 +56,18 @@ public class SubmissionVerdictService {
                         }
                     }
 
+                    double pointsAwarded = (double)submission.getPoints() / submission.getMaxPoints() * problem.getScoreMultiplier();
+
                     // update points if the submission is higher
-                    if (!user.getProblemsAttempted().containsKey(problem.getId()) || user.getProblemsAttempted().get(problem.getId()) < submission.getPoints()) {
-                        if (user.getProblemsAttempted().containsKey(problem.getId()) && user.getProblemsAttempted().get(problem.getId()) < submission.getPoints()) {
+                    if (!user.getProblemsAttempted().containsKey(problem.getId()) || user.getProblemsAttempted().get(problem.getId()) < pointsAwarded) {
+                        // subtract previous points awarded
+                        if (user.getProblemsAttempted().containsKey(problem.getId()) && user.getProblemsAttempted().get(problem.getId()) < pointsAwarded) {
                             user.setPoints(user.getPoints() - user.getProblemsAttempted().get(problem.getId()));
                         }
 
-                        user.getProblemsAttempted().put(problem.getId(), submission.getPoints());
-                        user.setPoints(user.getPoints() + submission.getPoints());
+                        user.getProblemsAttempted().put(problem.getId(), pointsAwarded);
+                        // add points taking into account score multiplier
+                        user.setPoints(user.getPoints() + pointsAwarded);
                     }
 
                     // if there is a contest

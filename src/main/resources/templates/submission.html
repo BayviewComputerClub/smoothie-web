@@ -71,7 +71,7 @@
             <li th:each="batch, iter : ${submission.batchCases}">
                 Batch #[[${iter.index}+1]]:
                 <ul>
-                    <li th:each="case, iter2 : ${batch}" th:id="'batch-' + ${iter.index} + '-case-' + ${iter2.index}">
+                    <li th:each="case, iter2 : ${batch.cases}" th:id="'batch-' + ${iter.index} + '-case-' + ${iter2.index}">
                         Case #[[${iter2.index}+1]]: [[${case.resultCode}]] (<span class="case-time">[[${case.time}]]</span>s) ([[${case.memUsage}]]MB)
                     </li>
                 </ul>

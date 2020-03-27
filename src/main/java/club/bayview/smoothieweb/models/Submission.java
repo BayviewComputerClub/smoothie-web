@@ -1,18 +1,15 @@
 package club.bayview.smoothieweb.models;
 
-import club.bayview.smoothieweb.models.testdata.StoredTestData;
 import club.bayview.smoothieweb.util.Verdict;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.redis.core.index.Indexed;
 import org.springframework.security.core.Authentication;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,8 +32,14 @@ public class Submission {
 
     @Getter
     @Setter
-    public static class SubmissionBatchCase {
+    public static class SubmissionBatch {
+        long pointsAwarded, maxPoints;
+        List<SubmissionBatchCase> cases = new ArrayList<>();
+    }
 
+    @Getter
+    @Setter
+    public static class SubmissionBatchCase {
         private long batchNumber, caseNumber;
         String resultCode, error;
         private double time, memUsage;
@@ -45,10 +48,10 @@ public class Submission {
             resultCode = Verdict.AR.toString();
         }
 
-        public SubmissionBatchCase(StoredTestData.TestDataBatchCase c) {
+        public SubmissionBatchCase(int batchNum, int caseNum) {
             this();
-            this.batchNumber = c.getBatchNum();
-            this.caseNumber = c.getCaseNum();
+            this.batchNumber = batchNum;
+            this.caseNumber = caseNum;
         }
 
         public boolean isAwaitingResults() {
@@ -78,51 +81,48 @@ public class Submission {
     private Long timeSubmitted;
 
     private String compileError;
-    private List<List<SubmissionBatchCase>> batchCases;
+    private List<SubmissionBatch> batchCases;
 
     private String verdict = Verdict.AR.toString();
 
     private boolean judgingCompleted;
 
-    private double points, maxPoints;
+    private int points, maxPoints;
 
     /**
      * Check if a given authentication has permission to view the contents of the submission.
      *
-     * @param auth the Authentication object
+     * @param auth    the Authentication object
      * @param problem the problem that the submission belongs to
      * @return whether or not the authentication has permission to view
      */
 
     public boolean hasPermissionToView(Authentication auth, Problem problem) {
-        if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User)) {
+        if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User))
             return false;
-        }
 
         User user = (User) auth.getPrincipal();
 
         // admins are automatically allowed to see
-        if (user.getRoles().contains(Role.ROLE_ADMIN)) {
+        if (user.getRoles().contains(Role.ROLE_ADMIN))
             return true;
-        }
 
         // if it is the user that submitted
-        if (getUserId().equals(user.getId())) {
+        if (getUserId().equals(user.getId()))
             return true;
-        }
+
         // if the user has solved the problem
-        if (user.getSolved().contains(getProblemId())) {
+        if (user.getSolved().contains(getProblemId()))
             return true;
-        }
 
         // if the problem does not exist
-        if (problem == null) {
+        if (problem == null)
             return true;
-        }
+
         // if the user is an editor
-        if (problem.getEditorIds() != null && problem.getEditorIds().contains(user.getId())) {
+        if (problem.getEditorIds() != null && problem.getEditorIds().contains(user.getId()))
             return true;
-        }
+
         // deny otherwise
         return false;
     }
@@ -139,7 +139,7 @@ public class Submission {
         }
 
         for (var batch : batchCases) {
-            for (var c : batch) {
+            for (var c : batch.cases) {
                 if (!c.getResultCode().equals(Verdict.AC.toString())) {
                     verdict = c.getResultCode();
                     return;
@@ -153,39 +153,37 @@ public class Submission {
 
     /**
      * Calculate the amount of points that should be given for the submission.
-     * Should be run AFTER the verdict is determined.
+     *
      * @param p the problem that the submission is for
      */
 
     public void determinePoints(Problem p) {
-        if (p.isAllowPartial()) {
-            if (p.getProblemBatches() != null && batchCases.size() == p.getProblemBatches().size()) {
-                boolean perfect = true;
-
-                // loop over each batch
-                for (int i = 0; i < batchCases.size(); i++) {
-                    boolean isAC = true;
-                    for (var c : batchCases.get(i)) {
-                        if (!c.getResultCode().equals(Verdict.AC.toString())) {
-                            isAC = false;
-                            perfect = false;
-                            break;
-                        }
-                    }
-                    // determine if the batch has passed
-                    if (isAC) {
-                        points += (double)p.getProblemBatches().get(i).getPointsWorth() / 100 * p.getTotalPointsWorth(); // TODO round maybe
+        points = 0;
+        if (p.isAllowPartial()) { // allow partial - every case in each batch is evaluated
+            for (var batch : batchCases) {
+                batch.pointsAwarded = 0;
+                for (var c : batch.cases) {
+                    // add a point if case passed
+                    if (c.getResultCode().equals(Verdict.AC.toString())) {
+                        batch.pointsAwarded++;
                     }
                 }
-
-                // if all cases passed, just don't use rounding and give full points
-                if (perfect) {
-                    points = p.getTotalPointsWorth();
-                }
+                // correct the points awarded to the scale of maxPoints
+                batch.pointsAwarded = Math.round(((double) batch.pointsAwarded) / batch.cases.size() * batch.maxPoints);
+                points += batch.pointsAwarded;
             }
-            // if the test data has changed since original judging, just leave the points as is
-        } else {
-            points = verdict.equals(Verdict.AC.toString()) ? p.getTotalPointsWorth() : 0;
+        } else { // each batch is either pass (get all points for batch) or fail (0 points)
+            for (var batch : batchCases) {
+                batch.pointsAwarded = batch.maxPoints;
+                for (var c : batch.cases) {
+                    // give no points if a case fails
+                    if (!c.getResultCode().equals(Verdict.AC.toString())) {
+                        batch.pointsAwarded = 0;
+                        break;
+                    }
+                }
+                points += batch.pointsAwarded;
+            }
         }
     }
 }

@@ -46,7 +46,7 @@ public class ProblemForm {
         pf.setPrettyName(p.getPrettyName());
         pf.setProblemStatement(p.getProblemStatement());
         pf.setAllowPartial(p.isAllowPartial());
-        pf.setTotalScoreWorth(p.getTotalPointsWorth());
+        pf.setTotalScoreWorth(p.getScoreMultiplier());
         pf.setLimits(new ArrayList<>());
         for (Problem.ProblemLimits l : p.getLimits()) {
             pf.getLimits().add(new ProblemFormLimit(JudgeLanguage.nameToPretty(l.getLang()), l.getTimeLimit(), l.getMemoryLimit()));
@@ -61,7 +61,7 @@ public class ProblemForm {
         problem.setPrettyName(this.getPrettyName());
         problem.setProblemStatement(this.getProblemStatement());
         problem.setAllowPartial(this.isAllowPartial());
-        problem.setTotalPointsWorth(this.getTotalScoreWorth());
+        problem.setScoreMultiplier(this.getTotalScoreWorth());
 
         problem.setLimits(new ArrayList<>());
         for (ProblemFormLimit l : this.getLimits()) {

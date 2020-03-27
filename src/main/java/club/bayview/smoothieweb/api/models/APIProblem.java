@@ -32,7 +32,7 @@ public class APIProblem {
         np.setLimits(p.getLimits());
         np.setProblemStatement(p.getProblemStatement());
         //np.setAllowPartial(p.getAllowPartial());
-        np.setTotalPointsWorth(p.getTotalPointsWorth());
+        np.setTotalPointsWorth(p.getScoreMultiplier());
         np.setRateOfAC(p.getRateOfAC());
         np.setUsersSolved(p.getUsersSolved());
         np.setEditorIds(p.getEditorIds());

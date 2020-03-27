@@ -284,7 +284,7 @@ public class Contest {
                         if (m.containsKey(cp.getProblemId())) { // submission for problem has been recorded
                             var sub = m.get(cp.getProblemId());
                             cus.setMaxPoints(cp.getTotalPointsWorth());
-                            cus.setPoints(sub.getPoints() / sub.getMaxPoints() * cp.getTotalPointsWorth()); // convert from problem points to contest points
+                            cus.setPoints((double)sub.getPoints() / sub.getMaxPoints() * cp.getTotalPointsWorth()); // convert from problem points to contest points
                             cus.setProblemId(sub.getProblemId());
                             cus.setTimeSubmitted(sub.getTimeSubmitted());
                         } else { // no submissions yet

@@ -39,7 +39,8 @@ public class Problem {
     @Setter
     @AllArgsConstructor
     public static class ProblemBatch {
-        private long batchNum, pointsWorth; // out of 100
+        private int batchNum, numberOfCases;
+        private long pointsWorth;
     }
 
     @Getter
@@ -65,8 +66,9 @@ public class Problem {
 
     private String problemStatement;
 
-    private boolean allowPartial;
-    private int totalPointsWorth;
+    private boolean allowPartial; // whether or not to allow partial points awarded on EACH individual batch
+    private int batchPointsSum; // sum of pointsWorth of all batches
+    private int scoreMultiplier; // what the points are out of on the site (contests have their own separate multiplier)
 
     private int rateOfAC, usersSolved;
     private long timeCreated;
@@ -91,18 +93,18 @@ public class Problem {
         }
     }
 
-    public Mono<List<List<Submission.SubmissionBatchCase>>> getSubmissionBatchCases() {
-        List<List<Submission.SubmissionBatchCase>> l = new ArrayList<>();
+    public List<Submission.SubmissionBatch> getSubmissionBatchCases() {
+        List<Submission.SubmissionBatch> l = new ArrayList<>();
 
-        return getTestData().flatMap(testData -> {
-            for (var cases : testData.getBatchList()) {
-                l.add(new ArrayList<>());
-                for (var c : cases.getCaseList()) {
-                    l.get(l.size() - 1).add(new Submission.SubmissionBatchCase(c));
-                }
+        for (var batch : getProblemBatches()) {
+            var submissionBatch = new Submission.SubmissionBatch();
+            submissionBatch.setMaxPoints(batch.getPointsWorth());
+            for (int i = 0; i < batch.getNumberOfCases(); i++) {
+                submissionBatch.getCases().add(new Submission.SubmissionBatchCase(batch.getBatchNum(), i));
             }
-            return Mono.just(l);
-        });
+            l.add(submissionBatch);
+        }
+        return l;
     }
 
     public ProblemLimits getProblemLimitForLang(String language) {

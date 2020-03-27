@@ -26,6 +26,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Websocket controller:
+ * /ws/live-submission
+ * <p>
+ * Must send a String containing the submission ID to the route first.
+ * Sends a stream of messages, where each message is a {@link LiveSubmissionData} in JSON.
+ * </p>
+ */
+
 public class LiveSubmissionController implements WebSocketHandler {
 
     @Getter
@@ -44,7 +53,7 @@ public class LiveSubmissionController implements WebSocketHandler {
             lsd.setStatus(s.getStatus());
             lsd.setBatchCases(new ArrayList<>());
             for (var l : s.getBatchCases()) {
-                for (var ss : l) lsd.getBatchCases().add(ss);
+                for (var ss : l.getCases()) lsd.getBatchCases().add(ss);
             }
             return lsd;
         }
