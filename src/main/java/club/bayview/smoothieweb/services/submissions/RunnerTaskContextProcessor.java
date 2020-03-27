@@ -1,12 +1,11 @@
 package club.bayview.smoothieweb.services.submissions;
 
 import club.bayview.smoothieweb.SmoothieWebApplication;
-import club.bayview.smoothieweb.controllers.LiveSubmissionController;
+import club.bayview.smoothieweb.controllers.websocket.LiveSubmissionController;
 import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.QueuedSubmission;
 import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.services.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
@@ -25,13 +24,11 @@ public class RunnerTaskContextProcessor implements Runnable {
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // services
-    WebSocketSessionService webSocketSessionService = SmoothieWebApplication.context.getBean(WebSocketSessionService.class);
     SmoothieSubmissionService submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
     SmoothieQueuedSubmissionService queuedSubmissionService = SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class);
     SubmissionVerdictService verdictService = SmoothieWebApplication.context.getBean(SubmissionVerdictService.class);
     SmoothieProblemService problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
-
-    ObjectMapper om = new ObjectMapper();
+    SubmissionWebSocketService submissionWebSocketService = SmoothieWebApplication.context.getBean(SubmissionWebSocketService.class);
 
     // reactive queue
     UnicastProcessor<RunnerTaskProcessorEvent> taskQueue = UnicastProcessor.create();
@@ -89,6 +86,8 @@ public class RunnerTaskContextProcessor implements Runnable {
                 .doOnNext(s -> {
                     s.setRunnerId(runner.getId());
                     s.setStatus(Submission.SubmissionStatus.JUDGING);
+                    // send to websocket
+                    submissionWebSocketService.sendLiveSubmissionListEntry(s).subscribe();
                 })
                 .flatMap(s -> Mono.zip(submissionService.saveSubmission(s), problemService.findProblemById(s.getProblemId())))
                 .flatMap(t -> Mono.zip(Mono.just(t.getT1()), toTestSolutionRequest(t.getT2(), t.getT1())))
@@ -104,7 +103,7 @@ public class RunnerTaskContextProcessor implements Runnable {
                 .flatMap(s -> {
                     s.setStatus(Submission.SubmissionStatus.CANCELLED);
                     s.setJudgingCompleted(true);
-                    return submissionService.saveSubmission(s);
+                    return Mono.zip(submissionService.saveSubmission(s), submissionWebSocketService.sendLiveSubmissionListEntry(s));
                 }).then();
     }
 
@@ -152,7 +151,9 @@ public class RunnerTaskContextProcessor implements Runnable {
 
                     // todo find next task to do
                     queuedSubmissionService.checkRunnersTask();
-                    return verdictService.applyVerdictToSubmission(s);
+                    return verdictService.applyVerdictToSubmission(s)
+                            // send to websocket
+                            .then(submissionWebSocketService.sendLiveSubmissionListEntry(s));
                 });
     }
 
@@ -171,23 +172,15 @@ public class RunnerTaskContextProcessor implements Runnable {
                         s.setStatus(Submission.SubmissionStatus.COMPLETE);
 
                         // send to websocket
-                        try {
-                            webSocketSessionService.sendToClients("/live-submission/" + s.getId(), om.writeValueAsString(LiveSubmissionController.LiveSubmissionData.builder().compileError(s.getCompileError()).status(s.getStatus()).build()));
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        }
+                        submissionWebSocketService.sendLiveSubmission("/live-submission/" + s.getId(), LiveSubmissionController.LiveSubmissionData.builder().compileError(s.getCompileError()).status(s.getStatus()).build());
                     } else if (res.getCompletedTesting()) { // testing has completed
                         s.setJudgingCompleted(true);
                         s.setStatus(Submission.SubmissionStatus.COMPLETE);
 
                         // send to websocket
-                        try {
-                            webSocketSessionService.sendToClients("/live-submission/" + s.getId(), om.writeValueAsString(LiveSubmissionController.LiveSubmissionData.builder().status(s.getStatus()).build()));
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        // TODO refactor
+                        submissionWebSocketService.sendLiveSubmission("/live-submission/" + s.getId(), LiveSubmissionController.LiveSubmissionData.builder().status(s.getStatus()).build());
+                    } else { // result for test case
+                        // update submission
                         List<Submission.SubmissionBatchCase> socketSend = new ArrayList<>();
                         for (var cases : s.getBatchCases()) {
                             for (var c : cases) {
@@ -201,13 +194,8 @@ public class RunnerTaskContextProcessor implements Runnable {
                             }
                         }
                         // send to websocket
-                        try {
-                            webSocketSessionService.sendToClients("/live-submission/" + s.getId(), om.writeValueAsString(LiveSubmissionController.LiveSubmissionData.builder().batchCases(socketSend).status(s.getStatus()).build()));
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        }
+                        submissionWebSocketService.sendLiveSubmission("/live-submission/" + s.getId(), LiveSubmissionController.LiveSubmissionData.builder().batchCases(socketSend).status(s.getStatus()).build());
                     }
-
                     return submissionService.saveSubmission(s);
                 }).then();
     }

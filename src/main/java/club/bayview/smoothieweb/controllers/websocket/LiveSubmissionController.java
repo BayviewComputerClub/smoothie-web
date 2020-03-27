@@ -1,4 +1,4 @@
-package club.bayview.smoothieweb.controllers;
+package club.bayview.smoothieweb.controllers.websocket;
 
 import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.models.Submission;
@@ -48,13 +48,6 @@ public class LiveSubmissionController implements WebSocketHandler {
             }
             return lsd;
         }
-
-        public static LiveSubmissionData fromSubmissionCase(Submission s, Submission.SubmissionBatchCase c) {
-            return LiveSubmissionData.builder()
-                    .status(s.getStatus())
-                    .batchCases(Arrays.asList(c))
-                    .build();
-        }
     }
 
     ObjectMapper mapper = new ObjectMapper();
@@ -96,7 +89,7 @@ public class LiveSubmissionController implements WebSocketHandler {
                     }
                     return Mono.empty();
                 })
-                .doOnError(e -> inputStream.onNext(session.textMessage("[]")))
+                .doOnError(e -> inputStream.onNext(session.textMessage("{}")))
         ).doFinally(signalType -> sessionService.removeSession("/live-submission/" + submissionId, session.getId()));
     }
 }

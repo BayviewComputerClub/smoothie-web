@@ -75,4 +75,8 @@ public class WebSocketSessionService {
     public Mono<Void> setupInput(WebSocketSession session, UnicastProcessor<WebSocketMessage> inputStream, Flux<?> c) {
         return session.send(inputStream).and(c).then();
     }
+    // helper function to set a unicastprocessor for websocket session input
+    public Mono<Void> setupInput(WebSocketSession session, UnicastProcessor<WebSocketMessage> inputStream, Mono<?> c) {
+        return session.send(inputStream).and(c).then();
+    }
 }

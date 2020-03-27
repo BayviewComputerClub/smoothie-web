@@ -55,7 +55,7 @@ public class SmoothieSubmissionService {
         return submissionRepository.countByContestIdAndProblemId(contestId, problemId);
     }
 
-    public Flux<Submission> findSubmissionsByUserAndProblem(String userId, String problemId, Pageable p) {
+    public Flux<Submission> findSubmissionsByUserForProblem(String userId, String problemId, Pageable p) {
         return submissionRepository.findByUserIdAndProblemId(userId, problemId, p);
     }
 
@@ -69,6 +69,10 @@ public class SmoothieSubmissionService {
 
     public Mono<Long> countSubmissionsByUserForContest(String userId, String contestId) {
         return submissionRepository.countByUserIdAndContestId(userId, contestId);
+    }
+
+    public Flux<Submission> findSubmissionsByUserForProblemAndContest(String userId, String problemId, String contestId, Pageable p) {
+        return submissionRepository.findByUserIdAndContestIdAndProblemId(userId, contestId, problemId, p);
     }
 
     public Mono<Submission> saveSubmission(Submission submission) {

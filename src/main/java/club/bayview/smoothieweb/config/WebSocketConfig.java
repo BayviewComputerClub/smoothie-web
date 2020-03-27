@@ -1,7 +1,7 @@
 package club.bayview.smoothieweb.config;
 
-import club.bayview.smoothieweb.controllers.LiveSubmissionController;
-import org.springframework.beans.factory.annotation.Autowired;
+import club.bayview.smoothieweb.controllers.websocket.LiveSubmissionController;
+import club.bayview.smoothieweb.controllers.websocket.LiveSubmissionListController;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -21,6 +21,7 @@ public class WebSocketConfig {
     public HandlerMapping webSocketHandlerMapping() {
         Map<String, WebSocketHandler> map = new HashMap<>();
         map.put("/ws/live-submission", new LiveSubmissionController());
+        map.put("/ws/live-submission-list", new LiveSubmissionListController());
 
         SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
         handlerMapping.setUrlMap(map);
