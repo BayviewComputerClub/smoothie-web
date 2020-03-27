@@ -60,7 +60,7 @@ public class Problem {
     private String prettyName;
 
     private List<ProblemLimits> limits;
-    private List<ProblemBatch> problemBatches;
+    private List<ProblemBatch> problemBatches = new ArrayList<>();
 
     private String testDataId;
 

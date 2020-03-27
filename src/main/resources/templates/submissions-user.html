@@ -45,13 +45,14 @@
 <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
 <script th:src="@{/js/moment.min.js}"></script>
 <script th:inline="javascript">
+    let userHandle = /*[[${user.handle}]]*/;
 
     function connect() {
         let prefix = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/ws";
         let socket = new WebSocket(prefix + '/live-submission-list');
         socket.addEventListener('open', e => {
             console.log('Connected to websocket.');
-            socket.send(/* [[${user.handle}]] */);
+            socket.send(JSON.stringify({username: userHandle}));
         });
         socket.addEventListener('close', e => {
             console.log('Disconnected from websocket.');
@@ -63,11 +64,10 @@
     }
 
     $(() => {
+        connect();
         $(".timeSubmitted").each((i, obj) => {
             // properly format time
             obj.innerText = moment(obj.innerText*1).format('LLL');
-
-            connect();
         });
     })
 </script>

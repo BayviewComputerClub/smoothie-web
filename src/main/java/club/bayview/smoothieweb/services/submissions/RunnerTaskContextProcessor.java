@@ -44,8 +44,8 @@ public class RunnerTaskContextProcessor implements Runnable {
     @Override
     public void run() {
         logger.info("Started worker thread for runner {}.", runner.getName());
-        // todo error recover
-        taskQueue.concatMap(this::processEvent).subscribe();
+        taskQueue.concatMap(this::processEvent)
+                .doOnError(Throwable::printStackTrace).subscribe();
     }
 
     public Mono<Void> processEvent(RunnerTaskProcessorEvent ev) {
@@ -76,7 +76,13 @@ public class RunnerTaskContextProcessor implements Runnable {
     }
 
     public Mono<Void> judgeSubmission(QueuedSubmission qs) {
+        if (runner.isOccupied()) {
+            logger.warn("Submission was added to " + runner.getName() + "'s queue even though it is currently processing a task!");
+            // todo
+        }
+
         runner.setOccupied(true);
+        graderTerminatedEarly = false;
 
         currentQueuedSubmissionId = qs.getId();
         currentSubmissionId = qs.getSubmissionId();
@@ -175,6 +181,8 @@ public class RunnerTaskContextProcessor implements Runnable {
                     } else if (res.getCompletedTesting()) { // testing has completed
                         s.setJudgingCompleted(true);
                         s.setStatus(Submission.SubmissionStatus.COMPLETE);
+                        s.determineVerdict();
+                        // TODO sync saving with gradercompleted message
 
                         // send to websocket
                         submissionWebSocketService.sendLiveSubmission("/live-submission/" + s.getId(), LiveSubmissionController.LiveSubmissionData.builder().status(s.getStatus()).build());

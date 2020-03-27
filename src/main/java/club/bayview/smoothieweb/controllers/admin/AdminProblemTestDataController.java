@@ -175,13 +175,16 @@ public class AdminProblemTestDataController {
             }
         }
 
-        // sort cases into order
-        for (var cases : builders) {
+        // sort cases into order and build test data for storing in db
+        for (int i = 0; i < builders.size(); i++) {
+            var cases = builders.get(i);
             cases.sort((a, b) -> a.getCaseNum() > b.getCaseNum() ? 1 : -1);
             var batch = StoredTestData.TestDataBatch.newBuilder();
             for (var tdCase : cases) {
                 batch.addCase(tdCase.build());
             }
+            batch.setBatchNum(i);
+            batch.setPointsWorth(cases.size());
             testData.addBatch(batch.build());
         }
 

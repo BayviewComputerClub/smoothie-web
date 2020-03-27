@@ -45,6 +45,10 @@ public class WebSocketSessionService {
         sessions.get(route).put(session.getId(), messagePublisher);
     }
 
+    public ConcurrentHashMap<String, ConcurrentHashMap<String, UnicastProcessor<WebSocketMessage>>> getSessions() {
+        return sessions;
+    }
+
     /**
      * Given a WebSocketSession, obtain the authentication or empty if null.
      * @param session the websocket session

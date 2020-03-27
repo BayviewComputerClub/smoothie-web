@@ -15,6 +15,9 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Service
 public class SmoothieQueuedSubmissionService {
@@ -50,6 +53,7 @@ public class SmoothieQueuedSubmissionService {
 
     /**
      * Find tasks for runners to work on.
+     * TODO better syncing
      */
 
     @Async
@@ -59,7 +63,7 @@ public class SmoothieQueuedSubmissionService {
 
         logger.debug("Running checkRunnersTask, and searching for runners...");
 
-        getQueuedSubmissions().subscribe(sub -> {
+        for (var sub : getQueuedSubmissions().collectList().block()) {
             var smoothieRunners = sortRunnersForSubmission(runners, sub);
 
             logger.debug("Looking at submission " + sub.getSubmissionId() + " for runners..");
@@ -70,12 +74,11 @@ public class SmoothieQueuedSubmissionService {
                             .doOnNext(t -> runnerTaskService.addTask(runner.getId(), RunnerTaskProcessorEvent.builder()
                                     .eventType(RunnerTaskProcessorEvent.EventType.JUDGE_SUBMISSION)
                                     .queuedSubmission(sub)
-                                    .build()
-                            )).subscribe();
+                                    .build())).block();
                     break; // leave when finished
                 }
             }
-        });
+        }
     }
 
     public ArrayList<SmoothieRunner> sortRunnersForSubmission(ArrayList<SmoothieRunner> runners, QueuedSubmission submission) {
