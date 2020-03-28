@@ -71,8 +71,8 @@
         <tr th:each="userId : ${rank}" class="actual-row" th:if="${contest.participants.get(userId)}">
             <td th:text="${ord.index}+1"></td>
             <td th:text="${users.get(userId)}"></td>
-            <td th:each="sub : ${contest.participants.get(userId).bestSubmissions}" th:text="${sub.points}"></td>
-            <td th:text="${contest.participants.get(userId).points}"></td>
+            <td th:each="sub : ${contest.participants.get(userId).bestSubmissions}" th:text="${#numbers.formatDecimal(sub.points, 0, 0)}"></td>
+            <td th:text="${#numbers.formatDecimal(contest.participants.get(userId).points, 0, 0)}"></td>
         </tr>
         </tbody>
 

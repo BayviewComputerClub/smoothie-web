@@ -24,8 +24,8 @@ gradle wrapper
  ```
 The compiled JAR file will be in `build/libs/`.
 
-### Precompiled JAR/WAR
-[Download the JAR/WAR :coffee:](https://github.com/BayviewComputerClub/smoothie-web/actions?query=workflow%3A%22Smoothie-Web+Build%22)
+### Precompiled JAR
+[Download the JAR :coffee:](https://github.com/BayviewComputerClub/smoothie-web/actions?query=workflow%3A%22Smoothie-Web+Build%22)
 
 ## Installation
 [Wiki](https://github.com/BayviewComputerClub/smoothie-web/wiki/Installation)
@@ -34,7 +34,7 @@ The compiled JAR file will be in `build/libs/`.
 [Wiki](https://github.com/BayviewComputerClub/smoothie-web/wiki/Configuration)
 
 ### application.yml
-This optional file should to be in the directory where you run the JAR/WAR from.
+This optional file should to be in the directory where you run the JAR from.
 
 ```
 # These are useful to change

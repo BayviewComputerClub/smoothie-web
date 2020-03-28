@@ -46,7 +46,7 @@
         </div>
         <div class="topbar-item">
             Points
-            <br/> <span th:text="${user.points}" class="topbar-bottom-text"></span>
+            <br/> <span th:text="${#numbers.formatDecimal(user.points, 0, 0)}" class="topbar-bottom-text"></span>
         </div>
         <div style="margin-left: auto;">
             <a class="button-link" th:href="@{'/user/' + ${user.handle} + '/submissions'}">Submissions</a>
