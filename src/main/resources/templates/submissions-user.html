@@ -34,7 +34,12 @@
 
             <td th:unless="${submission.verdict} == 'AR'" th:id="'submission-' + ${submission.id} + '-verdict'"><b>[[${submission.points}]] / [[${submission.maxPoints}]]</b></td>
             <td th:if="${submission.verdict} == 'AR'" th:id="'submission-' + ${submission.id} + '-verdict'">Waiting...</td>
-            <td th:text="${submission.verdict}" th:id="'submission-' + ${submission.id} + '-status'"></td>
+
+            <td th:id="'submission-' + ${submission.id} + '-status'">
+                <span class="green" th:if="${submission.verdict} == 'AC'" th:text="${submission.verdict}"></span>
+                <span class="red" th:if="${submission.verdict} == 'WA'" th:text="${submission.verdict}"></span>
+                <span class="grey" th:if="${submission.verdict} != 'AC' and ${submission.verdict} != 'WA'" th:text="${submission.verdict}"></span>
+            </td>
 
             <td><a class="link" th:href="@{'/problem/' + ${problems.get(submission.problemId)?.name}}" th:text="${problems.get(submission.problemId)?.prettyName}"></a></td>
             <td>
@@ -53,6 +58,7 @@
 
 <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
 <script th:src="@{/js/moment.min.js}"></script>
+<script th:src="@{/js/submissions.js}"></script>
 <script th:inline="javascript">
     let userHandle = /*[[${user.handle}]]*/;
     let doLive = /*[[!${paramPage} or ${paramPage} == 1]]*/; // only do websockets on first page
@@ -69,41 +75,22 @@
         });
         socket.addEventListener('message', e => {
             console.log(e.data);
-            let arr = JSON.parse(e.data);
-            arr.forEach(parsed => {
+            JSON.parse(e.data).forEach(parsed => {
                 let pref = '#submission-' + parsed.submissionId;
-                console.log(parsed);
-
-                let verdict;
-                if (parsed.submissionStatus === 'AWAITING_RUNNER') {
-                    verdict = 'Waiting...';
-                } else if (parsed.submissionStatus === 'JUDGING') {
-                    verdict = 'Judging...'
-                } else {
-                    verdict = '<b>' + parsed.pointsAwarded + ' / ' + parsed.pointsMax + '</b>';
-                }
-
-                let subLink;
-                if (parsed.permissionToView) {
-                    subLink = '<a class="link" href="/submission/' + parsed.submissionId + '">Click to View</a>';
-                } else {
-                    subLink = "Can't View";
-                }
-
                 if ($(pref + '-verdict').length === 0) { // does not exist
                     $('.standard-table tbody').prepend(`
                     <tr>
-                        <td id="submission-` + parsed.submissionId + `-verdict">` + verdict + `</td>
-                        <td id="submission-` + parsed.submissionId + `-status">` + parsed.verdict + `</td>
+                        <td id="submission-` + parsed.submissionId + `-verdict">` + getVerdict(parsed) + `</td>
+                        <td id="submission-` + parsed.submissionId + `-status">` + getStatus(parsed) + `</td>
                         <td><a class="link" href="/problem/` + parsed.problemName + `">` + parsed.problemPrettyName + `</a></td>
-                        <td>` + subLink + `</td>
+                        <td>` + getSubLink(parsed) + `</td>
                         <td>` + parsed.language + `</td>
                         <td class="timeSubmitted">` + moment(parsed.time*1).format('LLL') + `</td>
                     </tr>
                 `);
                 } else {
-                    $(pref + '-verdict').html(verdict);
-                    $(pref + '-status').html(parsed.verdict);
+                    $(pref + '-verdict').html(getVerdict(parsed));
+                    $(pref + '-status').html(getStatus(parsed));
                 }
             });
         });

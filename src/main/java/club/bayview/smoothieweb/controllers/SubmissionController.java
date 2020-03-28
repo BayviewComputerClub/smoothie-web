@@ -182,10 +182,11 @@ public class SubmissionController {
                 .flatMap(t -> {
                     model.addAttribute("submissions", t.getT2());
                     model.addAttribute(PageUtil.NUM_OF_ENTRIES, t.getT1());
-                    return userService.getUserIdToUserMap(Flux.fromIterable(t.getT2()).map(Submission::getUserId));
+                    return Mono.zip(userService.getUserIdToUserMap(Flux.fromIterable(t.getT2()).map(Submission::getUserId)), problemService.getProblemIdToProblemMap(Flux.fromIterable(t.getT2()).map(Submission::getProblemId)));
                 })
-                .flatMap(usersMap -> {
-                    model.addAttribute("users", usersMap);
+                .flatMap(t -> {
+                    model.addAttribute("users", t.getT1());
+                    model.addAttribute("problems", t.getT2());
                     return Mono.just("submissions-contest");
                 })
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{contestName}/submissions route exception: "));

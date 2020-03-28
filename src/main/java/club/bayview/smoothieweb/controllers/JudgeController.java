@@ -103,7 +103,6 @@ public class JudgeController {
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /problem/{contestName}/problem/{problemName}/submit route exception:"));
     }
 
-    // TODO resubmit for contest needs contest id
     @GetMapping("/submission/{submissionId}/resubmit")
     @PreAuthorize("hasRole('ROLE_USER')")
     public Mono<String> getSubmissionResubmitRoute(@PathVariable String submissionId, Model model, Authentication auth) {
@@ -121,8 +120,24 @@ public class JudgeController {
                     model.addAttribute("problem", p);
                     model.addAttribute("submitRequest", new SubmitRequest(s.getCode(), JudgeLanguage.nameToPretty(s.getLang())));
                     model.addAttribute("languages", JudgeLanguage.getLanguages());
-                    model.addAttribute("postUrl", "/problem/" + p.getName() + "/submit"); // TODO check if authentication is in contest
-                    return Mono.just("submit");
+
+                    if (s.getContestId() != null) { // if resubmit to contest
+                        return contestService.findContestById(s.getContestId())
+                                .switchIfEmpty(Mono.error(new NotFoundException()))
+                                .flatMap(c -> {
+                                    // check contest permission
+                                    if (!c.hasPermissionToSubmit(auth))
+                                        return Mono.just("no");
+
+                                    Contest.ContestProblem cp = c.getContestProblems().get(p.getId());
+                                    model.addAttribute("contestProblem", cp);
+                                    model.addAttribute("postUrl", "/contest/" + c.getName() + "/problem/" + cp.getContestProblemNumber() + "/submit");
+                                    return Mono.just("submit");
+                                });
+                    } else { // resubmit to regular problem
+                        model.addAttribute("postUrl", "/problem/" + p.getName() + "/submit"); // TODO check if authentication is in contest
+                        return Mono.just("submit");
+                    }
                 })
                 .onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /submission/{submissionId}/resubmit route exception: "));
     }
@@ -169,6 +184,7 @@ public class JudgeController {
                 })
                 .switchIfEmpty(Mono.error(new NotFoundException()))
                 .flatMap(t -> submissionService.createSubmissionAndJudge(t.getT1(), t.getT2(), t.getT3(), form.getLanguage(), form.getCode()))
+                .map(QueuedSubmission::getSubmissionId)
                 .flatMap(id -> Mono.just("redirect:/submission/" + id))
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "POST /contest/{contestName}/problem/{problemNum} route exception: "));
     }
