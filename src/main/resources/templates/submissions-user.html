@@ -9,6 +9,7 @@
     <link rel="stylesheet" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" th:href="@{/css/submissions.css}"/>
     <link rel="stylesheet" th:href="@{/css/elevated/main.css}"/>
+
 </head>
 <body>
 
@@ -19,19 +20,24 @@
     <table class="standard-table" style="width: 80%">
         <thead>
         <tr>
-            <th>Problem Id</th>
-            <th>Submission Id</th>
             <th>Verdict</th>
+            <th>Status</th>
+            <th>Problem</th>
+            <th>Submission</th>
             <th>Language</th>
             <th>Date</th>
         </tr>
         </thead>
         <tbody>
 
-        <tr th:each="submission: ${submissions}">
+        <tr th:each="submission : ${submissions}">
+
+            <td th:unless="${submission.verdict} == 'AR'" th:id="'submission-' + ${submission.id} + '-verdict'"><b>[[${submission.points}]] / [[${submission.maxPoints}]]</b></td>
+            <td th:if="${submission.verdict} == 'AR'" th:id="'submission-' + ${submission.id} + '-verdict'">Waiting...</td>
+            <td th:text="${submission.verdict}" th:id="'submission-' + ${submission.id} + '-status'"></td>
+
             <td><a class="link" th:href="@{'/problem/' + ${problems.get(submission.problemId)?.name}}" th:text="${problems.get(submission.problemId)?.prettyName}"></a></td>
-            <td><a class="link" th:href="@{'/submission/' + ${submission.id}}" th:text="${submission.id}"></a></td>
-            <td th:text="${submission.verdict}"></td>
+            <td><a class="link" th:href="@{'/submission/' + ${submission.id}}">Click to View</a></td>
             <td th:text="${submission.lang}"></td>
             <td th:text="${submission.timeSubmitted}" class="timeSubmitted"></td>
         </tr>
@@ -46,6 +52,7 @@
 <script th:src="@{/js/moment.min.js}"></script>
 <script th:inline="javascript">
     let userHandle = /*[[${user.handle}]]*/;
+    let doLive = /*[[!${paramPage} or ${paramPage} == 1]]*/; // only do websockets on first page
 
     function connect() {
         let prefix = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/ws";
@@ -59,12 +66,41 @@
         });
         socket.addEventListener('message', e => {
             console.log(e.data);
-            let parsed = JSON.parse(e.data);
+            let arr = JSON.parse(e.data);
+            arr.forEach(parsed => {
+                let pref = '#submission-' + parsed.submissionId;
+                console.log(parsed);
+
+                let verdict;
+                if (parsed.submissionStatus === 'AWAITING_RUNNER') {
+                    verdict = 'Waiting...';
+                } else if (parsed.submissionStatus === 'JUDGING') {
+                    verdict = 'Judging...'
+                } else {
+                    verdict = '<b>' + parsed.pointsAwarded + ' / ' + parsed.pointsMax + '</b>';
+                }
+
+                if ($(pref + '-verdict').length === 0) { // does not exist
+                    $('.standard-table tbody').prepend(`
+                    <tr>
+                        <td id="submission-` + parsed.submissionId + `-verdict">` + verdict + `</td>
+                        <td id="submission-` + parsed.submissionId + `-status">` + parsed.verdict + `</td>
+                        <td><a class="link" href="/problem/` + parsed.problemName + `">` + parsed.problemPrettyName + `</a></td>
+                        <td><a class="link" href="/submission/` + parsed.submissionId + `">Click to View</a></td>
+                        <td>` + parsed.language + `</td>
+                        <td class="timeSubmitted">` + moment(parsed.time*1).format('LLL') + `</td>
+                    </tr>
+                `);
+                } else {
+                    $(pref + '-verdict').html(verdict);
+                    $(pref + '-status').html(parsed.verdict);
+                }
+            });
         });
     }
 
     $(() => {
-        connect();
+        if (doLive) connect();
         $(".timeSubmitted").each((i, obj) => {
             // properly format time
             obj.innerText = moment(obj.innerText*1).format('LLL');

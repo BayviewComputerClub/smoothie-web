@@ -7,6 +7,7 @@ import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.models.User;
 import club.bayview.smoothieweb.services.*;
 import club.bayview.smoothieweb.util.NotFoundException;
+import club.bayview.smoothieweb.util.PageUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,6 +18,7 @@ import lombok.ToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
@@ -35,7 +37,7 @@ import reactor.core.publisher.UnicastProcessor;
  */
 
 public class LiveSubmissionListController implements WebSocketHandler {
-    static final int PAGE_SIZE = 20;
+    static final int PAGE_SIZE = Integer.parseInt(PageUtil.DEFAULT_PAGE_SIZE);
 
     // TODO check permissions for contest viewing
 
@@ -78,7 +80,7 @@ public class LiveSubmissionListController implements WebSocketHandler {
     @Getter
     @Setter
     public static class LiveSubmissionListWSResponse {
-        String submissionId, language, userName, problemName, contestName;
+        String submissionId, language, userName, problemName, contestName, problemPrettyName, contestPrettyName;
         Submission.SubmissionStatus submissionStatus;
         String verdict;
         long time, pointsAwarded, pointsMax;
@@ -99,10 +101,12 @@ public class LiveSubmissionListController implements WebSocketHandler {
                             .doOnNext(u -> res.setUserName(u.getHandle())),
                     s.getProblemId() == null ? Mono.just("") : SmoothieWebApplication.context.getBean(SmoothieProblemService.class)
                             .findProblemById(s.getProblemId())
-                            .doOnNext(p -> res.setProblemName(p.getPrettyName())),
+                            .doOnNext(p -> res.setProblemName(p.getName()))
+                            .doOnNext(p -> res.setProblemPrettyName(p.getPrettyName())),
                     s.getContestId() == null ? Mono.just("") : SmoothieWebApplication.context.getBean(SmoothieContestService.class)
                             .findContestById(s.getContestId())
-                            .doOnNext(c -> res.setContestName(c.getPrettyName()))
+                            .doOnNext(c -> res.setContestName(c.getName()))
+                            .doOnNext(c -> res.setContestPrettyName(c.getPrettyName()))
             ).then(Mono.just(res));
         }
     }
@@ -113,25 +117,25 @@ public class LiveSubmissionListController implements WebSocketHandler {
         SmoothieSubmissionService submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
         if (req.getUser() != null && req.getProblem() == null && req.getContest() == null) {
             route.append("/live-submission-u/" + req.getUser().getId());
-            return submissionService.findSubmissionsByUser(req.getUser().getId(), PageRequest.of(0, PAGE_SIZE));
+            return submissionService.findSubmissionsByUser(req.getUser().getId(), PageRequest.of(0, PAGE_SIZE, Sort.Direction.DESC, "timeSubmitted"));
         } else if (req.getUser() == null && req.getProblem() != null && req.getContest() == null) {
             route.append("/live-submission-p/" + req.getProblem().getId());
-            return submissionService.findSubmissionsByProblem(req.getProblem().getId(), PageRequest.of(0, PAGE_SIZE));
+            return submissionService.findSubmissionsByProblem(req.getProblem().getId(), PageRequest.of(0, PAGE_SIZE, Sort.Direction.DESC, "timeSubmitted"));
         } else if (req.getUser() == null && req.getProblem() == null && req.getContest() != null) {
             route.append("/live-submission-c/" + req.getContest().getId());
-            return submissionService.findSubmissionsForContest(req.getContest().getId(), PageRequest.of(0, PAGE_SIZE));
+            return submissionService.findSubmissionsForContest(req.getContest().getId(), PageRequest.of(0, PAGE_SIZE, Sort.Direction.DESC, "timeSubmitted"));
         } else if (req.getUser() != null && req.getProblem() != null && req.getContest() == null) {
             route.append("/live-submission-up/" + req.getUser().getId() + "/" + req.getProblem().getId());
-            return submissionService.findSubmissionsByUserForProblem(req.getUser().getId(), req.getProblem().getId(), PageRequest.of(0, PAGE_SIZE));
+            return submissionService.findSubmissionsByUserForProblem(req.getUser().getId(), req.getProblem().getId(), PageRequest.of(0, PAGE_SIZE, Sort.Direction.DESC, "timeSubmitted"));
         } else if (req.getUser() == null && req.getProblem() != null && req.getContest() != null) {
             route.append("/live-submission-pc/" + req.getProblem().getId() + "/" + req.getContest().getId());
-            return submissionService.findSubmissionsForContestAndProblem(req.getContest().getId(), req.getProblem().getId(), PageRequest.of(0, PAGE_SIZE));
+            return submissionService.findSubmissionsForContestAndProblem(req.getContest().getId(), req.getProblem().getId(), PageRequest.of(0, PAGE_SIZE, Sort.Direction.DESC, "timeSubmitted"));
         } else if (req.getUser() != null && req.getProblem() == null && req.getContest() != null) {
             route.append("/live-submission-uc/" + req.getUser().getId() + "/" + req.getContest().getId());
-            return submissionService.findSubmissionsByUserForContest(req.getUser().getId(), req.getContest().getId(), PageRequest.of(0, PAGE_SIZE));
+            return submissionService.findSubmissionsByUserForContest(req.getUser().getId(), req.getContest().getId(), PageRequest.of(0, PAGE_SIZE, Sort.Direction.DESC, "timeSubmitted"));
         } else if (req.getUser() != null && req.getProblem() != null && req.getContest() != null) {
             route.append("/live-submission-upc/" + req.getUser().getId() + "/" + req.getProblem().getId() + "/" + req.getContest().getId());
-            return submissionService.findSubmissionsByUserForProblemAndContest(req.getUser().getId(), req.getProblem().getId(), req.getContest().getId(), PageRequest.of(0, PAGE_SIZE));
+            return submissionService.findSubmissionsByUserForProblemAndContest(req.getUser().getId(), req.getProblem().getId(), req.getContest().getId(), PageRequest.of(0, PAGE_SIZE, Sort.Direction.DESC, "timeSubmitted"));
         }
         return Flux.error(new NotFoundException());
     }

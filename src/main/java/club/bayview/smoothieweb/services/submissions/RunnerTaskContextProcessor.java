@@ -23,6 +23,8 @@ import java.util.List;
 public class RunnerTaskContextProcessor implements Runnable {
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    // TODO review all Mono<Void> since they do not emit
+
     // services
     SmoothieSubmissionService submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);
     SmoothieQueuedSubmissionService queuedSubmissionService = SmoothieWebApplication.context.getBean(SmoothieQueuedSubmissionService.class);
@@ -111,6 +113,8 @@ public class RunnerTaskContextProcessor implements Runnable {
                 .then();
     }
 
+    // one of two possible methods that can be called at the end of a submission judge run
+    // this is for cancelling a submission due to an event
     public Mono<Void> cancelSubmission() {
         runner.setOccupied(false);
         graderStreamObserverIn.onError(new Exception());
@@ -150,6 +154,8 @@ public class RunnerTaskContextProcessor implements Runnable {
         return cancelSubmission();
     }
 
+    // one of two possible methods that can be called at the end of a submission judge run
+    // called after the grader is finished
     public Mono<Void> graderCompletedMessage() {
         if (graderTerminated) return Mono.empty();
         graderTerminated = true;
@@ -165,9 +171,13 @@ public class RunnerTaskContextProcessor implements Runnable {
 
                     // find next task to do
                     queuedSubmissionService.checkRunnersTask();
-                    return verdictService.applyVerdictToSubmission(s)
-                            // send to websocket
-                            .then(submissionWebSocketService.sendLiveSubmissionListEntry(s));
+                    return Mono.zip(Mono.just(s), verdictService.applyVerdictToSubmission(s).then(Mono.just("")));
+                })
+                // send to websocket
+                .flatMap(t -> {
+                    // send to websocket
+                    submissionWebSocketService.sendLiveSubmission("/live-submission/" + t.getT1().getId(), LiveSubmissionController.LiveSubmissionData.builder().status(t.getT1().getStatus()).build());
+                    return submissionWebSocketService.sendLiveSubmissionListEntry(t.getT1());
                 });
     }
 
@@ -192,9 +202,6 @@ public class RunnerTaskContextProcessor implements Runnable {
 
                         // call grader completed message early
                         graderCompletedMessage().subscribe();
-
-                        // send to websocket
-                        submissionWebSocketService.sendLiveSubmission("/live-submission/" + s.getId(), LiveSubmissionController.LiveSubmissionData.builder().status(s.getStatus()).build());
                     } else { // result for test case
                         // update submission
                         List<Submission.SubmissionBatchCase> socketSend = new ArrayList<>();
