@@ -34,6 +34,7 @@
             <th>Name</th>
             <th>Description</th>
             <th>Status</th>
+            <th>Is Occupied</th>
         </tr>
         </thead>
         <tbody>
@@ -42,6 +43,7 @@
             <td><a class="link" th:href="@{'/admin/runner/' + ${runner.name}}" th:text="${runner.name}"></a></td>
             <td th:text="${runner.description}"></td>
             <td th:text="${runner.getState()}"></td>
+            <td th:text="${runner.getSmoothieRunner().isOccupied()}"></td>
         </tr>
 
         </tbody>

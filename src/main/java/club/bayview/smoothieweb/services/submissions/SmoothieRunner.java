@@ -101,10 +101,10 @@ public class SmoothieRunner implements Comparable<SmoothieRunner> {
     }
 
     // Run a full grader session asynchronously
-    public StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> grade(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req, Submission submission) {
+    public StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> grade(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest req, Submission submission, GraderStreamObserver gso) {
         logger.info(String.format("Runner %s grading submission %s for problem %s.", getName(), submission.getId(), submission.getProblemId()));
 
-        var observer = getAsyncStub().testSolution(new GraderStreamObserver(this));
+        var observer = getAsyncStub().testSolution(gso);
         // send request
         observer.onNext(req);
         // mark end of requests TODO allow cancellation of submissions

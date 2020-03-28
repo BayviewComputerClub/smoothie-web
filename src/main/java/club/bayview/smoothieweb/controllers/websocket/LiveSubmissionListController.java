@@ -58,6 +58,7 @@ public class LiveSubmissionListController implements WebSocketHandler {
         @JsonIgnore
         Contest contest = null;
 
+        // fill fields with given info
         public Mono<Signal<Void>> fill() {
             return Mono.when(getUsername() == null ? Mono.just("") : SmoothieWebApplication.context.getBean(SmoothieUserService.class)
                             .findUserByHandle(getUsername())
@@ -80,8 +81,7 @@ public class LiveSubmissionListController implements WebSocketHandler {
         String submissionId, language, userName, problemName, contestName;
         Submission.SubmissionStatus submissionStatus;
         String verdict;
-        long time;
-        int pointsAwarded, pointsMax;
+        long time, pointsAwarded, pointsMax;
 
         public static Mono<LiveSubmissionListWSResponse> fromSubmission(Submission s) {
             LiveSubmissionListWSResponse res = new LiveSubmissionListWSResponse();
@@ -157,7 +157,10 @@ public class LiveSubmissionListController implements WebSocketHandler {
                 .flatMap(LiveSubmissionListWSResponse::fromSubmission)
                 .collectList()
                 .doOnNext(wsl -> { // send initial list to client
+                    // add to websocket sessions
                     sessionService.addSession(route.toString(), session, inputStream);
+
+                    // send initial submissions
                     try {
                         inputStream.onNext(session.textMessage(om.writeValueAsString(wsl)));
                     } catch (JsonProcessingException e) {

@@ -15,7 +15,7 @@ public class APIProblem {
     List<Problem.ProblemLimits> limits;
     String problemStatement;
     boolean allowPartial;
-    int totalPointsWorth;
+    long totalPointsWorth;
     int rateOfAC;
     int usersSolved;
     List<String> editorIds;

@@ -6,6 +6,7 @@ import club.bayview.smoothieweb.models.Problem;
 import club.bayview.smoothieweb.models.QueuedSubmission;
 import club.bayview.smoothieweb.models.Submission;
 import club.bayview.smoothieweb.services.*;
+import club.bayview.smoothieweb.services.submissions.observers.GraderStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +33,16 @@ public class RunnerTaskContextProcessor implements Runnable {
     // reactive queue
     UnicastProcessor<RunnerTaskProcessorEvent> taskQueue = UnicastProcessor.create();
 
-    String currentSubmissionId, currentQueuedSubmissionId;
+    // current submission task
+    String currentSubmissionId;
+    QueuedSubmission currentQueuedSubmission;
     club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest currentTestSolutionRequest;
     SmoothieRunner runner;
+
+    // status and grader
+    boolean graderTerminated = false;
+    StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> graderStreamObserverIn;
+    GraderStreamObserver graderStreamObserverOut;
 
     public RunnerTaskContextProcessor(SmoothieRunner runner) {
         this.runner = runner;
@@ -67,7 +75,7 @@ public class RunnerTaskContextProcessor implements Runnable {
             case CANCEL_SUBMISSION:
                 return cancelSubmission();
             case JUDGE_SUBMISSION:
-                return judgeSubmission(ev.getQueuedSubmission());
+                return judgeSubmission(ev.getQueuedSubmission(), false);
             case STOP:
                 // TODO submission is not done but cleanstop is called
                 return Mono.error(new Exception());
@@ -75,16 +83,18 @@ public class RunnerTaskContextProcessor implements Runnable {
         return Mono.empty();
     }
 
-    public Mono<Void> judgeSubmission(QueuedSubmission qs) {
-        if (runner.isOccupied()) {
-            logger.warn("Submission was added to " + runner.getName() + "'s queue even though it is currently processing a task!");
-            // todo
+    public Mono<Void> judgeSubmission(QueuedSubmission qs, boolean bypass) {
+        if (!bypass) {
+            logger.info("Runner " + runner.getName() + " received request to judge submission " + qs.getSubmissionId());
+            if (runner.isOccupied()) {
+                logger.warn("Submission was added to " + runner.getName() + "'s queue even though it is currently processing a task!");
+            }
         }
 
         runner.setOccupied(true);
-        graderTerminatedEarly = false;
+        graderTerminated = false;
 
-        currentQueuedSubmissionId = qs.getId();
+        currentQueuedSubmission = qs;
         currentSubmissionId = qs.getSubmissionId();
 
         return submissionService.findSubmissionById(currentSubmissionId)
@@ -96,14 +106,16 @@ public class RunnerTaskContextProcessor implements Runnable {
                 })
                 .flatMap(s -> Mono.zip(submissionService.saveSubmission(s), problemService.findProblemById(s.getProblemId())))
                 .flatMap(t -> Mono.zip(Mono.just(t.getT1()), toTestSolutionRequest(t.getT2(), t.getT1())))
-                .doOnNext(t -> graderStreamObserver = runner.grade(t.getT2(), t.getT1()))
+                .doOnNext(t -> graderStreamObserverIn = runner.grade(t.getT2(), t.getT1(), graderStreamObserverOut = new GraderStreamObserver(runner)))
                 .doOnNext(t -> currentTestSolutionRequest = t.getT2())
                 .then();
     }
 
     public Mono<Void> cancelSubmission() {
         runner.setOccupied(false);
-        graderStreamObserver.onError(new Exception());
+        graderStreamObserverIn.onError(new Exception());
+        graderStreamObserverOut.setTerminated(true);
+
         return submissionService.findSubmissionById(currentSubmissionId)
                 .flatMap(s -> {
                     s.setStatus(Submission.SubmissionStatus.CANCELLED);
@@ -127,14 +139,10 @@ public class RunnerTaskContextProcessor implements Runnable {
     }
 
     public Mono<Void> uploadCompletedMessage() {
+        logger.info("Test data upload finished for submission " + currentSubmissionId + " on runner " + runner.getName() + ".");
         // go back to grading
-        return submissionService.findSubmissionById(currentSubmissionId)
-                .doOnNext(s -> graderStreamObserver = runner.grade(currentTestSolutionRequest, s))
-                .then();
+        return judgeSubmission(currentQueuedSubmission, true);
     }
-
-    boolean graderTerminatedEarly = false;
-    StreamObserver<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> graderStreamObserver;
 
     public Mono<Void> graderErrorMessage(Throwable t) {
         t.printStackTrace();
@@ -143,18 +151,19 @@ public class RunnerTaskContextProcessor implements Runnable {
     }
 
     public Mono<Void> graderCompletedMessage() {
-        if (graderTerminatedEarly) return Mono.empty();
+        if (graderTerminated) return Mono.empty();
+        graderTerminated = true;
 
+        logger.info("Judging has completed for submission " + currentSubmissionId + " on runner " + runner.getName() + ".");
         runner.setOccupied(false);
+        graderStreamObserverOut.setTerminated(true);
 
         return submissionService.findSubmissionById(currentSubmissionId)
                 .flatMap(s -> {
-                    logger.info("Judging has completed for submission " + s.getId() + ".");
-
                     // store verdict and update points if necessary
                     s.setStatus(Submission.SubmissionStatus.COMPLETE);
 
-                    // todo find next task to do
+                    // find next task to do
                     queuedSubmissionService.checkRunnersTask();
                     return verdictService.applyVerdictToSubmission(s)
                             // send to websocket
@@ -167,7 +176,7 @@ public class RunnerTaskContextProcessor implements Runnable {
                 .flatMap(s -> {
                     // check if test data needs to be uploaded first
                     if (res.getTestDataNeedUpload()) {
-                        graderTerminatedEarly = true; // prevent onCompleted from going through
+                        graderTerminated = true; // prevent onCompleted from going through
                         runner.uploadTestData(s); // upload test data, and then grade again
                         return Mono.empty();
                     }
@@ -180,9 +189,9 @@ public class RunnerTaskContextProcessor implements Runnable {
                         submissionWebSocketService.sendLiveSubmission("/live-submission/" + s.getId(), LiveSubmissionController.LiveSubmissionData.builder().compileError(s.getCompileError()).status(s.getStatus()).build());
                     } else if (res.getCompletedTesting()) { // testing has completed
                         s.setJudgingCompleted(true);
-                        s.setStatus(Submission.SubmissionStatus.COMPLETE);
-                        s.determineVerdict();
-                        // TODO sync saving with gradercompleted message
+
+                        // call grader completed message early
+                        graderCompletedMessage().subscribe();
 
                         // send to websocket
                         submissionWebSocketService.sendLiveSubmission("/live-submission/" + s.getId(), LiveSubmissionController.LiveSubmissionData.builder().status(s.getStatus()).build());

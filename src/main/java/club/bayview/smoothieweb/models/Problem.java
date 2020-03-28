@@ -67,8 +67,8 @@ public class Problem {
     private String problemStatement;
 
     private boolean allowPartial; // whether or not to allow partial points awarded on EACH individual batch
-    private int batchPointsSum; // sum of pointsWorth of all batches
-    private int scoreMultiplier; // what the points are out of on the site (contests have their own separate multiplier)
+    private long batchPointsSum; // sum of pointsWorth of all batches
+    private long scoreMultiplier; // what the points are out of on the site (contests have their own separate multiplier)
 
     private int rateOfAC, usersSolved;
     private long timeCreated;

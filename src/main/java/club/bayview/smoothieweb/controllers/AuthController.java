@@ -99,59 +99,57 @@ public class AuthController {
             result.rejectValue("confirmPassword", "confirmPassword.password", "The passwords must match.");
         }
 
-        return
-                // validation
-                userService.findUserByHandle(registerForm.username)
-                        .doOnNext(u -> result.rejectValue("username", "username.taken", "That username is taken!"))
-                        .then(userService.findUserByEmail(registerForm.email))
-                        .doOnNext(u -> result.rejectValue("email", "email.taken", "That email has already been used!"))
+        return userService.findUserByHandle(registerForm.username) // validation
+                .doOnNext(u -> result.rejectValue("username", "username.taken", "That username is taken!"))
+                .then(userService.findUserByEmail(registerForm.email))
+                .doOnNext(u -> result.rejectValue("email", "email.taken", "That email has already been used!"))
 
-                        // retrieve captcha
-                        .then(req.getFormData())
-                        .flatMap(formData -> {
-                            String captchaRes = formData.getFirst("g-recaptcha-response");
-                            try {
-                                captchaService.processResponse(captchaRes, req);
-                            } catch (Exception e) {
-                                result.reject("captcha", "Captcha failed! Try again and prove you're not a robot.");
-                                return Mono.error(e);
-                            }
+                // retrieve captcha
+                .then(req.getFormData())
+                .flatMap(formData -> {
+                    String captchaRes = formData.getFirst("g-recaptcha-response");
+                    try {
+                        captchaService.processResponse(captchaRes, req);
+                    } catch (Exception e) {
+                        result.reject("captcha", "Captcha failed! Try again and prove you're not a robot.");
+                        return Mono.error(e);
+                    }
 
-                            if (result.hasErrors()) { // form errors
-                                return Mono.error(new Exception());
-                            } else {
-                                // create user
-                                User user = new User(registerForm.username, registerForm.email, registerForm.password);
-                                user.encodePassword();
+                    if (result.hasErrors()) { // form errors
+                        return Mono.error(new Exception());
+                    } else {
+                        // create user
+                        User user = new User(registerForm.username, registerForm.email, registerForm.password);
+                        user.encodePassword();
 
-                                // enable account if email verification is disabled
-                                if (!emailVerificationService.enabled) {
-                                    user.setEnabled(true);
-                                }
-                                return userService.saveUser(user);
-                            }
-                        })
+                        // enable account if email verification is disabled
+                        if (!emailVerificationService.enabled) {
+                            user.setEnabled(true);
+                        }
+                        return userService.saveUser(user);
+                    }
+                })
 
-                        // send verification email
-                        .flatMap(u -> {
-                            if (emailVerificationService.enabled) {
-                                emailVerificationService.sendVerificationEmail(u);
-                                return Mono.just("redirect:/verify-email");
-                            } else {
-                                return Mono.just("redirect:/");
-                            }
-                        })
+                // send verification email
+                .flatMap(u -> {
+                    if (emailVerificationService.enabled) {
+                        emailVerificationService.sendVerificationEmail(u);
+                        return Mono.just("redirect:/verify-email");
+                    } else {
+                        return Mono.just("redirect:/login");
+                    }
+                })
 
-                        // error handling
-                        .onErrorResume(e -> {
-                            e.printStackTrace();
-                            if (e instanceof MailSendException) {
-                                e.printStackTrace();
-                                return Mono.just("error/error");
-                            } else {
-                                return Mono.just("register");
-                            }
-                        });
+                // error handling
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    if (e instanceof MailSendException) {
+                        e.printStackTrace();
+                        return Mono.just("error/error");
+                    } else {
+                        return Mono.just("register");
+                    }
+                });
     }
 
 }

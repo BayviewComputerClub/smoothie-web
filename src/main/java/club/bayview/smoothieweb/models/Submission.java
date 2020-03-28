@@ -87,7 +87,7 @@ public class Submission {
 
     private boolean judgingCompleted;
 
-    private int points, maxPoints;
+    private long points, maxPoints;
 
     /**
      * Check if a given authentication has permission to view the contents of the submission.

@@ -57,6 +57,9 @@ public class SubmissionVerdictService {
                     }
 
                     double pointsAwarded = (double)submission.getPoints() / submission.getMaxPoints() * problem.getScoreMultiplier();
+                    if (submission.getMaxPoints() == 0) { // prevent infinity points
+                        pointsAwarded = 0;
+                    }
 
                     // update points if the submission is higher
                     if (!user.getProblemsAttempted().containsKey(problem.getId()) || user.getProblemsAttempted().get(problem.getId()) < pointsAwarded) {

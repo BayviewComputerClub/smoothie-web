@@ -74,6 +74,11 @@ public class SmoothieProblemService {
         String id = problem.getTestDataId();
         problem.setProblemBatches(data.getBatches()); // set batch point information
 
+        problem.setBatchPointsSum(0);
+        for (var b : problem.getProblemBatches()) {
+            problem.setBatchPointsSum(problem.getBatchPointsSum() + b.getPointsWorth());
+        }
+
         return testDataRepository.addTestData(data.getTestData(), problem.getId()).flatMap(objectId -> {
             problem.setTestDataId(objectId.toString());
 

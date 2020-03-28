@@ -35,7 +35,7 @@ public class ProblemForm {
 
     @NotNull
     @Min(0)
-    private int totalScoreWorth;
+    private long totalScoreWorth;
 
     @NotNull
     private List<ProblemFormLimit> limits;
