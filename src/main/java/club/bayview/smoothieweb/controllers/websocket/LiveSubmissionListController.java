@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
@@ -26,6 +27,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Signal;
 import reactor.core.publisher.UnicastProcessor;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Websocket controller:
@@ -38,8 +43,6 @@ import reactor.core.publisher.UnicastProcessor;
 
 public class LiveSubmissionListController implements WebSocketHandler {
     static final int PAGE_SIZE = Integer.parseInt(PageUtil.DEFAULT_PAGE_SIZE);
-
-    // TODO check permissions for contest viewing
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -84,6 +87,7 @@ public class LiveSubmissionListController implements WebSocketHandler {
         Submission.SubmissionStatus submissionStatus;
         String verdict;
         long time, pointsAwarded, pointsMax;
+        boolean permissionToView; // needs to be set manually
 
         public static Mono<LiveSubmissionListWSResponse> fromSubmission(Submission s) {
             LiveSubmissionListWSResponse res = new LiveSubmissionListWSResponse();
@@ -143,33 +147,56 @@ public class LiveSubmissionListController implements WebSocketHandler {
     @Override
     public Mono<Void> handle(WebSocketSession session) {
         WebSocketSessionService sessionService = SmoothieWebApplication.context.getBean(WebSocketSessionService.class);
+        SmoothieProblemService problemService = SmoothieWebApplication.context.getBean(SmoothieProblemService.class);
 
         UnicastProcessor<WebSocketMessage> inputStream = UnicastProcessor.create();
         LiveSubmissionListWSRequest req = new LiveSubmissionListWSRequest();
         StringBuilder route = new StringBuilder();
+        AtomicReference<Authentication> auth = new AtomicReference<>();
 
-        return sessionService.setupInput(session, inputStream, sessionService.takeOneMsg(session)
-                .flatMap(p -> {
+        HashMap<String, Submission> submissions = new HashMap<>();
+        HashSet<String> problemIds = new HashSet<>();
+
+        return sessionService.setupInput(session, inputStream, Flux.zip(sessionService.takeOneMsg(session), sessionService.getAuthentication(session))
+                .flatMap(t -> {
                     try {
-                        om.readerForUpdating(req).readValue(p.getPayloadAsText());
+                        om.readerForUpdating(req).readValue(t.getT1().getPayloadAsText());
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
+                    auth.set(t.getT2());
                     return req.fill();
                 })
+
+                // get submissions from request
                 .flatMap(u -> getCorrespondingSubmissions(req, route)) // must be flatmap instead of then for some reason idk
+
+                // build cache for submissions to problems
+                .doOnNext(s -> submissions.put(s.getId(), s))
+                .doOnNext(s -> problemIds.add(s.getProblemId()))
+
+                // convert submissions to responses
                 .flatMap(LiveSubmissionListWSResponse::fromSubmission)
                 .collectList()
-                .doOnNext(wsl -> { // send initial list to client
-                    // add to websocket sessions
-                    sessionService.addSession(route.toString(), session, inputStream);
+                .flatMap(wsl -> Mono.zip(Mono.just(wsl), problemService.getProblemIdToProblemMap(Flux.fromIterable(problemIds))))
+
+                // send initial list to client
+                .doOnNext(t -> {
+                    // add field on whether submission can be viewed
+                    t.getT1().forEach(sl -> {
+                        Submission s = submissions.get(sl.getSubmissionId());
+                        sl.setPermissionToView(s.hasPermissionToView(auth.get(), t.getT2().get(s.getProblemId())));
+                    });
 
                     // send initial submissions
                     try {
-                        inputStream.onNext(session.textMessage(om.writeValueAsString(wsl)));
+                        inputStream.onNext(session.textMessage(om.writeValueAsString(t.getT1())));
                     } catch (JsonProcessingException e) {
                         logger.error("Error parsing json to send for live submission list: ", e);
                     }
+
+                    // add to websocket sessions
+                    sessionService.addSession(route.toString(), session, inputStream, auth.get());
                 })
                 .doOnError(e -> {
                     e.printStackTrace();

@@ -23,7 +23,7 @@ import java.util.List;
 public class RunnerTaskContextProcessor implements Runnable {
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // TODO review all Mono<Void> since they do not emit
+    // TODO review all Mono<Void> with then since they do not emit
 
     // services
     SmoothieSubmissionService submissionService = SmoothieWebApplication.context.getBean(SmoothieSubmissionService.class);

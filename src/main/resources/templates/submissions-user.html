@@ -37,7 +37,10 @@
             <td th:text="${submission.verdict}" th:id="'submission-' + ${submission.id} + '-status'"></td>
 
             <td><a class="link" th:href="@{'/problem/' + ${problems.get(submission.problemId)?.name}}" th:text="${problems.get(submission.problemId)?.prettyName}"></a></td>
-            <td><a class="link" th:href="@{'/submission/' + ${submission.id}}">Click to View</a></td>
+            <td>
+                <a class="link" th:href="@{'/submission/' + ${submission.id}}" th:if="${problems.get(submission.problemId)} and ${submission.hasPermissionToView(#authentication, problems.get(submission.problemId))}">Click to View</a>
+                <span th:unless="${problems.get(submission.problemId)} and ${submission.hasPermissionToView(#authentication, problems.get(submission.problemId))}">Can't View</span>
+            </td>
             <td th:text="${submission.lang}"></td>
             <td th:text="${submission.timeSubmitted}" class="timeSubmitted"></td>
         </tr>
@@ -80,13 +83,20 @@
                     verdict = '<b>' + parsed.pointsAwarded + ' / ' + parsed.pointsMax + '</b>';
                 }
 
+                let subLink;
+                if (parsed.permissionToView) {
+                    subLink = '<a class="link" href="/submission/' + parsed.submissionId + '">Click to View</a>';
+                } else {
+                    subLink = "Can't View";
+                }
+
                 if ($(pref + '-verdict').length === 0) { // does not exist
                     $('.standard-table tbody').prepend(`
                     <tr>
                         <td id="submission-` + parsed.submissionId + `-verdict">` + verdict + `</td>
                         <td id="submission-` + parsed.submissionId + `-status">` + parsed.verdict + `</td>
                         <td><a class="link" href="/problem/` + parsed.problemName + `">` + parsed.problemPrettyName + `</a></td>
-                        <td><a class="link" href="/submission/` + parsed.submissionId + `">Click to View</a></td>
+                        <td>` + subLink + `</td>
                         <td>` + parsed.language + `</td>
                         <td class="timeSubmitted">` + moment(parsed.time*1).format('LLL') + `</td>
                     </tr>
