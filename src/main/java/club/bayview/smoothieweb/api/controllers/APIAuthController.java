@@ -21,10 +21,6 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 
-/**
- * No longer maintained, kept here for reference purposes if an API is ever made.
- */
-
 @RestController
 public class APIAuthController {
 
@@ -35,7 +31,7 @@ public class APIAuthController {
     @Setter
     @AllArgsConstructor
     @ToString
-    static class AuthReq {
+    class AuthReq {
         String username;
         String password;
     }
