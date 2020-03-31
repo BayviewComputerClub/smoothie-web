@@ -17,6 +17,6 @@ public class GeneralSettings {
 
     String tagLine;
 
-    String homeContent;
+    String homeContent, renderedHomeContent;
 
 }

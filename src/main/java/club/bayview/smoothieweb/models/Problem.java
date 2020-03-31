@@ -64,7 +64,7 @@ public class Problem {
 
     private String testDataId;
 
-    private String problemStatement;
+    private String problemStatement, renderedProblemStatement;
 
     private boolean allowPartial; // whether or not to allow partial points awarded on EACH individual batch
     private long batchPointsSum; // sum of pointsWorth of all batches

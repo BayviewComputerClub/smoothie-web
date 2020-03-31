@@ -32,7 +32,7 @@
 <div class="container">
     <h1 class="content">General Settings</h1>
 
-    <form method="POST" class="standard-form" id="form" th:action="'?'" th:object="${form}" autocomplete="off">
+    <form method="POST" class="standard-form" id="form" th:action="'?'" th:object="${form}" autocomplete="off" onsubmit="submitForm()">
 
         <div class="form-group">
             <label for="site-name" class="label">
@@ -58,6 +58,7 @@
             </label>
             <br/>
             <textarea form="form" id="home-page-information" th:field="*{homeContent}"></textarea>
+            <textarea form="form" id="rendered-home-page-information" style="display: none;" th:field="*{renderedHomeContent}"></textarea>
         </div>
         <br/>
         <input value="Save" class="st-button" type="submit">
@@ -65,6 +66,7 @@
 
 </div>
 
+<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
 <script th:src="@{/js/simplemde-1.11.2.min.js}"></script>
 <script th:src="@{/js/katex-0.11.1.min.js}"></script>
 <script th:src="@{/js/markdown-it-9.1.0.min.js}"></script>
@@ -77,6 +79,11 @@
         spellChecker: false,
         previewRender: text => renderMdLatex(text),
     });
+
+    function submitForm() {
+        $("#rendered-home-page-information").val(renderMdLatex(editor.value()));
+    }
+
 </script>
 
 </body>

@@ -195,6 +195,7 @@
             <br/>
             <hr/>
             <textarea form="form" id="contest-description" th:field="*{description}"></textarea>
+            <textarea id="rendered-description" style="display: none;" th:field="*{renderedDescription}" form="form"></textarea>
         </div>
 
         <div class="input-container">
@@ -377,6 +378,9 @@
         $('#contest-jury > .chip > .chip-text').each((i, v) => {
             form.append(getHiddenInput('juryUserHandles[' + i + ']', v.innerText));
         });
+
+        // add rendered contest description
+        $("#rendered-description").val(renderMdLatex(editor.value()));
     }
 
     function moveProblemRowUp(r) {

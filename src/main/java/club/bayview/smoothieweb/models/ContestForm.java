@@ -27,6 +27,7 @@ public class ContestForm {
         defaultContest.setName("");
         defaultContest.setPrettyName("");
         defaultContest.setDescription("");
+        defaultContest.setRenderedDescription("");
         defaultContest.setTimeStart(0);
         defaultContest.setTimeEnd(0);
         defaultContest.setSubmissionPeriod(0);
@@ -78,7 +79,7 @@ public class ContestForm {
     private String name,
             prettyName;
 
-    private String description;
+    private String description, renderedDescription;
 
     @NotNull
     private List<ContestProblemForm> problems = new ArrayList<>();
@@ -103,6 +104,7 @@ public class ContestForm {
         cf.setName(c.getName());
         cf.setPrettyName(c.getPrettyName());
         cf.setDescription(c.getDescription());
+        cf.setRenderedDescription(c.getRenderedDescription());
 
         cf.setTimeStart(c.getTimeStart());
         cf.setTimeEnd(c.getTimeEnd());
@@ -134,6 +136,7 @@ public class ContestForm {
         c.setName(name);
         c.setPrettyName(prettyName);
         c.setDescription(description);
+        c.setRenderedDescription(renderedDescription);
 
         if (c.getTimeStart() != timeStart || c.getTimeEnd() != timeEnd || c.getSubmissionPeriod() != submissionPeriod) {
             // TODO update everyone's timers

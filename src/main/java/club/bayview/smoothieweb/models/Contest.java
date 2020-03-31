@@ -122,7 +122,7 @@ public class Contest {
     @Indexed(unique = true)
     private String prettyName;
 
-    private String description;
+    private String description, renderedDescription;
 
     // <problemId, contestproblem>
     private HashMap<String, ContestProblem> contestProblems = new HashMap<>();

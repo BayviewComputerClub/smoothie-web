@@ -65,14 +65,10 @@
         </div>
     </div>
 
-    <p id="contest-description" class="content" th:text="${contest.description}" style="white-space: pre;">
-    </p>
+    <div class="content" th:utext="${contest.renderedDescription}"></div>
 </div>
 
 <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
-<script th:src="@{/js/katex-0.11.1.min.js}"></script>
-<script th:src="@{/js/markdown-it-9.1.0.min.js}"></script>
-<script th:src="@{/js/render-md-latex.js}"></script>
 <script th:src="@{/js/moment.min.js}"></script>
 
 <script th:inline="javascript">
@@ -81,13 +77,6 @@
     $start.text(moment(parseInt($start.text(), 10)).format('LLL'));
     $end.text(moment(parseInt($end.text(), 10)).format('LLL'));
     $subPeriod.text($subPeriod.text() + " minutes");
-
-    // load contest statement
-    // use javascript for text because minify strips whitespace
-    let statementText = /*[[${contest.description}]]*/;
-    let statement = $('#contest-description');
-    statement.html(renderMdLatex(statement.text()));
-    statement.css('white-space', 'normal')
 </script>
 </body>
 </html>

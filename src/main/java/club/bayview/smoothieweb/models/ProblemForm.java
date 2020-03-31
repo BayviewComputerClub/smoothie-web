@@ -28,7 +28,7 @@ public class ProblemForm {
             prettyName;
 
     @NotEmpty
-    private String problemStatement;
+    private String problemStatement, renderedProblemStatement;
 
     @NotNull
     private boolean allowPartial;
@@ -45,6 +45,7 @@ public class ProblemForm {
         pf.setName(p.getName());
         pf.setPrettyName(p.getPrettyName());
         pf.setProblemStatement(p.getProblemStatement());
+        pf.setRenderedProblemStatement(p.getRenderedProblemStatement());
         pf.setAllowPartial(p.isAllowPartial());
         pf.setTotalScoreWorth(p.getScoreMultiplier());
         pf.setLimits(new ArrayList<>());
@@ -60,6 +61,7 @@ public class ProblemForm {
         problem.setName(this.getName());
         problem.setPrettyName(this.getPrettyName());
         problem.setProblemStatement(this.getProblemStatement());
+        problem.setRenderedProblemStatement(this.getRenderedProblemStatement());
         problem.setAllowPartial(this.isAllowPartial());
         problem.setScoreMultiplier(this.getTotalScoreWorth());
 

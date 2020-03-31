@@ -12,7 +12,7 @@
             color: #212529;
         }
 
-        h1 {
+        .siteName {
             font-size: 64px;
             font-family: 'Metropolis-bold', sans-serif;
             font-weight: normal;
@@ -35,7 +35,7 @@
             color: #FF7139;
         }
 
-        h3 {
+        .sideHead {
             font-size: 24px;
             font-family: 'Red Hat Display', sans-serif;
             margin-block-start: 0;
@@ -54,12 +54,6 @@
 
         .main-box {
             font-size: 18px;
-        }
-
-        p {
-            margin-block-start: 0;
-            margin-block-end: 0;
-            display: block;
         }
 
         .container {
@@ -85,11 +79,11 @@
 <div th:replace="fragments/header :: header"></div>
 
 <div class="container">
-    <h1 th:utext="${siteName}"></h1>
+    <h1 class="siteName" th:utext="${siteName}"></h1>
     <div class="tagLine" th:utext="${information.tagLine}"></div>
 
     <div class="main-box content">
-        <p id="information" class="content" style="white-space: pre;" th:text="${information.homeContent}"></p>
+        <div th:utext="${information.renderedHomeContent}"></div>
         <span sec:authorize="isAnonymous()">
             You are not logged in.
         </span>
@@ -101,13 +95,13 @@
 
 <div class="sidebar">
     <div class="box">
-        <h3>Contests</h3>
+        <h3 class="sideHead">Contests</h3>
         <p>
             ¯\_(ツ)_/¯
         </p>
     </div>
     <div class="box" style="margin-top: 20px;">
-        <h3>Posts</h3>
+        <h3 class="sideHead">Posts</h3>
         <p>
             ¯\_(ツ)_/¯
         </p>
@@ -115,17 +109,5 @@
 </div>
 
 </body>
-
-<script th:src="@{/js/jquery-3.4.1.min.js}"></script>
-<script th:src="@{/js/katex-0.11.1.min.js}"></script>
-<script th:src="@{/js/markdown-it-9.1.0.min.js}"></script>
-<script th:src="@{/js/render-md-latex.js}"></script>
-
-<script th:inline="javascript">
-    // use javascript for text because minify strips whitespace
-    let infoText = /*[[${information.homeContent}]]*/;
-    let $info = $("#information");
-    $info.html(renderMdLatex($info.html()));
-</script>
 
 </html>

@@ -139,6 +139,7 @@
             <br/>
             <div class="problem-editor">
                 <textarea id="problem-statement" th:field="*{problemStatement}" form="problem-form"></textarea>
+                <textarea id="rendered-problem-statement" style="display: none;" th:field="*{renderedProblemStatement}" form="problem-form"></textarea>
             </div>
         </div>
 
@@ -217,6 +218,15 @@
     <script th:src="@{/js/render-md-latex.js}"></script>
 
     <script th:inline="javascript">
+        // problem statement editor
+        let editor = new SimpleMDE({
+            element: document.getElementById("problem-statement"),
+            forceSync: true,
+            spellChecker: false,
+            previewRender: text => renderMdLatex(text)
+        });
+        editor.value(/*[[${problem.problemStatement}]]*/);
+
         let langOptions = $('#languages-dump').html();
 
         // add form elements for submitting
@@ -233,6 +243,9 @@
                     rowNum++;
                 }
             }
+
+            // add rendered problem statement
+            $("#rendered-problem-statement").val(renderMdLatex(editor.value()));
         }
 
         // tables
@@ -253,17 +266,6 @@
             `);
         }
 
-    </script>
-
-    <script th:inline="javascript">
-        // problem statement editor
-        let editor = new SimpleMDE({
-            element: document.getElementById("problem-statement"),
-            forceSync: true,
-            spellChecker: false,
-            previewRender: text => renderMdLatex(text)
-        });
-        editor.value(/*[[${problem.problemStatement}]]*/);
     </script>
 </div>
 </body>
