@@ -47,7 +47,7 @@
                 <span class="required">*</span>
             </label>
             <br/>
-            <input type="text" th:field="*{username}" class="control width" th:errorclass="invalid" required>
+            <input type="text" pattern="^[A-Za-z0-9]+$" th:field="*{username}" class="control width" th:errorclass="invalid" required>
             <br/>
             <span class="helper error" th:each="err : ${#fields.errors('username')}" th:text="${err}"></span>
         </div>
