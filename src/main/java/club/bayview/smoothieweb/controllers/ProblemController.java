@@ -36,7 +36,7 @@ public class ProblemController {
                                          Authentication auth,
                                          @RequestParam(defaultValue = "1") int page,
                                          @RequestParam(defaultValue = PageUtil.DEFAULT_PAGE_SIZE) int pageSize) {
-        Pageable p = PageUtil.createPageable(page, pageSize, true, "prettyName", model);
+        Pageable p = PageUtil.createPageable(page, pageSize, false, "prettyName", model);
 
         return Mono.zip(problemService.countProblems(),
                 problemService.findProblems(p).filter(pp -> pp.hasPermissionToView(auth)).collectList())

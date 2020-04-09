@@ -75,13 +75,20 @@ public class SmoothieQueuedSubmissionService {
             for (SmoothieRunner runner : smoothieRunners) {
                 // grade if there are no tasks in the queue
                 if (!runner.isOccupied() && runner.getHealth().getNumOfTasksInQueue() == 0) {
+
                     sub.setStatus(QueuedSubmission.QueuedSubmissionStatus.PROCESSING);
+                    sub.setRunnerId(runner.getId());
+
                     saveQueuedSubmission(sub)
                             .doOnNext(t -> runnerTaskService.addTask(runner.getId(), RunnerTaskProcessorEvent.builder()
-                                    .eventType(RunnerTaskProcessorEvent.EventType.JUDGE_SUBMISSION)
-                                    .queuedSubmission(sub)
-                                    .build())).block();
-                    break; // leave when finished
+                                            .eventType(RunnerTaskProcessorEvent.EventType.JUDGE_SUBMISSION)
+                                            .queuedSubmission(sub)
+                                            .build()
+                                    ))
+                            .block();
+
+                    // leave when finished
+                    break;
                 }
             }
         }

@@ -128,7 +128,7 @@ public class Problem {
                 .setProblemId(id)
                 .setTestDataHash(hash)
                 .setGrader(SmoothieRunner.ProblemGrader.newBuilder()
-                        .setType("strict") // TODO
+                        .setType("endtrim") // TODO
                         .build())
                 .setTimeLimit(limit.getTimeLimit())
                 .setMemLimit(limit.getMemoryLimit())
