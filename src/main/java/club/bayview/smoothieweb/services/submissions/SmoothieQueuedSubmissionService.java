@@ -47,6 +47,11 @@ public class SmoothieQueuedSubmissionService {
         return queuedSubmissionRepository.findAllByOrderByTimeRequestedAsc();
     }
 
+    public Flux<QueuedSubmission> getQueuedSubmissionsByStatus(QueuedSubmission.QueuedSubmissionStatus status) {
+        return queuedSubmissionRepository.findAllByStatusOrderByTimeRequestedAsc(status);
+    }
+
+
     public Mono<Long> deleteQueuedSubmissionById(String id) {
         return queuedSubmissionRepository.deleteAllById(id);
     }
@@ -63,14 +68,15 @@ public class SmoothieQueuedSubmissionService {
 
         logger.debug("Running checkRunnersTask, and searching for runners...");
 
-        for (var sub : getQueuedSubmissions().collectList().block()) {
+        for (var sub : getQueuedSubmissionsByStatus(QueuedSubmission.QueuedSubmissionStatus.AWAITING).collectList().block()) {
             var smoothieRunners = sortRunnersForSubmission(runners, sub);
 
             logger.debug("Looking at submission " + sub.getSubmissionId() + " for runners..");
             for (SmoothieRunner runner : smoothieRunners) {
                 // grade if there are no tasks in the queue
                 if (!runner.isOccupied() && runner.getHealth().getNumOfTasksInQueue() == 0) {
-                    deleteQueuedSubmissionById(sub.getId())
+                    sub.setStatus(QueuedSubmission.QueuedSubmissionStatus.PROCESSING);
+                    saveQueuedSubmission(sub)
                             .doOnNext(t -> runnerTaskService.addTask(runner.getId(), RunnerTaskProcessorEvent.builder()
                                     .eventType(RunnerTaskProcessorEvent.EventType.JUDGE_SUBMISSION)
                                     .queuedSubmission(sub)

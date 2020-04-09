@@ -13,6 +13,11 @@ import java.util.List;
 @Setter
 public class QueuedSubmission {
 
+    public enum QueuedSubmissionStatus {
+        AWAITING,
+        PROCESSING
+    }
+
     @Id
     String id;
 
@@ -21,15 +26,23 @@ public class QueuedSubmission {
 
     String problemId;
 
+    String runnerId;
+
     @Indexed
     long timeRequested;
 
     List<String> requestedRunnerIds; // leave empty for all
 
+    QueuedSubmissionStatus status;
+
     public QueuedSubmission(String submissionId, String problemId) {
         this.submissionId = submissionId;
         this.problemId = problemId;
         this.timeRequested = System.currentTimeMillis() / 1000L;
+
+        this.status = QueuedSubmissionStatus.AWAITING;
     }
+
+
 
 }

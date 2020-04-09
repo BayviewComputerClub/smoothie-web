@@ -171,7 +171,7 @@ public class RunnerTaskContextProcessor implements Runnable {
 
                     // find next task to do
                     queuedSubmissionService.checkRunnersTask();
-                    return Mono.zip(Mono.just(s), verdictService.applyVerdictToSubmission(s).then(Mono.just("")));
+                    return Mono.zip(Mono.just(s), verdictService.applyVerdictToSubmission(s).then(Mono.just("")), queuedSubmissionService.deleteQueuedSubmissionById(currentSubmissionId));
                 })
                 // send to websocket
                 .flatMap(t -> {

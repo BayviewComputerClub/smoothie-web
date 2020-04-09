@@ -9,6 +9,8 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface QueuedSubmissionRepository extends ReactiveMongoRepository<QueuedSubmission, String> {
 
+    Flux<QueuedSubmission> findAllByStatusOrderByTimeRequestedAsc(QueuedSubmission.QueuedSubmissionStatus status);
+
     Flux<QueuedSubmission> findAllByOrderByTimeRequestedAsc();
 
     Mono<Long> deleteAllById(String id);
