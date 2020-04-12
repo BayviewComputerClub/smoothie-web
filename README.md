@@ -27,6 +27,11 @@ The compiled JAR file will be in `build/libs/`.
 ### Precompiled JAR
 [Download the JAR :coffee:](https://github.com/BayviewComputerClub/smoothie-web/actions?query=workflow%3A%22Smoothie-Web+Build%22)
 
+or [the JAR from the CI server](https://ci.dolphinbox.net/job/smoothie-web/lastCompletedBuild/) (for consistency).
+
+or [as a Docker image](https://hub.docker.com/r/bsscc/smoothie-web).
+
+
 ## Installation
 [Wiki](https://github.com/BayviewComputerClub/smoothie-web/wiki/Installation)
 
