@@ -3,7 +3,7 @@ FROM openjdk:14-oracle
 EXPOSE 8080
 
 # Jenkins will build the JAR locally (to make this image smaller)
-COPY ./build/libs/build* /opt/smoothie-web.jar
+COPY ./build/libs/* /opt/smoothie-web.jar
 
 WORKDIR /opt/
 
