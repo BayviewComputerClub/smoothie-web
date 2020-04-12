@@ -1,13 +1,10 @@
-FROM gradle:6.2-jdk11
+FROM openjdk:14-oracle
 
 EXPOSE 8080
 
-COPY . /smoothie-web/build
-WORKDIR /smoothie-web/build
+# Jenkins will build the JAR locally (to make this image smaller)
+COPY ./build/libs/build* /opt/smoothie-web.jar
 
-RUN gradle build && \
-    mv build/libs/build* /smoothie-web.jar
-
-WORKDIR /
+WORKDIR /opt/
 
 ENTRYPOINT java -jar smoothie-web.jar
