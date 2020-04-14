@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <!-- ignore tag name "script", it will be replaced by favicon fragment -->
-    <script th:replace="fragments/favicon"></script>
+    <div th:replace="fragments/favicon"></div>
     <title>[[${user.handle}]]'s Submissions | [[${siteName}]]</title>
 
     <link rel="stylesheet" th:href="@{/css/global.css}"/>
