@@ -1,5 +1,9 @@
 #!/bin/bash
 
+cd web
+yarn build
+cd ..
+
 mkdir -p test
 ./gradlew build
 mv build/libs/smoothie-web* test/smoothie-web.jar

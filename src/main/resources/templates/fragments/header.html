@@ -1,6 +1,31 @@
 <!-- Default header -->
 <header xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
         th:unless="${currentContest}">
+
+    <div id="header"></div>
+
+    <script th:unless="${#authentication}" th:inline="javascript">
+        let data = {
+            isAuth: false
+        }
+    </script>
+
+    <script sec:authorize="isAuthenticated()" th:inline="javascript">
+        let data = {
+            isAuth: true,
+            isAdmin: /*[[${isAdmin}]]*/ false,
+            username: /*[[${#authentication.getPrincipal().getUsername()}]]*/ ""
+        }
+    </script>
+
+    <script th:inline="javascript">
+        const components = window.smoothie_components;
+        const e = window.React.createElement;
+        window.ReactDOM.render(e(components.Header, data), document.querySelector('#header'));
+    </script>
+
+    <!--
+
     <a th:href="@{/}" class="header-title"><b th:text="${siteName}"></b></a>
     <a th:href="@{/problems}" class="box-left">Problems</a>
     <a th:href="@{/contests}" class="box-left">Contests</a>
@@ -20,11 +45,77 @@
                     th:text="${#authentication.getPrincipal().getUsername()}"></span>!</a>
         </div>
     </div>
+    -->
 </header>
 
 <!-- Contest mode header -->
+<!-- todo switch to react -->
 <header xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
         th:if="${currentContest}">
+
+    <style>
+        header {
+            font-family: 'Red Hat Display', sans-serif;
+            line-height: 24px;
+            background-color: rgb(21, 21, 21);
+            color: white;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            z-index: 300;
+            box-shadow: 0 6px 8px -1px gray;
+        }
+
+        header a, header .button-as-link {
+            border-top: rgb(21, 21, 21) 3px solid;
+            font-family: 'Red Hat Display', sans-serif;
+            font-size: 18px;
+            position: relative;
+            box-sizing: border-box;
+            cursor: pointer;
+            outline: none;
+            text-decoration: none;
+            padding: 17px 16px 20px 16px;
+            white-space: nowrap;
+            text-align: left;
+            color: white;
+            display: inline-block;
+            transition: color, background-color 0.3s, text-shadow 0.3s, box-shadow 0.3s, border-top;
+        }
+
+        header .button-as-link {
+            border: none;
+            background: none;
+        }
+
+        header a.box-left:hover, header .button-as-link.box-left:hover {
+            text-shadow: 0 0 5px #e0e0e0;
+            color: rgb(21, 21, 21);
+            border-top: #737679 3px solid;
+            background-color: white;
+            box-shadow: 0 4px 8px -1px white;
+            transition: color 0.3s, background-color 0.3s, text-shadow 0.3s, box-shadow 0.3s;
+        }
+
+        .header-title {
+            margin-right: 10px;
+            padding-left: 24px;
+            padding-right: 32px;
+            text-align: left;
+        }
+
+        .header-title:hover, header a.box-right:hover, header .button-as-link.box-right:hover {
+            text-shadow: 0 0 5px #ffffff;
+            color: white;
+            background-color: rgb(21, 21, 21);
+            transition: text-shadow 0.5s;
+        }
+
+        .header-right {
+            margin-left: auto;
+        }
+    </style>
+
     <a th:href="@{'/contest/' + ${currentContest.name}}" class="header-title"><b
             th:text="${currentContest.prettyName}"></b></a>
     <a th:href="@{'/contest/' + ${currentContest.name} + '/problems'}" class="box-left">Problems</a>

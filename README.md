@@ -16,6 +16,15 @@
 Open source judging website. Works in tandem with, and provides a web interface to, [smoothie-runner](https://github.com/BayviewComputerClub/smoothie-runner).
 
 ### Build from source
+
+Build the React Components:
+```shell script
+cd web
+yarn # Download Dependancies
+yarn build
+cd ..
+```
+
 Install gradle, and in a terminal, run:
 
 ```shell script
