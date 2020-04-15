@@ -1,0 +1,11 @@
+# MongoDB
+spring.data.mongodb:
+  host: smoothie-mongo
+  port: 27017
+  database: main
+
+# Redis
+spring.redis:
+  host: smoothie-redis
+  port: 6379
+  password:

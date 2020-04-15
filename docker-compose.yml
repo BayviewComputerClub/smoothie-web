@@ -1,0 +1,10 @@
+version: '3'
+services:
+  smoothie-web:
+    image: "bsscc/smoothie-web:latest"
+    ports:
+      - "9090:8080"
+  smoothie-mongo:
+    image: "mongo:latest"
+  smoothie-redis:
+    image: "redis:latest"
