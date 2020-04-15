@@ -13,7 +13,7 @@
 ![Maintenance](https://img.shields.io/maintenance/yes/2020)
 ![Discord](https://img.shields.io/discord/642159962587529237?color=%23e91e63&label=Discord&logo=Discord)
 
-Open source judging website. Works in tandem with, and provides a web interface to, [smoothie-runner](https://github.com/BayviewComputerClub/smoothie-runner).
+Open source judging website. Don't forget to have a [smoothie-runner](https://github.com/BayviewComputerClub/smoothie-runner) instance!
 
 ### Build from source
 Install gradle, and in a terminal, run:
@@ -31,6 +31,12 @@ or [the JAR from the CI server](https://ci.dolphinbox.net/job/smoothie-web/lastC
 
 or [as a Docker image](https://hub.docker.com/r/bsscc/smoothie-web).
 
+### Getting Started Quick with Docker
+A ``docker-compose.yml`` file is provided in this repository. All you need to do is:
+```shell-script
+docker-compose up
+```
+and Docker will automaticlly pull in smoothie-web (and expose it on port 9090), along with MongoDB, and Redis.
 
 ## Installation
 [Wiki](https://github.com/BayviewComputerClub/smoothie-web/wiki/Installation)
