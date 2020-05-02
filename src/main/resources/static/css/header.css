@@ -84,6 +84,13 @@ header a.box-left:hover, header .button-as-link.box-left:hover {
     box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, .132), 0 10.2px 30.6px 0 rgba(0, 0, 0, .108);
     z-index: 10;
     transition: box-shadow 0.5s, border-radius 0.5s, background 0.5s;
+
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
 }
 
 #contest-clock-box:hover {
