@@ -381,7 +381,7 @@ public class Contest {
             return true;
 
         // check if user is in the contest mode
-        if (!u.getContestId().equals(getId()))
+        if (u.getContestId() == null || !u.getContestId().equals(getId()))
             return false;
 
         // if user is not a contest participant
