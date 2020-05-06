@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.api.controllers;
 
+import club.bayview.smoothieweb.api.models.APIContest;
 import club.bayview.smoothieweb.api.models.APIProblem;
 import club.bayview.smoothieweb.models.Contest;
 import club.bayview.smoothieweb.services.SmoothieContestService;
@@ -10,12 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
 @RestController
-public class APIContentController {
+public class APIContestController {
     @Autowired
     SmoothieContestService contestService;
 
     @RequestMapping("/api/v1/contests")
-    public Flux<Contest> getProblems() {
-        return contestService.findAllContests(Pageable.unpaged());
+    public Flux<APIContest> getProblems() {
+        return contestService.findAllContests(Pageable.unpaged())
+                .map(APIContest::fromContest);
     }
 }
