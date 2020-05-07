@@ -31,6 +31,9 @@ public class ProblemForm {
     private String problemStatement, renderedProblemStatement;
 
     @NotNull
+    private boolean visibleToPublic;
+
+    @NotNull
     private boolean allowPartial;
 
     @NotNull
@@ -46,6 +49,7 @@ public class ProblemForm {
         pf.setPrettyName(p.getPrettyName());
         pf.setProblemStatement(p.getProblemStatement());
         pf.setRenderedProblemStatement(p.getRenderedProblemStatement());
+        pf.setVisibleToPublic(p.isVisibleToPublic());
         pf.setAllowPartial(p.isAllowPartial());
         pf.setTotalScoreWorth(p.getScoreMultiplier());
         pf.setLimits(new ArrayList<>());
@@ -62,6 +66,7 @@ public class ProblemForm {
         problem.setPrettyName(this.getPrettyName());
         problem.setProblemStatement(this.getProblemStatement());
         problem.setRenderedProblemStatement(this.getRenderedProblemStatement());
+        problem.setVisibleToPublic(this.isVisibleToPublic());
         problem.setAllowPartial(this.isAllowPartial());
         problem.setScoreMultiplier(this.getTotalScoreWorth());
 
@@ -79,6 +84,7 @@ public class ProblemForm {
         defaultProblem = new ProblemForm();
         defaultProblem.name = "";
         defaultProblem.prettyName = "";
+        defaultProblem.visibleToPublic = true;
         defaultProblem.allowPartial = false;
         defaultProblem.totalScoreWorth = 1;
         defaultProblem.limits = Arrays.asList(new ProblemFormLimit(JudgeLanguage.ALL.getPrettyName(), 1.0, 256));

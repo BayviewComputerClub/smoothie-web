@@ -153,6 +153,17 @@
         </div>
 
         <div class="form-group">
+            <label for="visible-to-public" class="label">
+                <span class="text">Visible To Public</span>
+            </label>
+            <br/>
+            <label class="checkbox-switch">
+                <input type="checkbox" id="visible-to-public" th:field="*{visibleToPublic}">
+                <span class="checkbox-slider"></span>
+            </label>
+        </div>
+
+        <div class="form-group">
             <label for="allow-partial" class="label">
                 <span class="text">Allow Partial Points (per batch)</span>
             </label>

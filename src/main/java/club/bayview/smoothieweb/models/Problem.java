@@ -73,7 +73,8 @@ public class Problem {
     private int rateOfAC, usersSolved;
     private long timeCreated;
 
-    private List<String> editorIds;
+    private boolean visibleToPublic;
+    private List<String> editorIds, testerIds;
 
     public Mono<StoredTestData.TestData> getTestData() {
         try {
@@ -135,9 +136,25 @@ public class Problem {
                 .build()));
     }
 
-    // TODO
     public boolean hasPermissionToView(Authentication auth) {
-        return true;
+        if (isVisibleToPublic()) return true;
+
+        // not logged in
+        if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User))
+            return false;
+
+        User u = (User) auth.getPrincipal();
+
+        if (u.isAdmin())
+            return true;
+
+        // is added editor or tester
+        if (editorIds.contains(u.getId()) || testerIds.contains(u.getId()))
+            return true;
+
+        // contest permissions are done in contest, not here
+
+        return false;
     }
 
 }
