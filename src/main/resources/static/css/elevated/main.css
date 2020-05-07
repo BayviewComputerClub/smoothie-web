@@ -176,18 +176,18 @@ h3.title-d {
 
 /* -=- tables -=- */
 
-table.standard-table {
+table.standard-table, .content table {
     text-rendering: optimizeLegibility;
     border-bottom-color: rgb(128, 128, 128);
     line-height: 24px;
     border-collapse: collapse;
 }
 
-table.standard-table > thead > tr {
+table.standard-table > thead > tr, .content table > thead > tr {
     line-height: 21px;
 }
 
-table.standard-table > thead > tr > th {
+table.standard-table > thead > tr > th, .content table > thead > tr > th {
     font-size: 16px;
     font-weight: 700;
     text-align: left;
@@ -196,14 +196,14 @@ table.standard-table > thead > tr > th {
     border-bottom: 1px solid #d2d2d2;
 }
 
-table.standard-table > tbody > tr {
+table.standard-table > tbody > tr, .content table > tbody > tr {
     line-height: 24px;
     box-sizing: border-box;
     display: table-row;
     vertical-align: middle;
 }
 
-table.standard-table > tbody > tr > td {
+table.standard-table > tbody > tr > td, .content table > tbody > tr > td {
     border-top: 1px solid #d2d2d2;
     vertical-align: baseline;
     text-align: left;
@@ -225,7 +225,7 @@ th.selected {
     color: #e91e63;
 }
 
-table.compact > tbody > tr > td {
+table.compact > tbody > tr > td, .content table > tbody > tr > td {
     padding: 14px 8px 12px 24px;
 }
 
