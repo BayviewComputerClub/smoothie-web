@@ -32,6 +32,19 @@
             margin-top: 20px;
             margin-bottom: 20px;
         }
+
+        .green {
+            color: #009688;
+            text-shadow: 0 0 2px #009688;
+        }
+        .red {
+            color: #f44336;
+            text-shadow: 0 0 2px #f44336;
+        }
+        .grey {
+            color: #9e9e9e;
+            text-shadow: 0 0 2px #9e9e9e;
+        }
     </style>
 </head>
 <body>
@@ -72,7 +85,9 @@
                 Batch #[[${iter.index}+1]]:
                 <ul>
                     <li th:each="case, iter2 : ${batch.cases}" th:id="'batch-' + ${iter.index} + '-case-' + ${iter2.index}">
-                        Case #[[${iter2.index}+1]]: [[${case.resultCode}]] (<span class="case-time">[[${case.time}]]</span>s) ([[${case.memUsage}]]MB)
+                        <span th:if="${case.resultCode} == 'AC'">Case #[[${iter2.index}+1]]: <span class="green">[[${case.resultCode}]]</span> (<span class="case-time">[[${case.time}]]</span>s) ([[${case.memUsage}]]MB)</span>
+                        <span th:if="${case.resultCode} == 'WA'">Case #[[${iter2.index}+1]]: <span class="red">[[${case.resultCode}]]</span> (<span class="case-time">[[${case.time}]]</span>s) ([[${case.memUsage}]]MB)</span>
+                        <span th:if="${case.resultCode} != 'AC' and ${case.resultCode} != 'WA'">Case #[[${iter2.index}+1]]: <span class="grey">[[${case.resultCode}]]</span> (<span class="case-time">[[${case.time}]]</span>s) ([[${case.memUsage}]]MB)</span>
                     </li>
                 </ul>
             </li>
@@ -106,7 +121,10 @@
                 $('#submission-content').html("<h3 class='title'>Compile Error</h3><p>" + parsed.compileError + "</p>");
             } else if (parsed.batchCases != null) {
                 parsed.batchCases.forEach(sub => {
-                    $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).text("Case #" + (sub.caseNumber + 1) + ": " + sub.resultCode + " (" + (Math.round(sub.time * 1000) / 1000).toFixed(3) + "s) (" + sub.memUsage + "MB)");
+                    let colour = "grey";
+                    if (sub.resultCode == "AC") colour = "green";
+                    if (sub.resultCode == "WA") colour = "red";
+                    $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).html("Case #" + (sub.caseNumber + 1) + ": <span class='" + colour + "'>" + sub.resultCode + "</span> (" + (Math.round(sub.time * 1000) / 1000).toFixed(3) + "s) (" + sub.memUsage + "MB)");
                 });
             }
         });

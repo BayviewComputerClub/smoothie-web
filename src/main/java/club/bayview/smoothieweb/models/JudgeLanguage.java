@@ -23,14 +23,14 @@ public class JudgeLanguage {
     CPP98 = new JudgeLanguage("c++98", "C++98", "ace/mode/c_cpp"),
 
     // java
-    JAVA8 = new JudgeLanguage("java8", "Java 8", "ace/mode/java"),
+//    JAVA8 = new JudgeLanguage("java8", "Java 8", "ace/mode/java"),
     JAVA11 = new JudgeLanguage("java11", "Java 11", "ace/mode/java"),
 
     // python
     PYTHON3 = new JudgeLanguage("python3", "Python 3", "ace/mode/python")
             ;
 
-    public static List<JudgeLanguage> values = Arrays.asList(ALL, C11, CPP11, CPP14, CPP17, CPP98, JAVA8, JAVA11, PYTHON3);
+    public static List<JudgeLanguage> values = Arrays.asList(ALL, C11, CPP11, CPP14, CPP17, CPP98, JAVA11, PYTHON3);
 
     public static List<JudgeLanguage> getLanguages() {
         var langs = new ArrayList<>(values);
