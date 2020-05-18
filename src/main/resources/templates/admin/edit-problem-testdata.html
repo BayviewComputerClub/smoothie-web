@@ -89,6 +89,12 @@
             Upload Test Data
         </a>
 
+        <a class="button-box" th:href="@{'/problem/' + ${problem.name} + '/edit/testdata/download'}">
+            <i class="material-icons" style="font-size: 48px;">file_download</i>
+            <br/>
+            Download Test Data
+        </a>
+
         <a class="button-box" th:href="@{'/problem/' + ${problem.name} + '/edit/testdata/table'}">
             <i class="material-icons" style="font-size: 48px;">insert_drive_file</i>
             <br/>

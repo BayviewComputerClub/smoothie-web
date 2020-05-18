@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.CacheControl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,16 +26,14 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 @Controller
 public class AdminProblemTestDataController {
@@ -87,6 +87,59 @@ public class AdminProblemTestDataController {
 
                     return Mono.just("admin/edit-problem-testdata-file");
                 }).onErrorResume(e -> ErrorCommon.handle404(e, logger, "GET /problem/{name}/edit/testdata/file route exception: "));
+    }
+
+    @GetMapping(path = "/problem/{name}/edit/testdata/download", produces = "application/octet-stream")
+    @PreAuthorize("hasRole('ROLE_EDITOR')")
+    public Mono<ResponseEntity<byte[]>> getDownloadTestDataRoute(@PathVariable String name) {
+
+        var re = ResponseEntity
+                .ok().cacheControl(CacheControl.noCache())
+                .header("Content-Type", "application/octet-stream")
+                .header("Content-Disposition", "attachment; filename=" + name + ".zip");
+
+        return problemService.findProblemByName(name)
+                .switchIfEmpty(Mono.error(new NotFoundException()))
+                .flatMap(p -> {
+                    try {
+                        return problemService.findProblemTestData(p.getTestDataId());
+                    } catch (Exception e) {
+                        return Mono.error(e);
+                    }
+                })
+                .flatMap(testData -> {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ZipOutputStream zos = new ZipOutputStream(baos);
+
+                    try {
+                        for (var batch : testData.getBatchList()) {
+                            for (var batchCase : batch.getCaseList()) {
+                                ZipEntry zei = new ZipEntry(batch.getBatchNum() + "-" + batchCase.getCaseNum() + ".in"),
+                                        zeo = new ZipEntry(batch.getBatchNum() + "-" + batchCase.getCaseNum() + ".out");
+                                zos.putNextEntry(zei);
+                                zos.write(batchCase.getInput().getBytes());
+                                zos.closeEntry();
+                                zos.putNextEntry(zeo);
+                                zos.write(batchCase.getExpectedOutput().getBytes());
+                                zos.closeEntry();
+                            }
+                        }
+                    } catch (Exception e) {
+                        return Mono.error(e);
+                    } finally {
+                        try {
+                            zos.close();
+                        } catch (IOException e) {
+                            return Mono.error(e);
+                        }
+                    }
+
+                    return Mono.just(re.body(baos.toByteArray()));
+                })
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    return Mono.just(re.body(new byte[0]));
+                });
     }
 
     @PostMapping(path = "/problem/{name}/edit/testdata/file")
