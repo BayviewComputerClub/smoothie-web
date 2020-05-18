@@ -1,5 +1,7 @@
 package club.bayview.smoothieweb.models;
 
+import club.bayview.smoothieweb.SmoothieWebApplication;
+import club.bayview.smoothieweb.services.SmoothieContestService;
 import club.bayview.smoothieweb.util.Verdict;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -112,8 +114,15 @@ public class Submission {
             return true;
 
         // if the user has solved the problem
-        if (user.getSolved().contains(getProblemId()))
+        if (contestId != null) {
+            // the contest must be over to see it
+            Contest c = SmoothieWebApplication.context.getBean(SmoothieContestService.class).findContestById(contestId).block(); // TODO don't block
+            if (user.getSolved().contains(getProblemId()) && (c == null || c.getTimeEnd() < System.currentTimeMillis())) {
+                return true;
+            }
+        } else if (user.getSolved().contains(getProblemId())) {
             return true;
+        }
 
         // if the problem does not exist
         if (problem == null)
