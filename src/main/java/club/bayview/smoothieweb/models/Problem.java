@@ -149,7 +149,7 @@ public class Problem {
             return true;
 
         // is added editor or tester
-        if (editorIds.contains(u.getId()) || testerIds.contains(u.getId()))
+        if ((editorIds != null && editorIds.contains(u.getId())) || (testerIds != null && testerIds.contains(u.getId())))
             return true;
 
         // contest permissions are done in contest, not here
