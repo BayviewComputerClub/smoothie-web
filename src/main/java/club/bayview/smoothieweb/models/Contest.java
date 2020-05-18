@@ -3,6 +3,7 @@ package club.bayview.smoothieweb.models;
 import club.bayview.smoothieweb.SmoothieWebApplication;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
 import club.bayview.smoothieweb.services.SmoothieSubmissionService;
+import club.bayview.smoothieweb.services.SmoothieUserService;
 import club.bayview.smoothieweb.util.Verdict;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -72,7 +73,7 @@ public class Contest {
          * Used for users initially joining the contest.
          *
          * @param contest the contest being joined
-         * @param user the user
+         * @param user    the user
          * @return the contest user to be added to the contest
          */
 
@@ -98,7 +99,7 @@ public class Contest {
             if (c.getSubmissionPeriod() == 0) {
                 return c.getTimeEnd();
             } else {
-                return Math.min(c.getTimeEnd(), c.getSubmissionPeriod()*1000*60 + getTimeStart());
+                return Math.min(c.getTimeEnd(), c.getSubmissionPeriod() * 1000 * 60 + getTimeStart());
             }
         }
 
@@ -159,6 +160,7 @@ public class Contest {
 
         @Getter
         String pretty;
+
         ContestStatus(String pretty) {
             this.pretty = pretty;
         }
@@ -275,7 +277,8 @@ public class Contest {
                         u = new ContestUser();
                         u.setTimeStart(System.currentTimeMillis());
                     }
-                    u.getBestSubmissions().clear();;
+                    u.getBestSubmissions().clear();
+                    ;
                     u.setPoints(0);
 
                     // loop over contest problems in order and add to best submissions
@@ -284,7 +287,7 @@ public class Contest {
                         if (m.containsKey(cp.getProblemId())) { // submission for problem has been recorded
                             var sub = m.get(cp.getProblemId());
                             cus.setMaxPoints(cp.getTotalPointsWorth());
-                            cus.setPoints((double)sub.getPoints() / sub.getMaxPoints() * cp.getTotalPointsWorth()); // convert from problem points to contest points
+                            cus.setPoints((double) sub.getPoints() / sub.getMaxPoints() * cp.getTotalPointsWorth()); // convert from problem points to contest points
                             cus.setProblemId(sub.getProblemId());
                             cus.setTimeSubmitted(sub.getTimeSubmitted());
                         } else { // no submissions yet
@@ -341,20 +344,22 @@ public class Contest {
      * @return whether or not the authentication has permission to view the contest problems
      */
 
-    public boolean hasPermissionToViewProblems(Authentication auth) {
+    public Mono<Boolean> hasPermissionToViewProblems(Authentication auth) {
         if (!hasPermissionToView(auth))
-            return false;
+            return Mono.just(false);
 
         // not logged in
         if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User))
-            return false;
+            return Mono.just(false);
 
-        // users that can submit can also see problems
-        if (hasPermissionToSubmit(auth))
-            return true;
+        return hasPermissionToSubmit(auth).flatMap(b -> {
+                    // users that can submit can also see problems
+                    if (b) return Mono.just(true);
 
-        // if the contest has ended, everyone can view problems
-        return System.currentTimeMillis() > getTimeEnd();
+                    // if the contest has ended, everyone can view problems
+                    return Mono.just(System.currentTimeMillis() > getTimeEnd());
+                }
+        );
     }
 
     /**
@@ -364,41 +369,44 @@ public class Contest {
      * @return whether or not the authentication has permission to submit to problems in the contest
      */
 
-    public boolean hasPermissionToSubmit(Authentication auth) {
+    public Mono<Boolean> hasPermissionToSubmit(Authentication auth) {
         if (!hasPermissionToView(auth))
-            return false;
+            return Mono.just(false);
 
         // not logged in
         if (auth == null || !auth.isAuthenticated() || !(auth.getPrincipal() instanceof User))
-            return false;
+            return Mono.just(false);
 
         long currentTime = System.currentTimeMillis();
 
-        User u = (User) auth.getPrincipal();
+        // fetch user from db (for up to date version)
+        return SmoothieWebApplication.context.getBean(SmoothieUserService.class)
+                .findUserById(((User) auth.getPrincipal()).getId())
+                .flatMap(u -> {
+                    // is admin
+                    if (u.getRoles().contains(Role.ROLE_ADMIN))
+                        return Mono.just(true);
 
-        // is admin
-        if (u.getRoles().contains(Role.ROLE_ADMIN))
-            return true;
+                    // check if user is in the contest mode
+                    if (u.getContestId() == null || !u.getContestId().equals(getId()))
+                        return Mono.just(false);
 
-        // check if user is in the contest mode
-        if (u.getContestId() == null || !u.getContestId().equals(getId()))
-            return false;
+                    // if user is not a contest participant
+                    if (!participants.containsKey(u.getId()))
+                        return Mono.just(false);
 
-        // if user is not a contest participant
-        if (!participants.containsKey(u.getId()))
-            return false;
+                    // if the contest has ended
+                    if (getStatus() != ContestStatus.ONGOING)
+                        return Mono.just(false);
 
-        // if the contest has ended
-        if (getStatus() != ContestStatus.ONGOING)
-            return false;
+                    ContestUser cu = participants.get(u.getId());
 
-        ContestUser cu  = participants.get(u.getId());
+                    // if user is out of time
+                    if (currentTime > cu.getSubmissionEndTime(this))
+                        return Mono.just(false);
 
-        // if user is out of time
-        if (currentTime > cu.getSubmissionEndTime(this))
-            return false;
-
-        return true;
+                    return Mono.just(true);
+                });
     }
 
     /**

@@ -51,11 +51,12 @@ public class ProblemController {
     public Mono<String> getContestProblemsRoute(@PathVariable String contestName, Model model, Authentication auth) {
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(c -> {
-                    if (!c.hasPermissionToViewProblems(auth))
+                .flatMap(c -> Mono.zip(Mono.just(c), c.hasPermissionToViewProblems(auth)))
+                .flatMap(t -> {
+                    if (!t.getT2())
                         return Mono.error(new NoPermissionException());
 
-                    model.addAttribute("contest", c);
+                    model.addAttribute("contest", t.getT1());
                     return Mono.just("contest-problems");
                 })
                 .onErrorResume(e -> ErrorCommon.handleBasic(e, logger, "GET /contest/{contestName}/problems"));
@@ -80,8 +81,10 @@ public class ProblemController {
 
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(c -> {
-                    if (!c.hasPermissionToViewProblems(auth))
+                .flatMap(c -> Mono.zip(Mono.just(c), c.hasPermissionToViewProblems(auth)))
+                .flatMap(t -> {
+                    Contest c = t.getT1();
+                    if (!t.getT2())
                         return Mono.error(new NoPermissionException());
 
                     if (problemNum >= c.getContestProblems().size()) {

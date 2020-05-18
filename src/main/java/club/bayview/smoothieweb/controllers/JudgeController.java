@@ -79,8 +79,10 @@ public class JudgeController {
     public Mono<String> getContestProblemSubmitRoute(@PathVariable String contestName, @PathVariable int problemNum, Model model, Authentication auth) {
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(contest -> {
-                    if (!contest.hasPermissionToSubmit(auth))
+                .flatMap(contest -> Mono.zip(Mono.just(contest), contest.hasPermissionToSubmit(auth)))
+                .flatMap(t -> {
+                    Contest contest = t.getT1();
+                    if (!t.getT2()) // has no permission to submit
                         return Mono.error(new NoPermissionException());
 
                     if (contest.getContestProblemsInOrder().size() <= problemNum)
@@ -124,9 +126,11 @@ public class JudgeController {
                     if (s.getContestId() != null) { // if resubmit to contest
                         return contestService.findContestById(s.getContestId())
                                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                                .flatMap(c -> {
+                                .flatMap(c -> Mono.zip(Mono.just(c), c.hasPermissionToSubmit(auth)))
+                                .flatMap(t2 -> {
+                                    Contest c = t2.getT1();
                                     // check contest permission
-                                    if (!c.hasPermissionToSubmit(auth))
+                                    if (!t2.getT2())
                                         return Mono.just("no");
 
                                     Contest.ContestProblem cp = c.getContestProblems().get(p.getId());
@@ -172,8 +176,10 @@ public class JudgeController {
 
         return contestService.findContestByName(contestName)
                 .switchIfEmpty(Mono.error(new NotFoundException()))
-                .flatMap(c -> {
-                    if (!c.hasPermissionToSubmit(auth))
+                .flatMap(c -> Mono.zip(Mono.just(c), c.hasPermissionToSubmit(auth)))
+                .flatMap(t -> {
+                    Contest c = t.getT1();
+                    if (!t.getT2())
                         return Mono.error(new NoPermissionException());
 
                     Contest.ContestProblem cp = c.getContestProblemsInOrder().get(problemNum);
