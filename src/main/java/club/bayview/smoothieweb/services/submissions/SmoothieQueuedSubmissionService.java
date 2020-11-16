@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -63,35 +64,39 @@ public class SmoothieQueuedSubmissionService {
 
     @Async
     public synchronized void checkRunnersTask() {
-        var runners = new ArrayList<>(runnerService.getSmoothieRunners().values());
-        if (runners.size() == 0) return; // if there are no runners, return
+        if (runnerService.getSmoothieRunners().size() == 0) return; // if there are no runners, return
+
+        List<QueuedSubmission> queue = getQueuedSubmissionsByStatus(QueuedSubmission.QueuedSubmissionStatus.AWAITING).collectList().block();
+        if (queue == null) return;
 
         logger.debug("Running checkRunnersTask, and searching for runners...");
 
-        for (var sub : getQueuedSubmissionsByStatus(QueuedSubmission.QueuedSubmissionStatus.AWAITING).collectList().block()) {
-            var smoothieRunners = sortRunnersForSubmission(runners, sub);
+        for (var sub : queue) {
+            var smoothieRunners = sortRunnersForSubmission(new ArrayList<>(runnerService.getSmoothieRunners().values()), sub);
 
             logger.debug("Looking at submission " + sub.getSubmissionId() + " for runners..");
             for (SmoothieRunner runner : smoothieRunners) {
                 // grade if there are no tasks in the queue
                 if (!runner.isOccupied() && runner.getHealth().getNumOfTasksInQueue() == 0) {
+                    logger.debug("Delegated submission " + sub.getSubmissionId() + " to runner " + runner.getName());
 
                     sub.setStatus(QueuedSubmission.QueuedSubmissionStatus.PROCESSING);
                     sub.setRunnerId(runner.getId());
 
                     saveQueuedSubmission(sub)
-                            .doOnNext(t -> runnerTaskService.addTask(runner.getId(), RunnerTaskProcessorEvent.builder()
+                        .doOnNext(t -> runnerTaskService.addTask(runner.getId(), RunnerTaskProcessorEvent.builder()
                                             .eventType(RunnerTaskProcessorEvent.EventType.JUDGE_SUBMISSION)
                                             .queuedSubmission(sub)
-                                            .build()
-                                    ))
-                            .block();
+                                            .build()))
+                        .block();
 
                     // leave when finished
                     break;
                 }
             }
         }
+
+        logger.debug("checkRunnersTask has finished.");
     }
 
     public ArrayList<SmoothieRunner> sortRunnersForSubmission(ArrayList<SmoothieRunner> runners, QueuedSubmission submission) {
@@ -103,13 +108,9 @@ public class SmoothieQueuedSubmissionService {
                     .forEach(order::add);
         } else {
             // if the submission allows for all runners
-            for (var runner : runners) {
-                if (runner.getStatus().equals(ConnectivityState.IDLE) || runner.getStatus().equals(ConnectivityState.READY)) {
-                    if (submission.getRequestedRunnerIds().contains(runner.getId())) {
-                        order.add(runner);
-                    }
-                }
-            }
+            runners.stream()
+                    .filter(runner -> (runner.getStatus().equals(ConnectivityState.IDLE) || runner.getStatus().equals(ConnectivityState.READY)) && submission.getRequestedRunnerIds().contains(runner.getId()))
+                    .forEach(order::add);
         }
         order.sort(Collections.reverseOrder()); // descending in rank
         return order;

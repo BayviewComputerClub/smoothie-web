@@ -124,7 +124,11 @@ public class RunnerTaskContextProcessor implements Runnable {
                 .flatMap(s -> {
                     s.setStatus(Submission.SubmissionStatus.CANCELLED);
                     s.setJudgingCompleted(true);
-                    return Mono.zip(submissionService.saveSubmission(s), submissionWebSocketService.sendLiveSubmissionListEntry(s));
+
+                    // send to websocket
+                    submissionWebSocketService.sendLiveSubmissionListEntry(s).subscribe();
+
+                    return submissionService.saveSubmission(s);
                 }).then();
     }
 
