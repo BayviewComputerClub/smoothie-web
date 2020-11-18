@@ -81,7 +81,6 @@
             isContestBoxMouseDown = false
         }, true);
         document.addEventListener('mousemove', e => {
-            e.preventDefault();
             if (isContestBoxMouseDown) {
                 contestClockBox.style.bottom = null;
                 contestClockBox.style.left = (e.clientX + contestBoxOffset[0]) + 'px';
