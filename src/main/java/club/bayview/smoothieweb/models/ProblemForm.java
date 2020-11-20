@@ -35,6 +35,9 @@ public class ProblemForm {
 
     @NotNull
     private boolean allowPartial;
+    
+    @NotNull 
+    private String graderType;
 
     @NotNull
     @Min(0)
@@ -46,6 +49,7 @@ public class ProblemForm {
     public static ProblemForm fromProblem(Problem p) {
         ProblemForm pf = new ProblemForm();
         pf.setName(p.getName());
+        pf.setGraderType(p.getGraderType());
         pf.setPrettyName(p.getPrettyName());
         pf.setProblemStatement(p.getProblemStatement());
         pf.setRenderedProblemStatement(p.getRenderedProblemStatement());
@@ -64,6 +68,7 @@ public class ProblemForm {
 
         problem.setName(this.getName());
         problem.setPrettyName(this.getPrettyName());
+        problem.setGraderType(this.getGraderType());
         problem.setProblemStatement(this.getProblemStatement());
         problem.setRenderedProblemStatement(this.getRenderedProblemStatement());
         problem.setVisibleToPublic(this.isVisibleToPublic());
@@ -84,6 +89,7 @@ public class ProblemForm {
         defaultProblem = new ProblemForm();
         defaultProblem.name = "";
         defaultProblem.prettyName = "";
+        defaultProblem.graderType = "endtrim";
         defaultProblem.visibleToPublic = true;
         defaultProblem.allowPartial = false;
         defaultProblem.totalScoreWorth = 1;
