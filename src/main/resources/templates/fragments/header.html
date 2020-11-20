@@ -56,6 +56,11 @@
         function updateCountDown() {
             let origCountdownTime = /*[[${currentContest.participants.get(#authentication.principal.id).getSubmissionEndTime(currentContest)}]]*/;
             let nTime = origCountdownTime - Date.now();
+            
+            if(nTime < 0) {
+                let leaveURL= "/contest/" + /*[[${currentContest.name}]]*/ + "/leave";
+            }
+            
             contestClockBoxTime.innerText = "";
             if (formatCountDownNums(nTime / (1000*60*60*24)) !== '00') {
                 contestClockBoxTime.innerText += formatCountDownNums(nTime / (1000 * 60 * 60 * 24)) + ":";
