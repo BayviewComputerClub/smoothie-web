@@ -131,6 +131,16 @@
             <input type="text" id="problem-name" th:field="*{prettyName}" class="control" placeholder="ex. CCC19S3 - Arithmetic Square"
                    required>
         </div>
+        
+         <div class="form-group">
+            <label for="problem-grader-type" class="label">
+                <span class="text">Grader Type</span>
+                <span class="required">*</span>
+            </label>
+            <br/>
+            <input type="text" id="problem-grader-type" th:field="*{graderType}" class="control" placeholder="ex. endtrim"
+                   required>
+        </div>
 
         <div class="form-group">
             <label for="problem-statement" class="label">
