@@ -63,6 +63,8 @@ public class Problem {
     private List<ProblemBatch> problemBatches = new ArrayList<>();
 
     private String testDataId;
+    
+    private String graderType;
 
     private String problemStatement, renderedProblemStatement;
 
@@ -129,7 +131,7 @@ public class Problem {
                 .setProblemId(id)
                 .setTestDataHash(hash)
                 .setGrader(SmoothieRunner.ProblemGrader.newBuilder()
-                        .setType("endtrim") // TODO
+                        .setType(graderType) // TODO
                         .build())
                 .setTimeLimit(limit.getTimeLimit())
                 .setMemLimit(limit.getMemoryLimit())
