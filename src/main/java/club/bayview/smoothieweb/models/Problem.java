@@ -131,7 +131,7 @@ public class Problem {
                 .setProblemId(id)
                 .setTestDataHash(hash)
                 .setGrader(SmoothieRunner.ProblemGrader.newBuilder()
-                        .setType(graderType)
+                        .setType(graderType.equals("") ? "endtrim" : graderType)
                         .build())
                 .setTimeLimit(limit.getTimeLimit())
                 .setMemLimit(limit.getMemoryLimit())
