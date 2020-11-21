@@ -131,16 +131,6 @@
             <input type="text" id="problem-name" th:field="*{prettyName}" class="control" placeholder="ex. CCC19S3 - Arithmetic Square"
                    required>
         </div>
-        
-         <div class="form-group">
-            <label for="problem-grader-type" class="label">
-                <span class="text">Grader Type</span>
-                <span class="required">*</span>
-            </label>
-            <br/>
-            <input type="text" id="problem-grader-type" th:field="*{graderType}" class="control" placeholder="ex. endtrim"
-                   required>
-        </div>
 
         <div class="form-group">
             <label for="problem-statement" class="label">
@@ -182,6 +172,20 @@
                 <input type="checkbox" id="allow-partial" th:field="*{allowPartial}">
                 <span class="checkbox-slider"></span>
             </label>
+        </div>
+
+        <div class="form-group">
+            <label for="problem-grader-type" class="label">
+                <span class="text">Grader Type</span>
+                <span class="required">*</span>
+            </label>
+            <br/>
+            <select id="problem-grader-type" class="control" name="graderType">
+                <option th:text="'Strict'" th:value="'strict'"></option>
+                <option th:text="'Trim Line End'" th:value="'endtrim'"></option>
+                <option th:text="'Floating Point'" th:value="'double'"></option>
+                <option th:text="'Ignore New Line'" th:value="'field'"></option>
+            </select>
         </div>
 
         <!-- Limit Table -->
