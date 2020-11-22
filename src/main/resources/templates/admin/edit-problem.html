@@ -181,10 +181,14 @@
             </label>
             <br/>
             <select id="problem-grader-type" class="control" name="graderType">
-                <option th:text="'Strict'" th:value="'strict'"></option>
-                <option th:text="'Trim Line End'" th:value="'endtrim'"></option>
-                <option th:text="'Floating Point'" th:value="'double'"></option>
-                <option th:text="'Ignore New Line'" th:value="'field'"></option>
+                <option th:text="'Trim Line End'" th:value="'endtrim'"
+                        th:selected="${problem.graderType == 'endtrim'}"></option>
+                <option th:text="'Floating Point'" th:value="'double'"
+                        th:selected="${problem.graderType == 'double'}"></option>
+                <option th:text="'Ignore New Line'" th:value="'field'"
+                        th:selected="${problem.graderType == 'field'}"></option>
+                <option th:text="'Strict'" th:value="'strict'"
+                        th:selected="${problem.graderType == 'strict'}"></option>
             </select>
         </div>
 
