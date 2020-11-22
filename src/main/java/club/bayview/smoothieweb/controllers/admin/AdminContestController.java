@@ -1,5 +1,6 @@
 package club.bayview.smoothieweb.controllers.admin;
 
+import club.bayview.smoothieweb.models.Contest;
 import club.bayview.smoothieweb.models.ContestForm;
 import club.bayview.smoothieweb.services.SmoothieContestService;
 import club.bayview.smoothieweb.services.SmoothieProblemService;
@@ -114,6 +115,15 @@ public class AdminContestController {
                         return Mono.error(new NoPermissionException());
 
                     return contestForm.toContest(c);
+                })
+                .flatMap(c -> {
+                    // update contest user information (since problem order may have changed)
+                    // TODO performance, don't block
+                    for (Contest.ContestUser cu : c.getParticipants().values()) {
+                        c.updateParticipant(cu.getUserId()).block();
+                    }
+                    c.updateLeaderBoard();
+                    return Mono.just(c);
                 })
                 .flatMap(c -> contestService.saveContest(c))
                 .flatMap(c -> Mono.just("redirect:/contest/" + c.getName() + "/admin"))

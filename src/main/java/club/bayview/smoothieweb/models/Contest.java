@@ -278,7 +278,6 @@ public class Contest {
                         u.setTimeStart(System.currentTimeMillis());
                     }
                     u.getBestSubmissions().clear();
-                    ;
                     u.setPoints(0);
 
                     // loop over contest problems in order and add to best submissions
