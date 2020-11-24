@@ -37,7 +37,8 @@
             <td><a class="link" th:href="@{'/contest/' + ${contest.name}}" th:text="${contest.prettyName}"></a></td>
             <td th:text="${contest.timeStart}" class="date"></td>
             <td th:text="${contest.timeEnd}" class="date"></td>
-            <td>[[${contest.submissionPeriod}]] minutes</td>
+            <td th:if="${contest.submissionPeriod} != 0">[[${contest.submissionPeriod}]] minutes</td>
+            <td th:if="${contest.submissionPeriod} == 0">Full contest</td>
         </tr>
 
         </tbody>
