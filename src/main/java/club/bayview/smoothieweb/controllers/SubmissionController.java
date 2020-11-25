@@ -170,7 +170,7 @@ public class SubmissionController {
                     model.addAttribute("problems", c.getContestProblems());
 
                     // handle not logged in users
-                    if (auth.getPrincipal() == null) {
+                    if (auth == null) {
                         if (System.currentTimeMillis() > c.getTimeEnd()) { // if contest is complete
                             return Mono.zip(submissionService.countSubmissionsForContest(c.getId()),
                                     submissionService.findSubmissionsForContest(c.getId(), pageable).collectList());
