@@ -231,7 +231,7 @@ public class RunnerTaskContextProcessor implements Runnable {
     private Mono<club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest> toTestSolutionRequest(Problem p, Submission s) {
         return p.getGRPCObject(s.getLang())
                 .flatMap(grpcProblem -> Mono.just(club.bayview.smoothieweb.SmoothieRunner.TestSolutionRequest.newBuilder()
-                        .setTestBatchEvenIfFailed(p.getProblemBatches().size() == 1) // if there is only one test batch, then test all cases in the batch
+                        .setTestBatchEvenIfFailed(p.getProblemBatches().size() == 1 && p.isAllowPartial()) // if there is only one test batch, then test all cases in the batch
                         .setCancelTesting(false)
                         .setProblem(grpcProblem)
                         .setSolution(club.bayview.smoothieweb.SmoothieRunner.Solution.newBuilder()
