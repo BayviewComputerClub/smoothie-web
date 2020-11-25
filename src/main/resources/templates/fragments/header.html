@@ -57,9 +57,8 @@
             let origCountdownTime = /*[[${currentContest.participants.get(#authentication.principal.id).getSubmissionEndTime(currentContest)}]]*/;
             let nTime = origCountdownTime - Date.now();
             
-            if(nTime < 0) {
-                let leaveURL= "/contest/" + /*[[${currentContest.name}]]*/ + "/leave";
-                window.location.replace(leaveURL);  
+            if(nTime < 0) { // if the user is out of time 
+                document.getElementById("leaveContestHeader").submit(); // POST form to "simulate" the user clicking the leave contest button
             }
             
             contestClockBoxTime.innerText = "";
