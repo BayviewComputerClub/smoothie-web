@@ -188,7 +188,7 @@ public class AdminProblemTestDataController {
             boolean isInput = entry.getName().split("\\.")[1].equals("in");
 
             // get data (may have to check if this can actually support gb of data)
-            byte[] buffer = new byte[(int)entry.getSize()];
+            byte[] buffer = new byte[(int)entry.getSize() >= 0 ? (int) entry.getSize() : (int) 10e6]; // 10mb
             long size = entry.getSize(), read = 0;
             while (read < size) {
                 read += zis.read(buffer, (int)read, (int)(size - read));
