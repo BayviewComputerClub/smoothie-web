@@ -88,7 +88,7 @@
                         <span th:if="${case.resultCode} == 'AC'">Case #[[${iter2.index}+1]]: <span class="green">[[${case.resultCode}]]</span> (<span class="case-time">[[${case.time}]]</span>s) ([[${case.memUsage}]]MB)</span>
                         <span th:if="${case.resultCode} == 'WA'">Case #[[${iter2.index}+1]]: <span class="red">[[${case.resultCode}]]</span> (<span class="case-time">[[${case.time}]]</span>s) ([[${case.memUsage}]]MB)</span>
                         <span th:if="${case.resultCode} != 'AC' and ${case.resultCode} != 'WA'">Case #[[${iter2.index}+1]]: <span class="grey">[[${case.resultCode}]]</span> (<span class="case-time">[[${case.time}]]</span>s) ([[${case.memUsage}]]MB)
-                            <span th:if="${case.error} and ${case.resultCode} != 'AR'"><br/><pre style="font-size: 14px; line-height: 0.5">[[${case.error}]]</pre></span>
+                            <span th:if="${case.error} and ${case.resultCode} != 'AR'"><br/><pre style="font-size: 14px; line-height: 2">[[${case.error}]]</pre></span>
                         </span>
                     </li>
                 </ul>
@@ -130,7 +130,7 @@
 
                     let error = "";
                     if (sub.error != "" && sub.resultCode != "WA" && sub.resultCode != "AC" && sub.resultCode != "AR") { // only add errors when not wa and not ac
-                        error = '<span><br/><pre style="font-size: 14px; line-height: 0.5">' + sub.error + '</pre></span>';
+                        error = '<span><br/><pre style="font-size: 14px; line-height: 2">' + sub.error + '</pre></span>';
                     }
 
                     $("#batch-" + sub.batchNumber + "-case-" + sub.caseNumber).html("Case #" + (sub.caseNumber + 1) + ": <span class='" + colour + "'>" + sub.resultCode + "</span> (" + (Math.round(sub.time * 1000) / 1000).toFixed(3) + "s) (" + sub.memUsage + "MB)" + error);
