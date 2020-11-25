@@ -204,6 +204,7 @@ public class Contest {
             for (int i = 0; i < leaderBoard.size(); i++) { // assume every thing has one element
                 var l = leaderBoard.get(i);
                 var userCompare = participants.get(l.get(0));
+                if (userCompare == null) continue;
 
                 if (userCompare.getPoints() == user.getPoints()) { // same points
                     if (isTimeMatters()) { // compare time penalty
