@@ -277,6 +277,9 @@ public class Contest {
                         u = new ContestUser();
                         u.setTimeStart(System.currentTimeMillis());
                     }
+                    if (u.getBestSubmissions() == null) {
+                        u.setBestSubmissions(new ArrayList<>());
+                    }
                     u.getBestSubmissions().clear();
                     u.setPoints(0);
 
@@ -286,7 +289,11 @@ public class Contest {
                         if (m.containsKey(cp.getProblemId())) { // submission for problem has been recorded
                             var sub = m.get(cp.getProblemId());
                             cus.setMaxPoints(cp.getTotalPointsWorth());
-                            cus.setPoints((double) sub.getPoints() / sub.getMaxPoints() * cp.getTotalPointsWorth()); // convert from problem points to contest points
+                            if (sub.getMaxPoints() == 0) { // prevent NaN
+                                cus.setPoints(0);
+                            } else {
+                                cus.setPoints((double) sub.getPoints() / sub.getMaxPoints() * cp.getTotalPointsWorth()); // convert from problem points to contest points
+                            }
                             cus.setProblemId(sub.getProblemId());
                             cus.setTimeSubmitted(sub.getTimeSubmitted());
                         } else { // no submissions yet
