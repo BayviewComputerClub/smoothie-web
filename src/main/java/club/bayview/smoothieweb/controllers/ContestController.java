@@ -77,7 +77,7 @@ public class ContestController {
 
                     model.addAttribute("contest", c);
 
-                    return userService.findUsersWithIds(Flux.fromStream(c.getParticipants().values().stream().map(cu -> cu.getUserId())));
+                    return userService.findUsersWithIds(Flux.fromStream(c.getParticipants().values().stream().filter(p -> p.getUserId() != null).map(Contest.ContestUser::getUserId)));
                 })
                 .collectList()
                 .doOnNext(users -> {

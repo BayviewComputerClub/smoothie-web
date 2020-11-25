@@ -78,10 +78,14 @@ public class Contest {
          */
 
         public static ContestUser getDefault(Contest contest, User user) {
+            return getDefault(contest, user.getId());
+        }
+
+        public static ContestUser getDefault(Contest contest, String userId) {
             ContestUser u = new ContestUser();
             u.setPoints(0);
             u.setTimeStart(System.currentTimeMillis());
-            u.setUserId(user.getId());
+            u.setUserId(userId);
             u.setBestSubmissions(new ArrayList<>());
 
             for (ContestProblem cp : contest.getContestProblemsInOrder()) {
@@ -275,8 +279,7 @@ public class Contest {
                     if (participants.containsKey(userId)) {
                         u = participants.get(userId);
                     } else {
-                        u = new ContestUser();
-                        u.setTimeStart(System.currentTimeMillis());
+                        u = ContestUser.getDefault(this, userId); // add contest user if it hasn't been added yet
                     }
                     if (u.getBestSubmissions() == null) {
                         u.setBestSubmissions(new ArrayList<>());
