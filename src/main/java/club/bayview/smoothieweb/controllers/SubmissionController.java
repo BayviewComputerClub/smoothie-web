@@ -169,7 +169,18 @@ public class SubmissionController {
 
                     model.addAttribute("problems", c.getContestProblems());
 
+                    // handle not logged in users
+                    if (auth.getPrincipal() == null) {
+                        if (System.currentTimeMillis() > c.getTimeEnd()) { // if contest is complete
+                            return Mono.zip(submissionService.countSubmissionsForContest(c.getId()),
+                                    submissionService.findSubmissionsForContest(c.getId(), pageable).collectList());
+                        } else {
+                            return Mono.error(new NoPermissionException()); // not logged in users should not see submissions
+                        }
+                    }
+
                     User u = (User) auth.getPrincipal();
+
                     // check if user can see all submissions, or only submissions by itself
                     if (System.currentTimeMillis() > c.getTimeEnd() || u.isAdmin() || c.getJuryUserIds().contains(u.getId())) {
                         return Mono.zip(submissionService.countSubmissionsForContest(c.getId()),
